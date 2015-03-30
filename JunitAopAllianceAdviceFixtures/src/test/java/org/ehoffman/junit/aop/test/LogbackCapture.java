@@ -28,7 +28,7 @@ public class LogbackCapture {
     private final OutputStreamAppender<ILoggingEvent> appender;
     private final Encoder<ILoggingEvent> encoder;
     private final ByteArrayOutputStream logs;
-    
+   
     public static void start() {
         if (INSTANCE.get() != null)
             throw new IllegalStateException("already started");

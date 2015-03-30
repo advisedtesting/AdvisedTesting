@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.e-hoffman.maven</groupId>
+        <artifactId>OpenSourceParent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+    <groupId>org.e-hoffman.testing</groupId>
+    <artifactId>Testing</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>${project.artifactId}</name>
+    <modules>
+        <module>JunitAopAllianceAdviceFixtures</module>
+    </modules>
+    <properties>
+        <github.global.server>github</github.global.server>
+        <github.owner>rexhoffman</github.owner>
+        <github.project>Testing</github.project>
+        <github.site.location>${project.version}/</github.site.location>
+        <java.version>1.7</java.version>
+        <junit.version>4.12</junit.version>
+        <slf4j.version>1.7.10</slf4j.version>
+    </properties>
+    <scm>
+        <connection>scm:git:git:github.com:${github.owner}/${github.project}.git</connection>
+        <developerConnection>scm:git:git:github.com:${github.owner}/${github.project}.git</developerConnection>
+        <url>https://github.com/${github.owner}/${github.project}/blob/master/</url>
+    </scm>
+</project>

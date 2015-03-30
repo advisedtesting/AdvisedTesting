@@ -22,14 +22,14 @@ public class Junit4AOPClassRunner extends BlockJUnit4ClassRunner {
         super(klass);
     }
 
-    public ConstraintException convertIfPossible(Throwable t) {
-        if (ConstraintException.class.isAssignableFrom(t.getClass())) {
-            return (ConstraintException) t;
+    public ConstraintException convertIfPossible(Throwable thowable) {
+        if (ConstraintException.class.isAssignableFrom(thowable.getClass())) {
+            return (ConstraintException) thowable;
         } else {
-            if (t.getCause() == null) {
+            if (thowable.getCause() == null) {
                 return null;
             } else {
-                return convertIfPossible(t.getCause());
+                return convertIfPossible(thowable.getCause());
             }
         }
     }
@@ -57,7 +57,8 @@ public class Junit4AOPClassRunner extends BlockJUnit4ClassRunner {
         } catch (final Throwable e) {
             final ConstraintException contraintException = convertIfPossible(e);
             if (contraintException != null) {
-                eachNotifier.addFailedAssumption(new AssumptionViolatedException(contraintException.getMessage(), contraintException));
+                eachNotifier.addFailedAssumption(new AssumptionViolatedException(contraintException.getMessage(),
+                                contraintException));
             } else {
                 eachNotifier.addFailure(e);
             }
@@ -66,7 +67,8 @@ public class Junit4AOPClassRunner extends BlockJUnit4ClassRunner {
         }
     }
 
-    private Statement advise(final Statement advised, final MethodInterceptor advisor, final Method method, final Object testObject) {
+    private Statement advise(final Statement advised, final MethodInterceptor advisor, final Method method,
+        final Object testObject) {
         return new Statement() {
             @Override
             public void evaluate() throws Throwable {

@@ -8,19 +8,20 @@ public class ConstraintException extends RuntimeException {
         super();
     }
 
-    public ConstraintException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    public ConstraintException(final String message, final Throwable cause,
+                    final boolean enableSuppression, final boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 
-    public ConstraintException(String message, Throwable cause) {
+    public ConstraintException(final String message, final Throwable cause) {
         super(message, cause);
     }
 
-    public ConstraintException(String message) {
+    public ConstraintException(final String message) {
         super(message);
     }
 
-    public ConstraintException(Throwable cause) {
+    public ConstraintException(final Throwable cause) {
         super(cause);
     }
 
