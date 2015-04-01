@@ -14,7 +14,7 @@ before_script:
 script: mvn test --settings ./.travis/settings.xml
 after_success:
 - mvn -q deploy --settings ./.travis/settings.xml
-- mvn site -Dsitedeploy --settings ./.travis/settings.xml
+- mvn site -Psite-deploy  --settings ./.travis/settings.xml
 env:
   global:
   - SONATYPE_USERNAME=rexhoffman

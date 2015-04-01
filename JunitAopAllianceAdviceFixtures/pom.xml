@@ -9,7 +9,7 @@
     <artifactId>JunitAopAllianceAdviceFixtures</artifactId>
     <name>${project.artifactId}</name>
     <properties>
-        <github.site.location>${project.parent.version}/JunitAopAllianceRunner</github.site.location>
+        <github.site.location>${project.parent.version}/JunitAopAllianceAdviceFixtures</github.site.location>
         <java.version>1.7</java.version>
         <junit.version>4.12</junit.version>
         <slf4j.version>1.7.12</slf4j.version>
