@@ -1,23 +1,22 @@
---- 
-jdk: 
+jdk:
 - oraclejdk7
-branches: 
-  only: 
+branches:
+  only:
   - master
 language: java
 install: true
 before_script:
-- wget http://apache.claz.org/maven/maven-3/3.2.5/binaries/apache-maven-3.2.5-bin.tar.gz
-- tar -zxvf apache-maven-3.2.5-bin.tar.gz
-- chmod +x apache-maven-3.2.5/bin/mvn
-- export PATH=$PWD/apache-maven-3.2.5/bin:${PATH}
+- wget http://apache.claz.org/maven/maven-3/3.3.1/binaries/apache-maven-3.3.1-bin.tar.gz
+- tar -zxvf apache-maven-3.3.1-bin.tar.gz
+- chmod +x apache-maven-3.3.1/bin/mvn
+- export PATH=$PWD/apache-maven-3.3.1/bin:${PATH}
 - mvn -q install -DskipTests=true --settings ./.travis/settings.xml
 script: mvn test --settings ./.travis/settings.xml
-after_success: 
+after_success:
 - mvn -q deploy --settings ./.travis/settings.xml
 - mvn site -Dsitedeploy --settings ./.travis/settings.xml
-env: 
-  global: 
+env:
+  global:
   - SONATYPE_USERNAME=rexhoffman
-  - secure: aJVUQipceCsRGa6B5PH/iZq9M0cgVxZ056oGpxL7HU2z+f6m4q5+A32a4RUhqTpx24iPM1yjLfjbqDOdAf8uzaqHaZJ7FcwuDFbFweW8/ASNR1Ns/AZlXEzDuq/GV1QrPkrBftnKGiY0LKiSOfgDwvlFCDBx+6yKgw6P6NL7+X8=
-  - secure: g4VV8Nh9KseRUPDacjLZiwLulurjo3a6otd/xeyMxfxSPaCHLTxR7sQ6cr5IPAYmJGSpzb5HZg3XyG27ZDB3dgHqhZPfOOhfG8PAz3hXhnlanlp/CnjID4g6YG7xWeftU+pmMoi0eMc9XndPgGrlibSyo/BSM4zDLhnq63nvAaI=
+  - secure: sauLnYGWPPR1hgwFRa8qCRr753Vrxmacu/dRkugWDrq+z3AashjIXLq7eS6sfA0fgaeGB/bq6i0hYXKnnj+JFfTqTld1NDfMvftmxSfm+Ol3SX4R+z0qH6oWgDd3daN7/eGQh6JVV++Gmvyz09xU+BIvzr5wrgTd5idP3fKGUCk=
+  - secure: Epi6M7c5ei2PramFHgb25393Vs+58SJC/d4FKCxdHq+zvw/EPnUYE6yuX9U7KAL4dZZ3tIxhzzpZPL0iKaXQPZytosrQ8BCFz8EE8NVynbPIz66r/HT978e3Q6q3C7UTI5AhMrcid4JKJcBVfzQS+2+wyQDiL51J8lNSuqe91e4=
