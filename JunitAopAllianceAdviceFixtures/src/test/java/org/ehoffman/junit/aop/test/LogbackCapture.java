@@ -1,3 +1,23 @@
+/*
+ * #%L
+ * JunitAopAllianceAdviceFixtures
+ * %%
+ * Copyright (C) 2015 Rex Hoffman
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * #L%
+ */
+
 package org.ehoffman.junit.aop.test;
 
 import static ch.qos.logback.classic.Level.ALL;
@@ -16,9 +36,8 @@ import ch.qos.logback.classic.util.ContextSelectorStaticBinder;
 import ch.qos.logback.core.OutputStreamAppender;
 import ch.qos.logback.core.encoder.Encoder;
 
-/** 
- *  Temporarily captures Logback output (mostly useful for tests).
- *  Based on https://gist.github.com/olim7t/881318.
+/**
+ * Temporarily captures Logback output (mostly useful for tests). Based on https://gist.github.com/olim7t/881318.
  */
 public class LogbackCapture {
 
@@ -28,13 +47,14 @@ public class LogbackCapture {
     private final OutputStreamAppender<ILoggingEvent> appender;
     private final Encoder<ILoggingEvent> encoder;
     private final ByteArrayOutputStream logs;
-   
+
     public static void start() {
-        if (INSTANCE.get() != null)
+        if (INSTANCE.get() != null) {
             throw new IllegalStateException("already started");
+        }
         INSTANCE.set(new LogbackCapture(null, null, null));
     }
-    
+
     /**
      * Start capturing.
      * 
@@ -45,24 +65,25 @@ public class LogbackCapture {
      * @param layoutPattern
      *            if null, defaults to "[%p] %m%n"
      */
-    public static void start(String loggerName, Level level, String layoutPattern) {
-        if (INSTANCE.get() != null)
+    public static void start(final String loggerName, final Level level, final String layoutPattern) {
+        if (INSTANCE.get() != null) {
             throw new IllegalStateException("already started");
+        }
         INSTANCE.set(new LogbackCapture(loggerName, level, layoutPattern));
     }
 
     /** Stop capturing and return the logs. */
     public static String stop() {
-        LogbackCapture instance = INSTANCE.get();
-        if (instance == null)
+        final LogbackCapture instance = INSTANCE.get();
+        if (instance == null) {
             throw new IllegalStateException("was not running");
+        }
         final String result = instance.stopInstance();
         INSTANCE.remove();
         return result;
     }
 
-
-    private LogbackCapture(String loggerName, Level level, String layoutPattern) {
+    private LogbackCapture(final String loggerName, final Level level, final String layoutPattern) {
         logs = new ByteArrayOutputStream(4096);
         encoder = buildEncoder(layoutPattern);
         appender = buildAppender(encoder, logs);
@@ -80,20 +101,24 @@ public class LogbackCapture {
     }
 
     private static Logger getLogbackLogger(String name, Level level) {
-        if (name == null || name.isEmpty())
+        if (name == null || name.isEmpty()) {
             name = ROOT_LOGGER_NAME;
-        if (level == null)
+        }
+        if (level == null) {
             level = ALL;
+        }
 
-        Logger logger = ContextSelectorStaticBinder.getSingleton().getContextSelector().getDefaultLoggerContext().getLogger(name);
+        final Logger logger = ContextSelectorStaticBinder.getSingleton().getContextSelector().getDefaultLoggerContext()
+                        .getLogger(name);
         logger.setLevel(level);
         return logger;
     }
 
     private static Encoder<ILoggingEvent> buildEncoder(String layoutPattern) {
-        if (layoutPattern == null)
+        if (layoutPattern == null) {
             layoutPattern = "[%p] %m%n";
-        PatternLayoutEncoder encoder = new PatternLayoutEncoder();
+        }
+        final PatternLayoutEncoder encoder = new PatternLayoutEncoder();
         encoder.setPattern(layoutPattern);
         encoder.setCharset(Charset.forName("UTF-16"));
         encoder.setContext(ContextSelectorStaticBinder.getSingleton().getContextSelector().getDefaultLoggerContext());
@@ -101,8 +126,9 @@ public class LogbackCapture {
         return encoder;
     }
 
-    private static OutputStreamAppender<ILoggingEvent> buildAppender(final Encoder<ILoggingEvent> encoder, final OutputStream outputStream) {
-        OutputStreamAppender<ILoggingEvent> appender = new OutputStreamAppender<ILoggingEvent>();
+    private static OutputStreamAppender<ILoggingEvent> buildAppender(final Encoder<ILoggingEvent> encoder,
+                    final OutputStream outputStream) {
+        final OutputStreamAppender<ILoggingEvent> appender = new OutputStreamAppender<ILoggingEvent>();
         appender.setName("logcapture");
         appender.setContext(ContextSelectorStaticBinder.getSingleton().getContextSelector().getDefaultLoggerContext());
         appender.setEncoder(encoder);
