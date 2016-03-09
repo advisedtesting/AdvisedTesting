@@ -13,8 +13,8 @@
     <name>${project.artifactId}</name>
     <modules>
         <module>JunitAopAllianceAdviceFixtures</module>
-        <!-- module>AopAllianceExtensions</module -->
-        <!-- module>EhoffmanTestRunner</module -->
+        <module>AopAllianceExtensions</module>
+        <module>EhoffmanTestRunner</module>
     </modules>
     <properties>
         <github.global.server>github</github.global.server>
