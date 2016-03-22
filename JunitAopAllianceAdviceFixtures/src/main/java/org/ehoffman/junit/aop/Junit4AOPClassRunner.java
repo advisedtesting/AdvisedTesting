@@ -25,10 +25,12 @@ package org.ehoffman.junit.aop;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
+import java.util.List;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.AssumptionViolatedException;
+import org.junit.Test;
 import org.junit.internal.runners.model.EachTestNotifier;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
@@ -44,27 +46,28 @@ public class Junit4AOPClassRunner extends BlockJUnit4ClassRunner {
         super(klass);
     }
 
-    public ConstraintException convertIfPossible(Throwable thowable) {
+    public ConstraintException convertExceptionIfPossible(Throwable thowable) {
         if (ConstraintException.class.isAssignableFrom(thowable.getClass())) {
             return (ConstraintException) thowable;
         } else {
             if (thowable.getCause() == null) {
                 return null;
             } else {
-                return convertIfPossible(thowable.getCause());
+                return convertExceptionIfPossible(thowable.getCause());
             }
         }
     }
 
     @Override
     protected void runChild(final FrameworkMethod method, final RunNotifier notifier) {
-        runAdvisedLeaf(method, notifier);
+        runContextualizedLeaf(method, notifier);
     }
 
-    /**
-     * Runs a {@link Statement} that represents a leaf test.
-     */
-    protected final void runAdvisedLeaf(final FrameworkMethod frameworkMethod, final RunNotifier notifier) {
+    protected List<FrameworkMethod> computeTestMethods() {
+        return getTestClass().getAnnotatedMethods(Test.class);
+    }
+    
+    protected final void runContextualizedLeaf(final FrameworkMethod frameworkMethod, final RunNotifier notifier) {
         final EachTestNotifier eachNotifier = new EachTestNotifier(notifier, describeChild(frameworkMethod));
         eachNotifier.fireTestStarted();
         Statement statement = methodBlock(frameworkMethod);
@@ -77,7 +80,7 @@ public class Junit4AOPClassRunner extends BlockJUnit4ClassRunner {
         try {
             statement.evaluate();
         } catch (final Throwable e) {
-            final ConstraintException contraintException = convertIfPossible(e);
+            final ConstraintException contraintException = convertExceptionIfPossible(e);
             if (contraintException != null) {
                 eachNotifier.addFailedAssumption(new AssumptionViolatedException(contraintException.getMessage(),
                                 contraintException));
