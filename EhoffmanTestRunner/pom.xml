@@ -2,7 +2,7 @@
 <!--
 
     The MIT License
-    Copyright (c) 2015 Rex Hoffman
+    Copyright © 2015 Rex Hoffman
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -39,6 +39,11 @@
         <slf4j.version>1.7.12</slf4j.version>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>org.e-hoffman.testing</groupId>
+            <version>1.0.0-SNAPSHOT</version>
+            <artifactId>JunitAopAllianceAdviceFixtures</artifactId>
+        </dependency>
         <dependency>
             <groupId>aopalliance</groupId>
             <artifactId>aopalliance</artifactId>

@@ -4,11 +4,11 @@
     <parent>
         <groupId>org.e-hoffman.maven</groupId>
         <artifactId>OpenSourceParent</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.0.2</version>
     </parent>
     <groupId>org.e-hoffman.testing</groupId>
     <artifactId>Testing</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <modules>
@@ -22,6 +22,7 @@
         <github.site.location>${project.version}/</github.site.location>
         <java.version>1.7</java.version>
         <junit.version>4.12</junit.version>
+        <released>false</released>
         <slf4j.version>1.7.10</slf4j.version>
     </properties>
     <scm>
