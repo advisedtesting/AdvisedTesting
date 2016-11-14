@@ -1,22 +1,27 @@
 jdk:
-- oraclejdk7
-branches:
-  only:
-  - master
+- oraclejdk8
 language: java
 install: true
+cache:
+  directories:
+  - "$HOME/.m2/repository/"
 before_script:
-- wget http://apache.claz.org/maven/maven-3/3.3.1/binaries/apache-maven-3.3.1-bin.tar.gz
-- tar -zxvf apache-maven-3.3.1-bin.tar.gz
-- chmod +x apache-maven-3.3.1/bin/mvn
-- export PATH=$PWD/apache-maven-3.3.1/bin:${PATH}
-- mvn -q install -DskipTests=true --settings ./.travis/settings.xml
-script: mvn test --settings ./.travis/settings.xml
-after_success:
-- mvn -q deploy --settings ./.travis/settings.xml
-- mvn site -Psite-deploy  --settings ./.travis/settings.xml
+- export MVN_VER=3.3.9
+- wget http://apache.claz.org/maven/maven-3/${MVN_VER}/binaries/apache-maven-${MVN_VER}-bin.tar.gz
+- tar -zxvf apache-maven-${MVN_VER}-bin.tar.gz
+- chmod +x apache-maven-${MVN_VER}/bin/mvn
+- export PATH=$PWD/apache-maven-${MVN_VER}/bin:${PATH}
+- mkdir -p ${HOME}/.m2/
+- cp ./.travis/settings.xml ${HOME}/.m2/settings.xml
+- mvn -q install -DskipTests=true
+script:
+- if [ ${TRAVIS_BRANCH} = 'master' ]; then openssl aes-256-cbc -K $encrypted_fb94579844cb_key -iv $encrypted_fb94579844cb_iv -in .gpg.zip.enc -out .gpg.zip -d; fi;
+- if [ ${TRAVIS_BRANCH} = 'master' ]; then unzip .gpg.zip -d ${HOME}/deploy/; fi
+- if [ ${TRAVIS_BRANCH} = 'master' ]; then mvn deploy -Dgpg.passphrase=${GPG_PASSPHRASE} -Dgpg.homedir=${HOME}/deploy/.gnupg/; else mvn test; fi;
+- if [ ${TRAVIS_BRANCH} = 'master' ]; then mvn site -Psite-deploy; else mvn site; fi;
 env:
   global:
-  - SONATYPE_USERNAME=rexhoffman
-  - secure: sauLnYGWPPR1hgwFRa8qCRr753Vrxmacu/dRkugWDrq+z3AashjIXLq7eS6sfA0fgaeGB/bq6i0hYXKnnj+JFfTqTld1NDfMvftmxSfm+Ol3SX4R+z0qH6oWgDd3daN7/eGQh6JVV++Gmvyz09xU+BIvzr5wrgTd5idP3fKGUCk=
-  - secure: Epi6M7c5ei2PramFHgb25393Vs+58SJC/d4FKCxdHq+zvw/EPnUYE6yuX9U7KAL4dZZ3tIxhzzpZPL0iKaXQPZytosrQ8BCFz8EE8NVynbPIz66r/HT978e3Q6q3C7UTI5AhMrcid4JKJcBVfzQS+2+wyQDiL51J8lNSuqe91e4=
+  - secure: SDchQPW4yAydjMb4sn2Ansqi+buVERmSyZtNCG90+fm2uLZRTWhYMo+H25fvIg7YtPtRr3CVoKEnOj8wXZOQlVkQkRRe3HciQelG0a7nxJpJGAIoqSPzRutsM/bts/2c9+EqISau0XShl0nneA6kJClEk4pBxNaFXtn3mv2r0wk=
+  - secure: ceYJgkT+g8NM4AUlXfeuw2WJqC31rXSArWCU0859LKv3fDE6gYNp8RpMHH96RAk7vjDzP30yEhXg9NRCGreNXGpx/zUoaEkMeCg8keQckLxeYklhVWVxaxpSXT/emE/Qd+Av295K4SL78cZT4+rCIj4T4RGEjU5x2p3AeF+1kgo=
+  - secure: wDKZPssfAO5dg2UT4kK7o1L+i6QBzFjY60jgGjoh/xbGFgtUs8MjHRNwKxBQee4LZ/75bJoEjMvHrUg6IL0szlbEOW0QDGf1S7gfxohV/+DKCcNl99uU5xXV4tbIbovQ7EJRJ4784dpFo5/9o07oDY48+rhY3xJy3Gkb/0HSIZQ=
+  - secure: oshsHVC+OaRmlfvlU+R8SOmgAbl6Saxxje1BJFBOk1ELLVQL+cKkrBKOSzR/AwuY9Kf1BkPVyxHX6nnEehSiPiQBXY/K1/pT8O95AyFrSekksObklMDh19mXX9VhQh4sfipyDXVNmXbwyEgBu95WA9JQjVpqGzkY8w0fD1mAkvY=
