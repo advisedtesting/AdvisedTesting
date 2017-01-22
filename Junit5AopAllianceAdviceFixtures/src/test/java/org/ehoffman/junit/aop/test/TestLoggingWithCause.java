@@ -22,28 +22,12 @@
  */
 package org.ehoffman.junit.aop.test;
 
-import static java.lang.annotation.ElementType.CONSTRUCTOR;
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+public class TestLoggingWithCause extends RuntimeException {
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+    private static final long serialVersionUID = -2692785118677301561L;
 
-import org.aopalliance.intercept.MethodInterceptor;
+    public TestLoggingWithCause(final String logs, final Throwable cause) {
+        super("Test Logs: \n" + logs, cause);
+    }
 
-@Target({ METHOD, CONSTRUCTOR, FIELD })
-@Retention(RUNTIME)
-@Documented
-public @interface CaptureLogging {
-    
-    /**
-     * {@link #IMPLEMENTED_BY()} returns a Class that implements {@link org.aopalliance.intercept.MethodInterceptor}.
-     * This field will be accessed via reflection so the name must be exact.  If the class also implements
-     * {@link java.io.Closeable} the {@link java.io.Closeable#close()} method will be called at the close of the global context.
-     * 
-     */
-    Class<? extends MethodInterceptor> IMPLEMENTED_BY() default LoggerAdvice.class;
-    
 }

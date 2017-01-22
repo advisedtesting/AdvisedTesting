@@ -24,17 +24,14 @@ package org.ehoffman.junit.aop;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
 
 import org.aopalliance.intercept.MethodInterceptor;
-import org.ehoffman.aop.objectfactory.ObjectFactory;
-import org.ehoffman.aop.objectfactory.ProviderAwareObjectFactoryAggregate;
+import org.aopalliance.intercept.MethodInvocation;
 import org.junit.AssumptionViolatedException;
 import org.junit.Test;
 import org.junit.internal.runners.model.EachTestNotifier;
-import org.junit.internal.runners.statements.InvokeMethod;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.FrameworkMethod;
@@ -49,12 +46,6 @@ public class Junit4AOPClassRunner extends BlockJUnit4ClassRunner {
         super(klass);
     }
 
-    @Override
-    protected void validateTestMethods(List<Throwable> errors) {
-        //No Op
-        //TODO: validate with the object factories?
-    }
-    
     public ConstraintException convertExceptionIfPossible(Throwable thowable) {
         if (ConstraintException.class.isAssignableFrom(thowable.getClass())) {
             return (ConstraintException) thowable;
@@ -80,11 +71,10 @@ public class Junit4AOPClassRunner extends BlockJUnit4ClassRunner {
         final EachTestNotifier eachNotifier = new EachTestNotifier(notifier, describeChild(frameworkMethod));
         eachNotifier.fireTestStarted();
         Statement statement = methodBlock(frameworkMethod);
-        ProviderAwareObjectFactoryAggregate registrar = new ProviderAwareObjectFactoryAggregate();
         for (Annotation annotation : frameworkMethod.getAnnotations()) {
             MethodInterceptor advice = CONTEXT.getAdviceFor(annotation);
             if (advice != null) {
-                statement = advise(statement, advice, frameworkMethod.getMethod(), registrar, annotation);
+                statement = advise(statement, advice, frameworkMethod.getMethod(), null);
             }
         }
         try {
@@ -103,42 +93,20 @@ public class Junit4AOPClassRunner extends BlockJUnit4ClassRunner {
     }
 
     private Statement advise(final Statement advised, final MethodInterceptor advisor, final Method method,
-        final ProviderAwareObjectFactoryAggregate registry, final Annotation annotation) {
+        final Object testObject) {
         return new Statement() {
             @Override
             public void evaluate() throws Throwable {
-                advisor.invoke(new ContextAwareMethodInvocation() {
-                    
-                    @Override
-                    public void registerObjectFactory(ObjectFactory factory) {
-                        registry.register(annotation.getClass(), factory);
-                        
-                    }
-                    
-                    @Override
-                    public ObjectFactory getCurrentContextFactory() {
-                        return registry;
-                    }
-
+                advisor.invoke(new MethodInvocation() {
                     @Override
                     public Object proceed() throws Throwable {
-                        if (method.getParameterTypes().length != 0 && InvokeMethod.class.isAssignableFrom(advised.getClass())) {
-                            Field testMethodField = advised.getClass().getDeclaredField("testMethod");
-                            testMethodField.setAccessible(true);
-                            FrameworkMethod fmethod = (FrameworkMethod) testMethodField.get(advised);
-                            Field targetField = advised.getClass().getDeclaredField("target");
-                            targetField.setAccessible(true);
-                            Object target = targetField.get(advised);
-                            fmethod.invokeExplosively(target, new Object[] {new Integer(0)});  //TODO: fill in from registry...
-                        } else {
-                            advised.evaluate();
-                        }
+                        advised.evaluate();
                         return null;
                     }
 
                     @Override
                     public Object getThis() {
-                        return null;
+                        return testObject;
                     }
 
                     @Override
@@ -148,7 +116,7 @@ public class Junit4AOPClassRunner extends BlockJUnit4ClassRunner {
 
                     @Override
                     public Object[] getArguments() {
-                        return new Object[] {registry};
+                        return new Object[] {};
                     }
 
                     @Override

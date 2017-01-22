@@ -45,5 +45,4 @@ public @interface CaptureLogging {
      * 
      */
     Class<? extends MethodInterceptor> IMPLEMENTED_BY() default LoggerAdvice.class;
-    
 }

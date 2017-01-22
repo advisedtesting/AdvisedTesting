@@ -22,28 +22,14 @@
  */
 package org.ehoffman.junit.aop.test;
 
-import static java.lang.annotation.ElementType.CONSTRUCTOR;
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
-
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
-
 import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
 
-@Target({ METHOD, CONSTRUCTOR, FIELD })
-@Retention(RUNTIME)
-@Documented
-public @interface CaptureLogging {
-    
-    /**
-     * {@link #IMPLEMENTED_BY()} returns a Class that implements {@link org.aopalliance.intercept.MethodInterceptor}.
-     * This field will be accessed via reflection so the name must be exact.  If the class also implements
-     * {@link java.io.Closeable} the {@link java.io.Closeable#close()} method will be called at the close of the global context.
-     * 
-     */
-    Class<? extends MethodInterceptor> IMPLEMENTED_BY() default LoggerAdvice.class;
-    
+public class IoCContextAdvice implements MethodInterceptor  {
+
+    @Override
+    public Object invoke(MethodInvocation invocation) throws Throwable {
+        return null;
+    }
+
 }

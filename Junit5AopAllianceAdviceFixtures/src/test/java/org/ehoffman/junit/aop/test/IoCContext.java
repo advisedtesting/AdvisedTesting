@@ -36,7 +36,9 @@ import org.aopalliance.intercept.MethodInterceptor;
 @Target({ METHOD, CONSTRUCTOR, FIELD })
 @Retention(RUNTIME)
 @Documented
-public @interface CaptureLogging {
+public @interface IoCContext {
+    
+    Class<?>[] classes() default {};
     
     /**
      * {@link #IMPLEMENTED_BY()} returns a Class that implements {@link org.aopalliance.intercept.MethodInterceptor}.
@@ -44,6 +46,6 @@ public @interface CaptureLogging {
      * {@link java.io.Closeable} the {@link java.io.Closeable#close()} method will be called at the close of the global context.
      * 
      */
-    Class<? extends MethodInterceptor> IMPLEMENTED_BY() default LoggerAdvice.class;
-    
+    Class<? extends MethodInterceptor> IMPLEMENTED_BY() default IoCContextAdvice.class;
 }
+
