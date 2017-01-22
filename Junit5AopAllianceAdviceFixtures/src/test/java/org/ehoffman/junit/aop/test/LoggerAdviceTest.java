@@ -67,9 +67,11 @@ public class LoggerAdviceTest {
 
         @Test
         @CaptureLogging
-        public void simpleLoggerTest2(int ugh) {
+        public void simpleLoggerTest() {
             ILog.doSomething();
+            throw new RuntimeException("Unwrapped Message");
         }
+
     }
 
 }

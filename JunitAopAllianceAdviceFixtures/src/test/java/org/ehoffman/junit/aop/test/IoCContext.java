@@ -38,6 +38,10 @@ import org.aopalliance.intercept.MethodInterceptor;
 @Documented
 public @interface IoCContext {
     
+    /**
+     * Classes that define the context we wish to work with.
+     * @return
+     */
     Class<?>[] classes() default {};
     
     /**

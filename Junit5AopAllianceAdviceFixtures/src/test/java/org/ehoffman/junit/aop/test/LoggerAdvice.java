@@ -24,20 +24,42 @@ package org.ehoffman.junit.aop.test;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.ehoffman.aop.objectfactory.SpringContextObjectFactory;
-import org.ehoffman.junit.aop.ContextAwareMethodInvocation;
-import org.springframework.core.annotation.AnnotationUtils;
+import org.slf4j.ILoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.helpers.SubstituteLoggerFactory;
 
-public class IoCContextAdvice implements MethodInterceptor {
-    @Override
-    public Object invoke(MethodInvocation invocation) throws Throwable {
-        if (ContextAwareMethodInvocation.class.isAssignableFrom(invocation.getClass())) {
-            IoCContext contextDef = AnnotationUtils.findAnnotation(invocation.getMethod(), IoCContext.class);
-            ((ContextAwareMethodInvocation) invocation).registerObjectFactory(new SpringContextObjectFactory(contextDef.classes()));
-            return invocation.proceed();
-        } else {
-            throw new IllegalStateException("This MethodInterceptor must be passed an instance of "
-                + ContextAwareMethodInvocation.class.getName());
+public class LoggerAdvice implements MethodInterceptor {
+    
+    private static Logger LOGGER = LoggerFactory.getLogger(LoggerAdvice.class);
+    
+    public LoggerAdvice() throws InterruptedException {
+        ILoggerFactory factory = LoggerFactory.getILoggerFactory();
+        int count = 0;
+        while ((factory == null || SubstituteLoggerFactory.class.isAssignableFrom(factory.getClass())) && count < 10) { 
+            Thread.sleep(50);
+            factory = LoggerFactory.getILoggerFactory();
+            count++;
         }
     }
+    
+    @Override
+    public Object invoke(final MethodInvocation invocation) throws Throwable {
+        LOGGER.info("forcing logger to start");
+        LogbackCapture.start();
+        Object output = null;
+        Throwable throwable = null;
+        try {
+            output = invocation.proceed();
+        } catch (final Throwable t) {
+            throwable = t;
+        } finally {
+            final String logging = LogbackCapture.stop();
+            if (throwable != null) {
+                throw new TestLoggingWithCause(logging, throwable);
+            }
+        }
+        return output;
+    }
+
 }

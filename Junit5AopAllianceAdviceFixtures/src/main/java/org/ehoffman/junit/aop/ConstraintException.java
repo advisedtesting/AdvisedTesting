@@ -20,30 +20,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.ehoffman.junit.aop.test;
+package org.ehoffman.junit.aop;
 
-import static java.lang.annotation.ElementType.CONSTRUCTOR;
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+public class ConstraintException extends RuntimeException {
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+    private static final long serialVersionUID = 1L;
 
-import org.aopalliance.intercept.MethodInterceptor;
+    public ConstraintException() {
+        super();
+    }
 
-@Target({ METHOD, CONSTRUCTOR, FIELD })
-@Retention(RUNTIME)
-@Documented
-public @interface CaptureLogging {
-    
-    /**
-     * {@link #IMPLEMENTED_BY()} returns a Class that implements {@link org.aopalliance.intercept.MethodInterceptor}.
-     * This field will be accessed via reflection so the name must be exact.  If the class also implements
-     * {@link java.io.Closeable} the {@link java.io.Closeable#close()} method will be called at the close of the global context.
-     * 
-     */
-    Class<? extends MethodInterceptor> IMPLEMENTED_BY() default LoggerAdvice.class;
-    
+    public ConstraintException(final String message, final Throwable cause,
+                    final boolean enableSuppression, final boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
+    }
+
+    public ConstraintException(final String message, final Throwable cause) {
+        super(message, cause);
+    }
+
+    public ConstraintException(final String message) {
+        super(message);
+    }
+
+    public ConstraintException(final Throwable cause) {
+        super(cause);
+    }
+
 }
