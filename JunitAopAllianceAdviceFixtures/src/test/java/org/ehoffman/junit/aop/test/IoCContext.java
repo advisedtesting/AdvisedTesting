@@ -25,6 +25,7 @@ package org.ehoffman.junit.aop.test;
 import static java.lang.annotation.ElementType.CONSTRUCTOR;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.Documented;
@@ -32,17 +33,42 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import org.aopalliance.intercept.MethodInterceptor;
+import org.ehoffman.aop.objectfactory.ObjectFactory;
 
-@Target({ METHOD, CONSTRUCTOR, FIELD })
+@Target({ METHOD, CONSTRUCTOR, FIELD, PARAMETER })
 @Retention(RUNTIME)
 @Documented
 public @interface IoCContext {
+    
+    /**
+     * Names can be used to identify specific ObjectFactories for method injection on a test, if
+     * no name is specified, then a default name will be used, and parameters of the test will fail
+     * if the reference an annotation with a name that does not exits.
+     * @return
+     */
+    String name() default "__default";
+    
+    /**
+     * Only meaningful when used as Parameter annotation.
+     * 
+     * Specifies the name of an instance in a the object factory related to this annotation we desire
+     * to be passed to the test as input at runtime.
+     * @return
+     */
+    String instance() default "__default";
     
     /**
      * Classes that define the context we wish to work with.
      * @return
      */
     Class<?>[] classes() default {};
+    
+    /**
+     * Classes that which object factory we wish to use, if none is specified a discovery of
+     * object factories will ensue, if only one is supported by the current classloader, it will be used.
+     * @return
+     */
+    Class<? extends ObjectFactory> objectFactoryClass() default ObjectFactory.class;
     
     /**
      * {@link #IMPLEMENTED_BY()} returns a Class that implements {@link org.aopalliance.intercept.MethodInterceptor}.

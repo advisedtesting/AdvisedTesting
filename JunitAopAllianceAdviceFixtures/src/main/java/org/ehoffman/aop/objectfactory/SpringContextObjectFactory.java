@@ -19,7 +19,7 @@ public class SpringContextObjectFactory implements ObjectFactory {
     }
 
     @Override
-    public <T> Map<String, ? extends T> getAllObjects(Class<T> type) {
+    public <T> Map<String, T> getAllObjects(Class<T> type) {
         return context.getBeansOfType(type);
     }
 

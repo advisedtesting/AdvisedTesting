@@ -16,6 +16,6 @@ public interface ObjectFactory {
     
     <T> T getObject(String name, Class<T> type);
     
-    <T> Map<String, ? extends T> getAllObjects(Class<T> type);
+    <T> Map<String, T> getAllObjects(Class<T> type);
     
 }

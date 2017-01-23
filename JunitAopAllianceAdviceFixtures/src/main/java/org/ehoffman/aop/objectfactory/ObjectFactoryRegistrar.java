@@ -4,6 +4,6 @@ import java.lang.annotation.Annotation;
 
 public interface ObjectFactoryRegistrar {
 
-    void register(Class<? extends Annotation> annotation, ObjectFactory factory);
+    void register(Annotation annotation, ObjectFactory factory);
     
 }
