@@ -1,5 +1,5 @@
 /*
- * The MIT License
+  * The MIT License
  * Copyright © 2015 Rex Hoffman
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy

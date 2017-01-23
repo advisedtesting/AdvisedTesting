@@ -111,7 +111,7 @@ public class Junit4AOPClassRunner extends BlockJUnit4ClassRunner {
                     
                     @Override
                     public void registerObjectFactory(ObjectFactory factory) {
-                        registry.register(annotation.getClass(), factory);
+                        registry.register(annotation, factory);
                         
                     }
                     
@@ -129,7 +129,7 @@ public class Junit4AOPClassRunner extends BlockJUnit4ClassRunner {
                             Field targetField = advised.getClass().getDeclaredField("target");
                             targetField.setAccessible(true);
                             Object target = targetField.get(advised);
-                            fmethod.invokeExplosively(target, new Object[] {new Integer(0)});  //TODO: fill in from registry...
+                            fmethod.invokeExplosively(target, registry.getArgumentsFor(method));
                         } else {
                             advised.evaluate();
                         }
