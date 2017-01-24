@@ -24,16 +24,17 @@ package org.ehoffman.junit.aop.test;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.ehoffman.aop.objectfactory.ObjectFactory;
 import org.ehoffman.aop.objectfactory.SpringContextObjectFactory;
 import org.ehoffman.junit.aop.ContextAwareMethodInvocation;
-import org.springframework.core.annotation.AnnotationUtils;
 
 public class IoCContextAdvice implements MethodInterceptor {
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
         if (ContextAwareMethodInvocation.class.isAssignableFrom(invocation.getClass())) {
-            IoCContext contextDef = AnnotationUtils.findAnnotation(invocation.getMethod(), IoCContext.class);
-            ((ContextAwareMethodInvocation) invocation).registerObjectFactory(new SpringContextObjectFactory(contextDef.classes()));
+            ContextAwareMethodInvocation cinvocation = ((ContextAwareMethodInvocation) invocation);
+            ObjectFactory objectFactory = new SpringContextObjectFactory(((IoCContext)cinvocation.getTargetAnnotation()).classes());
+            cinvocation.registerObjectFactory(objectFactory);
             return invocation.proceed();
         } else {
             throw new IllegalStateException("This MethodInterceptor must be passed an instance of "
