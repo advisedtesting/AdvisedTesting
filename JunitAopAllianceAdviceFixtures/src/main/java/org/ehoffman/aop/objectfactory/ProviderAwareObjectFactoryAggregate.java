@@ -99,11 +99,21 @@ public class ProviderAwareObjectFactoryAggregate implements ObjectFactory, Provi
     }
 
     private String getInstanceIfPresent(Annotation annotation) {
-        return getValueIfPresent(annotation, "instance", String.class);        
+        String value = getValueIfPresent(annotation, "instance", String.class);
+        if (!"__default".equals(value)) {
+            return value;
+        } else {
+            return null;
+        }
     }
     
     private String getNameIfPresent(Annotation annotation) {
-        return getValueIfPresent(annotation, "name", String.class);        
+        String value = getValueIfPresent(annotation, "name", String.class);        
+        if (!"__default".equals(value)) {
+            return value;
+        } else {
+            return null;
+        }
     }
 
     @SuppressWarnings("unchecked")

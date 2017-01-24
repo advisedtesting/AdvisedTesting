@@ -67,7 +67,7 @@ public class LoggerAdviceTest {
 
         @Test
         @CaptureLogging
-        public void simpleLoggerTest2(int ugh) {
+        public void simpleLoggerTest2() {
             ILog.doSomething();
         }
     }

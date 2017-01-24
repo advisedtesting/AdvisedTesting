@@ -25,7 +25,9 @@ package org.ehoffman.junit.aop;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.aopalliance.intercept.MethodInterceptor;
@@ -76,12 +78,51 @@ public class Junit4AOPClassRunner extends BlockJUnit4ClassRunner {
         return getTestClass().getAnnotatedMethods(Test.class);
     }
     
+    private boolean hasAdviceClass(final Annotation annotation) {
+        try {
+            Method method = annotation.annotationType().getMethod("IMPLEMENTED_BY");
+            return method != null 
+                   && Class.class.isAssignableFrom(method.getReturnType())
+                   && MethodInterceptor.class.isAssignableFrom((Class<?>) method.invoke(annotation, (Object[]) null));
+        } catch ( IllegalArgumentException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            return false;    
+        }
+    }
+    
+    protected List<Annotation> inspect(Annotation... annotations) {
+        List<Annotation> output = new ArrayList<>();
+        for (Annotation annotation : annotations) {
+            if (hasAdviceClass(annotation)) {
+                output.add(annotation);
+            } else {
+                for (Method method : annotation.annotationType().getMethods()) {
+                    if (Annotation.class.isAssignableFrom(method.getReturnType())) {
+                        try {
+                            output.addAll(inspect((Annotation)method.invoke(annotation, (Object[])null)));
+                        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+                            // TODO Auto-generated catch block
+                        }
+                    }
+                    if (method.getReturnType().getComponentType() != null 
+                        && Annotation.class.isAssignableFrom(method.getReturnType().getComponentType())) {
+                        try {
+                            output.addAll(inspect((Annotation[]) method.invoke(annotation, (Object[]) null)));
+                        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+                            // TODO Auto-generated catch block
+                        }
+                    }
+                }
+            }
+        }
+        return output;
+    }
+     
     protected final void runContextualizedLeaf(final FrameworkMethod frameworkMethod, final RunNotifier notifier) {
         final EachTestNotifier eachNotifier = new EachTestNotifier(notifier, describeChild(frameworkMethod));
         eachNotifier.fireTestStarted();
         Statement statement = methodBlock(frameworkMethod);
         ProviderAwareObjectFactoryAggregate registrar = new ProviderAwareObjectFactoryAggregate();
-        for (Annotation annotation : frameworkMethod.getAnnotations()) {
+        for (Annotation annotation : inspect(frameworkMethod.getAnnotations())) {
             MethodInterceptor advice = CONTEXT.getAdviceFor(annotation);
             if (advice != null) {
                 statement = advise(statement, advice, frameworkMethod.getMethod(), registrar, annotation);
@@ -148,12 +189,17 @@ public class Junit4AOPClassRunner extends BlockJUnit4ClassRunner {
 
                     @Override
                     public Object[] getArguments() {
-                        return new Object[] {registry};
+                        return new Object[] {};
                     }
 
                     @Override
                     public Method getMethod() {
                         return method;
+                    }
+
+                    @Override
+                    public Annotation getTargetAnnotation() {
+                        return annotation;
                     }
                 });
             }
