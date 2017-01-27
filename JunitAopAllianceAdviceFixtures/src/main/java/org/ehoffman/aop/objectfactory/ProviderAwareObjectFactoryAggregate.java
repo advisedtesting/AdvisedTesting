@@ -39,19 +39,19 @@ public class ProviderAwareObjectFactoryAggregate implements ObjectFactory, Provi
     
     @Override
     public <T> T getObject(Annotation annotation, Class<T> type) {
-        return invokeOnFoundObjectFactory(annotation, type, o -> o.getObject(type));
+        return invokeOnFoundObjectFactory(annotation, o -> o.getObject(type));
     }
 
 
     @Override
     public <T> T getObject(Annotation annotation, String name, Class<T> type) {
-        return invokeOnFoundObjectFactory(annotation, type, o -> o.getObject(name, type));
+        return invokeOnFoundObjectFactory(annotation, o -> o.getObject(name, type));
     }
 
 
     @Override
     public <T> Map<String, T> getAllObjects(Annotation annotation, Class<T> type) {
-        return invokeOnFoundObjectFactory(annotation, type, o -> o.getAllObjects(type));
+        return invokeOnFoundObjectFactory(annotation, o -> o.getAllObjects(type));
     }
     
     @SuppressWarnings("unchecked")
@@ -76,18 +76,19 @@ public class ProviderAwareObjectFactoryAggregate implements ObjectFactory, Provi
         return parameters;
     }
 
+    @SuppressWarnings("PMD.AvoidBranchingStatementAsLastInLoop")
     private Object getArgumentFor(Class<?> argumentType, Annotation[] annotations) {
         for (Annotation annotation : annotations) {
             String requestedInstanceName = getInstanceIfPresent(annotation);
             if (requestedInstanceName != null && !"".equals(requestedInstanceName)) {
-                return invokeOnFoundObjectFactory(annotation, argumentType, o -> o.getObject(requestedInstanceName, argumentType));
+                return invokeOnFoundObjectFactory(annotation, o -> o.getObject(requestedInstanceName, argumentType));
             }
-            return invokeOnFoundObjectFactory(annotation, argumentType, o -> o.getObject(argumentType));
+            return invokeOnFoundObjectFactory(annotation, o -> o.getObject(argumentType));
         }
         return this.getObject(argumentType);
     }
 
-    private <T, X> X invokeOnFoundObjectFactory(Annotation annotation, Class<T> type, Function<ObjectFactory, X> function) {
+    private <T, X> X invokeOnFoundObjectFactory(Annotation annotation, Function<ObjectFactory, X> function) {
         String desiredName = getNameIfPresent(annotation);
         for (Entry<Annotation, ObjectFactory> context : contexts.entrySet()) {
             if (context.getKey().annotationType().isAssignableFrom(annotation.annotationType()) 
