@@ -40,6 +40,7 @@ import org.ehoffman.aop.objectfactory.ObjectFactory;
 @Retention(RUNTIME)
 @Documented
 @Repeatable(IoCContexts.class)
+@SuppressWarnings("PMD.TooManyStaticImports")
 public @interface IoCContext {
     
     /**
