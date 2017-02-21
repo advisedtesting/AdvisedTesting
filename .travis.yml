@@ -21,7 +21,7 @@ script:
 - if [ ${TRAVIS_BRANCH} = 'master' ]; then mvn site -Psite-deploy; else mvn site; fi;
 env:
   global:
-  - secure: SDchQPW4yAydjMb4sn2Ansqi+buVERmSyZtNCG90+fm2uLZRTWhYMo+H25fvIg7YtPtRr3CVoKEnOj8wXZOQlVkQkRRe3HciQelG0a7nxJpJGAIoqSPzRutsM/bts/2c9+EqISau0XShl0nneA6kJClEk4pBxNaFXtn3mv2r0wk=
-  - secure: ceYJgkT+g8NM4AUlXfeuw2WJqC31rXSArWCU0859LKv3fDE6gYNp8RpMHH96RAk7vjDzP30yEhXg9NRCGreNXGpx/zUoaEkMeCg8keQckLxeYklhVWVxaxpSXT/emE/Qd+Av295K4SL78cZT4+rCIj4T4RGEjU5x2p3AeF+1kgo=
-  - secure: wDKZPssfAO5dg2UT4kK7o1L+i6QBzFjY60jgGjoh/xbGFgtUs8MjHRNwKxBQee4LZ/75bJoEjMvHrUg6IL0szlbEOW0QDGf1S7gfxohV/+DKCcNl99uU5xXV4tbIbovQ7EJRJ4784dpFo5/9o07oDY48+rhY3xJy3Gkb/0HSIZQ=
-  - secure: oshsHVC+OaRmlfvlU+R8SOmgAbl6Saxxje1BJFBOk1ELLVQL+cKkrBKOSzR/AwuY9Kf1BkPVyxHX6nnEehSiPiQBXY/K1/pT8O95AyFrSekksObklMDh19mXX9VhQh4sfipyDXVNmXbwyEgBu95WA9JQjVpqGzkY8w0fD1mAkvY=
+  - secure: MxmVG7rohfyxrILP63QflhK5B2x638QGAZgRWu7q61uFqJInX4U3uXY/kttii9W8AwuWiRQnJsU1xolBZ0Dqv0XE9J7I1Tv9xYYgaDF6o0nQhmxkwvbQkESn9vPDsniTSJLw2JS2KXHz6EYQJLOGLBFQXl1hwQXXr3DotmEm4Uk=
+  - secure: TLlKAoTTJLq25CnHtvrNOQ0PXIOhSRrt29FubgDZPWhtPtGnDyg5ojdTZBdU8ScVPrZShAdgAhowbAOshjbtMfWJ+WD70P8bfE3Ce55nZTEN9UhiOVSsfIaZLWH8NQMlI94rJymBY8zCONhYX/3n27/ajpUD2VKNQ/sb+Mfcu28=
+  - secure: VucY1ke02/jxcmqylTIrycVctY51sJOui3qQHV/lQTCNxSywNyxtTsoCWE8v5k01i+bP2gBFwHtBE+t6Yug9+W1wOUc5aoGXl9zzinJ4k3y4fcEeuU1kl1duxu5G76qeHEtK3nU28JvuC4Lk3QI1gEYceqEgnzbssUe00cqhNd0=
+  - secure: DFJaeD8n95LjZw4dz+1si8sPNyHA5aohmhrP63XyslyzxdK5Vmsa5kConOzVhi1hYbvJSVLIVVyFOdwQi3sx4VTySdz7Y0P1vFpwNDxa/D5xI8x9Bbf/6eyqtEL2fPRFiJEaxqrYKk/U1UqDyb/eitvvaa3tI0FoAMPIc2549y4=
