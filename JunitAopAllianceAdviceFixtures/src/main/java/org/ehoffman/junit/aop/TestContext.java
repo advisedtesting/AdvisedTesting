@@ -27,9 +27,7 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.aopalliance.intercept.MethodInterceptor;
@@ -50,8 +48,8 @@ import org.slf4j.LoggerFactory;
 public class TestContext {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestContext.class);
-    private static final Map<Class<? extends Annotation>, MethodInterceptor> ANNOTATION_CLASS_TO_ADVICE = Collections
-                    .synchronizedMap(new HashMap<Class<? extends Annotation>, MethodInterceptor>());
+    private static final ConcurrentHashMap<Class<? extends Annotation>, MethodInterceptor> ANNOTATION_CLASS_TO_ADVICE = 
+                    new ConcurrentHashMap<Class<? extends Annotation>, MethodInterceptor>();
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
     /**
@@ -79,19 +77,11 @@ public class TestContext {
         if (closed.get()) {
             return null;
         } else {
-            MethodInterceptor advice = ANNOTATION_CLASS_TO_ADVICE.get(annotation.annotationType());
-            if (advice == null) {
+            ANNOTATION_CLASS_TO_ADVICE.computeIfAbsent(annotation.annotationType(), a -> {
                 final Class<MethodInterceptor> adviceClass = extractAdviceClass(annotation);
-                if (advice == null && adviceClass != null) {
-                    synchronized (ANNOTATION_CLASS_TO_ADVICE) {
-                        if (ANNOTATION_CLASS_TO_ADVICE.get(annotation.annotationType()) == null) {
-                            advice = callZeroLengthConstructor(adviceClass);
-                            ANNOTATION_CLASS_TO_ADVICE.put(annotation.annotationType(), advice);
-                        }
-                    }
-                }
-            }
-            return advice;
+                return callZeroLengthConstructor(adviceClass);
+            });
+            return ANNOTATION_CLASS_TO_ADVICE.get(annotation.annotationType());
         }
     }
 
@@ -131,6 +121,9 @@ public class TestContext {
     }
 
     private <T> T callZeroLengthConstructor(final Class<T> clazz) {
+        if (clazz == null) {
+            return null;
+        }
         Constructor<T> constructor;
         try {
             constructor = clazz.getConstructor(new Class[] {});

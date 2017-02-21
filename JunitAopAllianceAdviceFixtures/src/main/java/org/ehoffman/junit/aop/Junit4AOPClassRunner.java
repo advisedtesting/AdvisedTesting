@@ -122,7 +122,7 @@ public class Junit4AOPClassRunner extends BlockJUnit4ClassRunner {
         eachNotifier.fireTestStarted();
         Statement statement = methodBlock(frameworkMethod);
         ProviderAwareObjectFactoryAggregate registrar = new ProviderAwareObjectFactoryAggregate();
-        for (Annotation annotation : inspect(frameworkMethod.getAnnotations())) {
+        for (Annotation annotation : inspect(frameworkMethod.getMethod().getAnnotations())) {
             MethodInterceptor advice = CONTEXT.getAdviceFor(annotation);
             if (advice != null) {
                 statement = advise(statement, advice, frameworkMethod.getMethod(), registrar, annotation);
