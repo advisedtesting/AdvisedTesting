@@ -12,8 +12,9 @@
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <modules>
-        <module>JunitAopAllianceAdviceFixtures</module>
-        <module>AopAllianceExtensions</module>
+        <module>AdvisedJunit4</module>
+        <module>AdviseLogging</module>
+        <module>AdviseContext</module>
     </modules>
     <properties>
         <github.global.server>github</github.global.server>
