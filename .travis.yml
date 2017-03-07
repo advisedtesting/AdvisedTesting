@@ -17,12 +17,12 @@ before_script:
 script:
 - |
   if [ ${TRAVIS_BRANCH}"" == 'master' ] && [ ${TRAVIS_PULL_REQUEST}"" == 'false' ]; then
-    openssl aes-256-cbc -K $encrypted_fb94579844cb_key -iv $encrypted_fb94579844cb_iv -in .gpg.zip.enc -out .gpg.zip -d
-    && unzip .gpg.zip -d ${HOME}/deploy/
-    && mvn deploy -Dgpg.passphrase=${GPG_PASSPHRASE} -Dgpg.homedir=${HOME}/deploy/.gnupg/
+    openssl aes-256-cbc -K $encrypted_fb94579844cb_key -iv $encrypted_fb94579844cb_iv -in .gpg.zip.enc -out .gpg.zip -d \
+    && unzip .gpg.zip -d ${HOME}/deploy/ \
+    && mvn deploy -Dgpg.passphrase=${GPG_PASSPHRASE} -Dgpg.homedir=${HOME}/deploy/.gnupg/ \
     && mvn site -Psite-deploy;
   else 
-    mvn install
+    mvn install \
     && mvn site;
   fi;
 env:
