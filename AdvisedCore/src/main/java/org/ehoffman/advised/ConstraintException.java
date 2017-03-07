@@ -20,7 +20,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.ehoffman.junit.aop;
+package org.ehoffman.advised;
 
 public class ConstraintException extends RuntimeException {
 

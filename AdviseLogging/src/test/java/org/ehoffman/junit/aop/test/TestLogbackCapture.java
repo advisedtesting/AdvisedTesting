@@ -24,7 +24,7 @@ package org.ehoffman.junit.aop.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.ehoffman.advised.logback.LogbackCapture;
+import org.ehoffman.advised.logback.internal.LogbackCapture;
 import org.junit.Test;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;

@@ -22,17 +22,21 @@
  */
 package org.ehoffman.junit.aop;
 
+import static org.ehoffman.advised.internal.AnnotationUtils.convertExceptionIfPossible;
+import static org.ehoffman.advised.internal.AnnotationUtils.inspect;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.aopalliance.intercept.MethodInterceptor;
-import org.ehoffman.aop.objectfactory.ObjectFactory;
-import org.ehoffman.aop.objectfactory.ProviderAwareObjectFactoryAggregate;
+import org.ehoffman.advised.ConstraintException;
+import org.ehoffman.advised.ContextAwareMethodInvocation;
+import org.ehoffman.advised.ObjectFactory;
+import org.ehoffman.advised.internal.ProviderAwareObjectFactoryAggregate;
+import org.ehoffman.advised.internal.TestContext;
 import org.junit.AssumptionViolatedException;
 import org.junit.Test;
 import org.junit.internal.runners.model.EachTestNotifier;
@@ -56,68 +60,18 @@ public class Junit4AOPClassRunner extends BlockJUnit4ClassRunner {
         //No Op
         //TODO: validate with the object factories?
     }
-    
-    public ConstraintException convertExceptionIfPossible(Throwable thowable) {
-        if (ConstraintException.class.isAssignableFrom(thowable.getClass())) {
-            return (ConstraintException) thowable;
-        } else {
-            if (thowable.getCause() == null) {
-                return null;
-            } else {
-                return convertExceptionIfPossible(thowable.getCause());
-            }
-        }
-    }
 
     @Override
     protected void runChild(final FrameworkMethod method, final RunNotifier notifier) {
         runContextualizedLeaf(method, notifier);
     }
 
+    @Override
     protected List<FrameworkMethod> computeTestMethods() {
         return getTestClass().getAnnotatedMethods(Test.class);
     }
-    
-    private boolean hasAdviceClass(final Annotation annotation) {
-        try {
-            Method method = annotation.annotationType().getMethod("IMPLEMENTED_BY");
-            return method != null 
-                   && Class.class.isAssignableFrom(method.getReturnType())
-                   && MethodInterceptor.class.isAssignableFrom((Class<?>) method.invoke(annotation, (Object[]) null));
-        } catch ( IllegalArgumentException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            return false;    
-        }
-    }
-    
-    protected List<Annotation> inspect(Annotation... annotations) {
-        List<Annotation> output = new ArrayList<>();
-        for (Annotation annotation : annotations) {
-            if (hasAdviceClass(annotation)) {
-                output.add(annotation);
-            } else {
-                for (Method method : annotation.annotationType().getMethods()) {
-                    if (Annotation.class.isAssignableFrom(method.getReturnType())) {
-                        try {
-                            output.addAll(inspect((Annotation)method.invoke(annotation, (Object[])null)));
-                        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-                            // TODO Auto-generated catch block
-                        }
-                    }
-                    if (method.getReturnType().getComponentType() != null 
-                        && Annotation.class.isAssignableFrom(method.getReturnType().getComponentType())) {
-                        try {
-                            output.addAll(inspect((Annotation[]) method.invoke(annotation, (Object[]) null)));
-                        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-                            // TODO Auto-generated catch block
-                        }
-                    }
-                }
-            }
-        }
-        return output;
-    }
      
-    protected final void runContextualizedLeaf(final FrameworkMethod frameworkMethod, final RunNotifier notifier) {
+    private final void runContextualizedLeaf(final FrameworkMethod frameworkMethod, final RunNotifier notifier) {
         final EachTestNotifier eachNotifier = new EachTestNotifier(notifier, describeChild(frameworkMethod));
         eachNotifier.fireTestStarted();
         Statement statement = methodBlock(frameworkMethod);
@@ -131,7 +85,7 @@ public class Junit4AOPClassRunner extends BlockJUnit4ClassRunner {
         try {
             statement.evaluate();
         } catch (final Throwable e) {
-            final ConstraintException contraintException = convertExceptionIfPossible(e);
+            final ConstraintException contraintException = convertExceptionIfPossible(e, ConstraintException.class);
             if (contraintException != null) {
                 eachNotifier.addFailedAssumption(new AssumptionViolatedException(contraintException.getMessage(),
                                 contraintException));

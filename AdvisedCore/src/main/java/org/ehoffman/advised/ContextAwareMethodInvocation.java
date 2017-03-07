@@ -20,25 +20,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.ehoffman.aop.testing;
+package org.ehoffman.advised;
 
-import org.aopalliance.intercept.MethodInterceptor;
+import java.lang.annotation.Annotation;
+
 import org.aopalliance.intercept.MethodInvocation;
-import org.ehoffman.aop.objectfactory.ObjectFactory;
-import org.ehoffman.aop.objectfactory.SpringContextObjectFactory;
-import org.ehoffman.junit.aop.ContextAwareMethodInvocation;
 
-public class IoCContextAdvice implements MethodInterceptor {
-    @Override
-    public Object invoke(MethodInvocation invocation) throws Throwable {
-        if (ContextAwareMethodInvocation.class.isAssignableFrom(invocation.getClass())) {
-            ContextAwareMethodInvocation cinvocation = ((ContextAwareMethodInvocation) invocation);
-            ObjectFactory objectFactory = new SpringContextObjectFactory(((IoCContext)cinvocation.getTargetAnnotation()).classes());
-            cinvocation.registerObjectFactory(objectFactory);
-            return invocation.proceed();
-        } else {
-            throw new IllegalStateException("This MethodInterceptor must be passed an instance of "
-                + ContextAwareMethodInvocation.class.getName());
-        }
-    }
+public interface ContextAwareMethodInvocation extends MethodInvocation {
+
+    void registerObjectFactory(ObjectFactory factory);
+    
+    ObjectFactory getCurrentContextFactory();
+    
+    Annotation getTargetAnnotation();
+    
 }

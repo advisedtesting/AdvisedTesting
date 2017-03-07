@@ -24,6 +24,7 @@ package org.ehoffman.aop.testing;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.ehoffman.aop.context.IoCContext;
 import org.ehoffman.aop.testing.AppConfiguration.TestBean;
 import org.ehoffman.junit.aop.Junit4AOPClassRunner;
 import org.junit.Test;

@@ -20,7 +20,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.ehoffman.aop.testing;
+package org.ehoffman.aop.context;
 
 import static java.lang.annotation.ElementType.CONSTRUCTOR;
 import static java.lang.annotation.ElementType.FIELD;
@@ -34,7 +34,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import org.aopalliance.intercept.MethodInterceptor;
-import org.ehoffman.aop.objectfactory.ObjectFactory;
+import org.ehoffman.advised.ObjectFactory;
+import org.ehoffman.aop.context.internal.IoCContextAdvice;
 
 @Target({ METHOD, CONSTRUCTOR, FIELD, PARAMETER })
 @Retention(RUNTIME)
@@ -67,7 +68,7 @@ public @interface IoCContext {
     Class<?>[] classes() default {};
     
     /**
-     * Classes that which object factory we wish to use, if none is specified a discovery of
+     * Classes of object factory we wish to use, if none is specified a discovery of
      * object factories will ensue, if only one is supported by the current classloader, it will be used.
      * @return
      */
