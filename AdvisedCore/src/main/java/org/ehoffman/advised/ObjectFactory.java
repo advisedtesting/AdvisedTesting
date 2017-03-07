@@ -27,9 +27,6 @@ import java.util.Map;
 /**
  * This class is expected to be implemented by Annotation providers.   
  * 
- * @see {@link SpringContextObjectFactory}.
- * @see {@link org.ehoffman.aop.testing.IoCContextAdvice}.
- * @see {@link org.ehoffman.aop.testing.IoCContext}.
  * @author rex
  */
 public interface ObjectFactory {

@@ -37,7 +37,7 @@ public @interface IoCContexts {
 
     /**
      * Multiple IoCContexts
-     * @return
+     * @return an array of {@link IoCContext} instances.
      */
     IoCContext[] value();
     

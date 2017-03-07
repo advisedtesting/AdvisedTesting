@@ -53,7 +53,7 @@ public class TestContext {
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
     /**
-     * when the context is constructed, it is registered for destruction.
+     * When the context is constructed, it is registered for destruction.
      */
     public TestContext() {
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
@@ -68,7 +68,7 @@ public class TestContext {
      * Build and cache, or retrieve, a {@link MethodInterceptor} associated with the annotationClass input, as specified, by
      * {@link TestContext} class documentation.
      * 
-     * @param annotation
+     * @param annotation the annotation who's related {@link MethodInterceptor} instance will be returned.
      * 
      * @return an advice instance singleton from the annotationClass's IMPLEMENTED_BY parameter if any, and is constructible, or
      *         null.

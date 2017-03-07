@@ -74,7 +74,10 @@ public class LogbackCapture {
         INSTANCE.set(new LogbackCapture(loggerName, level, layoutPattern));
     }
 
-    /** Stop capturing and return the logs. */
+    /** 
+     * Stop capturing and return the logs. 
+     * @return a String containing all logging that occurred during the test execution on it's thread.
+     */
     public static String stop() {
         final LogbackCapture instance = INSTANCE.get();
         if (instance == null) {
