@@ -48,7 +48,7 @@ public @interface IoCContext {
      * Names can be used to identify specific ObjectFactories for method injection on a test, if
      * no name is specified, then a default name will be used, and parameters of the test will fail
      * if the reference an annotation with a name that does not exits.
-     * @return
+     * @return the name used to look up entities in this context
      */
     String name() default "__default";
     
@@ -57,20 +57,20 @@ public @interface IoCContext {
      * 
      * Specifies the name of an instance in a the object factory related to this annotation we desire
      * to be passed to the test as input at runtime.
-     * @return
+     * @return the name of an instance in an {@link IoCContext}
      */
     String instance() default "__default";
     
     /**
      * Classes that define the context we wish to work with.
-     * @return
+     * @return an array of classes used to build an IoCContext (the means of doing so is up to the {@link #objectFactoryClass()})
      */
     Class<?>[] classes() default {};
     
     /**
      * Classes of object factory we wish to use, if none is specified a discovery of
      * object factories will ensue, if only one is supported by the current classloader, it will be used.
-     * @return
+     * @return the implementation of {@link ObjectFactory} we wish to use to build the context
      */
     Class<? extends ObjectFactory> objectFactoryClass() default ObjectFactory.class;
     
@@ -78,7 +78,7 @@ public @interface IoCContext {
      * {@link #IMPLEMENTED_BY()} returns a Class that implements {@link org.aopalliance.intercept.MethodInterceptor}.
      * This field will be accessed via reflection so the name must be exact.  If the class also implements
      * {@link java.io.Closeable} the {@link java.io.Closeable#close()} method will be called at the close of the global context.
-     * 
+     * @return the {@link MethodInterceptor} used to build the context, should never need to be changed.
      */
     Class<? extends MethodInterceptor> IMPLEMENTED_BY() default IoCContextAdvice.class;
 }
