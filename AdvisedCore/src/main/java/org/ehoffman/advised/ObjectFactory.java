@@ -20,25 +20,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.ehoffman.aop.testing;
+package org.ehoffman.advised;
 
-import static java.lang.annotation.ElementType.CONSTRUCTOR;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
+import java.util.Map;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.Retention;
-import java.lang.annotation.Target;
+/**
+ * This class is expected to be implemented by Annotation providers.   
+ * 
+ * @see {@link SpringContextObjectFactory}.
+ * @see {@link org.ehoffman.aop.testing.IoCContextAdvice}.
+ * @see {@link org.ehoffman.aop.testing.IoCContext}.
+ * @author rex
+ */
+public interface ObjectFactory {
 
-@Target({ METHOD, CONSTRUCTOR })
-@Retention(RUNTIME)
-@Documented
-public @interface IoCContexts {
-
-    /**
-     * Multiple IoCContexts
-     * @return
-     */
-    IoCContext[] value();
+    <T> T getObject(Class<T> type);
+    
+    <T> T getObject(String name, Class<T> type);
+    
+    <T> Map<String, T> getAllObjects(Class<T> type);
     
 }

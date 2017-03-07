@@ -20,24 +20,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.ehoffman.aop.objectfactory;
+package org.ehoffman.aop.context.internal;
 
-import java.util.Map;
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
+import org.ehoffman.advised.ContextAwareMethodInvocation;
+import org.ehoffman.advised.ObjectFactory;
+import org.ehoffman.aop.context.IoCContext;
 
-/**
- * This class is expected to be implemented by Annotation providers.   
- * 
- * @see {@link SpringContextObjectFactory}.
- * @see {@link org.ehoffman.aop.testing.IoCContextAdvice}.
- * @see {@link org.ehoffman.aop.testing.IoCContext}.
- * @author rex
- */
-public interface ObjectFactory {
-
-    <T> T getObject(Class<T> type);
-    
-    <T> T getObject(String name, Class<T> type);
-    
-    <T> Map<String, T> getAllObjects(Class<T> type);
-    
+public class IoCContextAdvice implements MethodInterceptor {
+    @Override
+    public Object invoke(MethodInvocation invocation) throws Throwable {
+        if (ContextAwareMethodInvocation.class.isAssignableFrom(invocation.getClass())) {
+            ContextAwareMethodInvocation cinvocation = ((ContextAwareMethodInvocation) invocation);
+            ObjectFactory objectFactory = new SpringContextObjectFactory(((IoCContext)cinvocation.getTargetAnnotation()).classes());
+            cinvocation.registerObjectFactory(objectFactory);
+            return invocation.proceed();
+        } else {
+            throw new IllegalStateException("This MethodInterceptor must be passed an instance of "
+                + ContextAwareMethodInvocation.class.getName());
+        }
+    }
 }

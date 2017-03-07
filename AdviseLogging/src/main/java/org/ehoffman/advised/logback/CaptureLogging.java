@@ -32,6 +32,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 import org.aopalliance.intercept.MethodInterceptor;
+import org.ehoffman.advised.logback.internal.LoggerAdvice;
 
 @Target({ METHOD, CONSTRUCTOR, FIELD })
 @Retention(RUNTIME)

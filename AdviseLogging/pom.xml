@@ -71,10 +71,5 @@
             <version>${slf4j.version}</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
-    <scm>
-        <connection>${project.parent.scm.connection}</connection>
-        <developerConnection>${project.parent.scm.developerConnection}</developerConnection>
-    </scm>
 </project>

@@ -20,19 +20,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.ehoffman.junit.aop;
+package org.ehoffman.advised.logback.internal;
 
-import java.lang.annotation.Annotation;
+public class TestLoggingWithCause extends RuntimeException {
 
-import org.aopalliance.intercept.MethodInvocation;
-import org.ehoffman.aop.objectfactory.ObjectFactory;
+    private static final long serialVersionUID = -2692785118677301561L;
 
-public interface ContextAwareMethodInvocation extends MethodInvocation {
+    public TestLoggingWithCause(final String logs, final Throwable cause) {
+        super("Test Logs: \n" + logs, cause);
+    }
 
-    void registerObjectFactory(ObjectFactory factory);
-    
-    ObjectFactory getCurrentContextFactory();
-    
-    Annotation getTargetAnnotation();
-    
 }

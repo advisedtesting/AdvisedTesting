@@ -20,7 +20,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.ehoffman.aop.objectfactory;
+package org.ehoffman.advised.internal;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
@@ -31,10 +31,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Function;
 
-public class ProviderAwareObjectFactoryAggregate implements ObjectFactory, ProviderAwareObjectFactory, ObjectFactoryRegistrar {
+import org.ehoffman.advised.ObjectFactory;
+
+public class ProviderAwareObjectFactoryAggregate implements ObjectFactory {
 
     //registrar capability, used to build the default object factory....
-    Map<Annotation, ObjectFactory> contexts = new LinkedHashMap<>();
+    private Map<Annotation, ObjectFactory> contexts = new LinkedHashMap<>();
     
     public void register(Annotation annotation, ObjectFactory objectFactory) {
         contexts.put(annotation, objectFactory);
@@ -59,19 +61,15 @@ public class ProviderAwareObjectFactoryAggregate implements ObjectFactory, Provi
                         .orElseGet(() -> null);
     }
     
-    @Override
     public <T> T getObject(Annotation annotation, Class<T> type) {
         return invokeOnFoundObjectFactory(annotation, o -> o.getObject(type));
     }
 
-
-    @Override
     public <T> T getObject(Annotation annotation, String name, Class<T> type) {
         return invokeOnFoundObjectFactory(annotation, o -> o.getObject(name, type));
     }
 
 
-    @Override
     public <T> Map<String, T> getAllObjects(Annotation annotation, Class<T> type) {
         return invokeOnFoundObjectFactory(annotation, o -> o.getAllObjects(type));
     }

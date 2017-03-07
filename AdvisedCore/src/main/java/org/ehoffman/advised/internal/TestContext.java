@@ -20,7 +20,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.ehoffman.junit.aop;
+package org.ehoffman.advised.internal;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -55,7 +55,7 @@ public class TestContext {
     /**
      * when the context is constructed, it is registered for destruction.
      */
-    TestContext() {
+    public TestContext() {
         Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
             @Override
             public void run() {

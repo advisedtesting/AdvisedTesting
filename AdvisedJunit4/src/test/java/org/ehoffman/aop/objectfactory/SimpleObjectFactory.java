@@ -26,6 +26,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.ehoffman.advised.ObjectFactory;
+
 public class SimpleObjectFactory implements ObjectFactory {
 
     private final Map<String, Object> contents = new LinkedHashMap<>();
