@@ -32,6 +32,7 @@ import java.nio.charset.Charset;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.util.ContextSelectorStaticBinder;
@@ -112,9 +113,7 @@ public class LogbackCapture {
         if (level == null) {
             level = ALL;
         }
-
-        final Logger logger = ContextSelectorStaticBinder.getSingleton().getContextSelector().getDefaultLoggerContext()
-                        .getLogger(name);
+        final Logger logger = getContext().getLogger(name);
         logger.setLevel(level);
         return logger;
     }
@@ -126,7 +125,7 @@ public class LogbackCapture {
         final PatternLayoutEncoder encoder = new PatternLayoutEncoder();
         encoder.setPattern(layoutPattern);
         encoder.setCharset(Charset.forName("UTF-16"));
-        encoder.setContext(ContextSelectorStaticBinder.getSingleton().getContextSelector().getDefaultLoggerContext());
+        encoder.setContext(getContext());
         encoder.start();
         return encoder;
     }
@@ -135,10 +134,42 @@ public class LogbackCapture {
                     final OutputStream outputStream) {
         final OutputStreamAppender<ILoggingEvent> appender = new OutputStreamAppender<ILoggingEvent>();
         appender.setName("logcapture");
-        appender.setContext(ContextSelectorStaticBinder.getSingleton().getContextSelector().getDefaultLoggerContext());
+        appender.setContext(getContext());
         appender.setEncoder(encoder);
         appender.setOutputStream(outputStream);
         appender.start();
         return appender;
+    }
+    
+    /**
+     * Given http://www.slf4j.org/codes.html#substituteLogger we occasionally
+     * need to retry getting the logging context on test's startup
+     * 
+     * @return the current {@link LoggerContext}.
+     * 
+     * @throws @{@link NullPointerException} if the {@link LoggerContext} hasn't been set
+     * 
+     * @throws @{@link RuntimeException} with a cause of {@link InterruptedException} if the thread is 
+     *     interrupted while waiting for the {@link LoggerContext} to be set.
+     */
+    private static LoggerContext getContext() {
+        LoggerContext context = null;
+        int retryCount = 0;
+        while (context == null && retryCount < 10) {
+            try {
+                context = ContextSelectorStaticBinder.getSingleton().getContextSelector().getDefaultLoggerContext();
+                retryCount ++;
+                if (context == null) {
+                    Thread.sleep(500);
+                }
+            } catch (NullPointerException ex) {
+                if (retryCount == 10) {
+                    throw ex;
+                }
+            } catch (InterruptedException iex) {
+                throw new RuntimeException(iex);
+            }
+        }
+        return context;
     }
 }
