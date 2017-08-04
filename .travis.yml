@@ -13,17 +13,16 @@ before_script:
 - export PATH=$PWD/apache-maven-${MVN_VER}/bin:${PATH}
 - mkdir -p ${HOME}/.m2/
 - cp ./.travis/settings.xml ${HOME}/.m2/settings.xml
-- mvn -q install -DskipTests=true
+- mvn -q install -DskipTests=true 
 script:
 - |
   if [ ${TRAVIS_BRANCH}"" == 'master' ] && [ ${TRAVIS_PULL_REQUEST}"" == 'false' ]; then
     openssl aes-256-cbc -K $encrypted_fb94579844cb_key -iv $encrypted_fb94579844cb_iv -in .gpg.zip.enc -out .gpg.zip -d \
     && unzip .gpg.zip -d ${HOME}/deploy/ \
     && mvn deploy -Dgpg.passphrase=${GPG_PASSPHRASE} -Dgpg.homedir=${HOME}/deploy/.gnupg/ \
-    && mvn site -Psite-deploy; \
-    && bash <(curl -s https://codecov.io/bash);
+    && mvn site -Psite-deploy;
   else 
-    mvn install \
+    mvn install -Pcoverage \
     && mvn site;
   fi;
 env:
