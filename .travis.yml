@@ -20,7 +20,8 @@ script:
     openssl aes-256-cbc -K $encrypted_fb94579844cb_key -iv $encrypted_fb94579844cb_iv -in .gpg.zip.enc -out .gpg.zip -d \
     && unzip .gpg.zip -d ${HOME}/deploy/ \
     && mvn deploy -Dgpg.passphrase=${GPG_PASSPHRASE} -Dgpg.homedir=${HOME}/deploy/.gnupg/ \
-    && mvn site -Psite-deploy;
+    && mvn site -Psite-deploy; \
+    && bash <(curl -s https://codecov.io/bash);
   else 
     mvn install \
     && mvn site;
