@@ -6,7 +6,7 @@ cache:
   directories:
   - "$HOME/.m2/repository/"
 before_script:
-- export MVN_VER=3.3.9
+- export MVN_VER=3.5.3
 - wget http://apache.claz.org/maven/maven-3/${MVN_VER}/binaries/apache-maven-${MVN_VER}-bin.tar.gz
 - tar -zxvf apache-maven-${MVN_VER}-bin.tar.gz
 - chmod +x apache-maven-${MVN_VER}/bin/mvn

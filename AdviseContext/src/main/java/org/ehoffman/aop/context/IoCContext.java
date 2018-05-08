@@ -58,7 +58,6 @@ public @interface IoCContext {
 
   /**
    * Only meaningful when used as Parameter annotation.
-   * 
    * Specifies the name of an instance in a the object factory related to this annotation we desire to be passed to the test as
    * input at runtime.
    * 
