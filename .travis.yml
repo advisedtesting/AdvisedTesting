@@ -7,29 +7,6 @@ cache:
   - $HOME/.m2
 before_install:
   - cp ./.travis/settings.xml ${HOME}/.m2/settings.xml
-#before_script:
-#- export MVN_VER=3.5.3
-#- wget http://apache.claz.org/maven/maven-3/${MVN_VER}/binaries/apache-maven-${MVN_VER}-bin.tar.gz
-#- tar -zxvf apache-maven-${MVN_VER}-bin.tar.gz
-#- chmod +x apache-maven-${MVN_VER}/bin/mvn
-#- export PATH=$PWD/apache-maven-${MVN_VER}/bin:${PATH}
-#- mkdir -p ${HOME}/.m2/
-#- cp ./.travis/settings.xml ${HOME}/.m2/settings.xml
-#- mvn -q install -DskipTests=true 
 script:
-- |
-#  if [ ${TRAVIS_BRANCH}"" == 'master' ] && [ ${TRAVIS_PULL_REQUEST}"" == 'false' ]; then
-#    openssl aes-256-cbc -K $encrypted_fb94579844cb_key -iv $encrypted_fb94579844cb_iv -in .gpg.zip.enc -out .gpg.zip -d \
-#    && unzip .gpg.zip -d ${HOME}/deploy/ \
-#    && mvn deploy -Dgpg.passphrase=${GPG_PASSPHRASE} -Dgpg.homedir=${HOME}/deploy/.gnupg/ \
-#    && mvn site site-deploy;
-#  else 
-    mvn install \
-    && mvn site;
-#  fi;
-env:
-  global:
-  - secure: MxmVG7rohfyxrILP63QflhK5B2x638QGAZgRWu7q61uFqJInX4U3uXY/kttii9W8AwuWiRQnJsU1xolBZ0Dqv0XE9J7I1Tv9xYYgaDF6o0nQhmxkwvbQkESn9vPDsniTSJLw2JS2KXHz6EYQJLOGLBFQXl1hwQXXr3DotmEm4Uk=
-  - secure: TLlKAoTTJLq25CnHtvrNOQ0PXIOhSRrt29FubgDZPWhtPtGnDyg5ojdTZBdU8ScVPrZShAdgAhowbAOshjbtMfWJ+WD70P8bfE3Ce55nZTEN9UhiOVSsfIaZLWH8NQMlI94rJymBY8zCONhYX/3n27/ajpUD2VKNQ/sb+Mfcu28=
-  - secure: VucY1ke02/jxcmqylTIrycVctY51sJOui3qQHV/lQTCNxSywNyxtTsoCWE8v5k01i+bP2gBFwHtBE+t6Yug9+W1wOUc5aoGXl9zzinJ4k3y4fcEeuU1kl1duxu5G76qeHEtK3nU28JvuC4Lk3QI1gEYceqEgnzbssUe00cqhNd0=
-  - secure: DFJaeD8n95LjZw4dz+1si8sPNyHA5aohmhrP63XyslyzxdK5Vmsa5kConOzVhi1hYbvJSVLIVVyFOdwQi3sx4VTySdz7Y0P1vFpwNDxa/D5xI8x9Bbf/6eyqtEL2fPRFiJEaxqrYKk/U1UqDyb/eitvvaa3tI0FoAMPIc2549y4=
+  - mvn verify -DskipTests=true -Dmaven.javadoc.skip=true -V
+  - mvn site
