@@ -4,25 +4,27 @@ language: java
 install: true
 cache:
   directories:
-  - "$HOME/.m2/repository/"
-before_script:
-- export MVN_VER=3.5.3
-- wget http://apache.claz.org/maven/maven-3/${MVN_VER}/binaries/apache-maven-${MVN_VER}-bin.tar.gz
-- tar -zxvf apache-maven-${MVN_VER}-bin.tar.gz
-- chmod +x apache-maven-${MVN_VER}/bin/mvn
-- export PATH=$PWD/apache-maven-${MVN_VER}/bin:${PATH}
-- mkdir -p ${HOME}/.m2/
-- cp ./.travis/settings.xml ${HOME}/.m2/settings.xml
-- mvn -q install -DskipTests=true 
+  - $HOME/.m2
+before_install:
+  - cp ./.travis/settings.xml ${HOME}/.m2/settings.xml
+#before_script:
+#- export MVN_VER=3.5.3
+#- wget http://apache.claz.org/maven/maven-3/${MVN_VER}/binaries/apache-maven-${MVN_VER}-bin.tar.gz
+#- tar -zxvf apache-maven-${MVN_VER}-bin.tar.gz
+#- chmod +x apache-maven-${MVN_VER}/bin/mvn
+#- export PATH=$PWD/apache-maven-${MVN_VER}/bin:${PATH}
+#- mkdir -p ${HOME}/.m2/
+#- cp ./.travis/settings.xml ${HOME}/.m2/settings.xml
+#- mvn -q install -DskipTests=true 
 script:
 - |
   if [ ${TRAVIS_BRANCH}"" == 'master' ] && [ ${TRAVIS_PULL_REQUEST}"" == 'false' ]; then
     openssl aes-256-cbc -K $encrypted_fb94579844cb_key -iv $encrypted_fb94579844cb_iv -in .gpg.zip.enc -out .gpg.zip -d \
     && unzip .gpg.zip -d ${HOME}/deploy/ \
     && mvn deploy -Dgpg.passphrase=${GPG_PASSPHRASE} -Dgpg.homedir=${HOME}/deploy/.gnupg/ \
-    && mvn site -Psite-deploy;
+    && mvn site site-deploy;
   else 
-    mvn install -Pcoverage \
+    mvn install \
     && mvn site;
   fi;
 env:
