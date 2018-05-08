@@ -1,24 +1,28 @@
 /*
- * The MIT License
- * Copyright © 2015 Rex Hoffman
+ * Copyright © 2016, Saleforce.com, Inc
+ * All rights reserved.
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the <organization> nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package org.ehoffman.advised.internal;
 
@@ -47,92 +51,92 @@ import org.slf4j.LoggerFactory;
  */
 public class TestContext {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestContext.class);
-    private static final ConcurrentHashMap<Class<? extends Annotation>, MethodInterceptor> ANNOTATION_CLASS_TO_ADVICE = 
-                    new ConcurrentHashMap<Class<? extends Annotation>, MethodInterceptor>();
-    private final AtomicBoolean closed = new AtomicBoolean(false);
+  private static final Logger LOGGER = LoggerFactory.getLogger(TestContext.class);
+  private static final ConcurrentHashMap<Class<? extends Annotation>, MethodInterceptor> ANNOTATION_CLASS_TO_ADVICE = new ConcurrentHashMap<Class<? extends Annotation>, MethodInterceptor>();
+  private final AtomicBoolean closed = new AtomicBoolean(false);
 
-    /**
-     * When the context is constructed, it is registered for destruction.
-     */
-    public TestContext() {
-        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-            @Override
-            public void run() {
-                TestContext.this.close();
-            }
-        }));
-    }
+  /**
+   * When the context is constructed, it is registered for destruction.
+   */
+  public TestContext() {
+    Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+      @Override
+      public void run() {
+        TestContext.this.close();
+      }
+    }));
+  }
 
-    /**
-     * Build and cache, or retrieve, a {@link MethodInterceptor} associated with the annotationClass input, as specified, by
-     * {@link TestContext} class documentation.
-     * 
-     * @param annotation the annotation who's related {@link MethodInterceptor} instance will be returned.
-     * 
-     * @return an advice instance singleton from the annotationClass's IMPLEMENTED_BY parameter if any, and is constructible, or
-     *         null.
-     */
-    public MethodInterceptor getAdviceFor(final Annotation annotation) {
-        if (closed.get()) {
-            return null;
-        } else {
-            ANNOTATION_CLASS_TO_ADVICE.computeIfAbsent(annotation.annotationType(), a -> {
-                final Class<MethodInterceptor> adviceClass = extractAdviceClass(annotation);
-                return callZeroLengthConstructor(adviceClass);
-            });
-            return ANNOTATION_CLASS_TO_ADVICE.get(annotation.annotationType());
-        }
+  /**
+   * Build and cache, or retrieve, a {@link MethodInterceptor} associated with the annotationClass input, as specified, by
+   * {@link TestContext} class documentation.
+   * 
+   * @param annotation
+   *          the annotation who's related {@link MethodInterceptor} instance will be returned.
+   * 
+   * @return an advice instance singleton from the annotationClass's IMPLEMENTED_BY parameter if any, and is constructible, or null.
+   */
+  public MethodInterceptor getAdviceFor(final Annotation annotation) {
+    if (closed.get()) {
+      return null;
+    } else {
+      ANNOTATION_CLASS_TO_ADVICE.computeIfAbsent(annotation.annotationType(), a -> {
+        final Class<MethodInterceptor> adviceClass = extractAdviceClass(annotation);
+        return callZeroLengthConstructor(adviceClass);
+      });
+      return ANNOTATION_CLASS_TO_ADVICE.get(annotation.annotationType());
     }
+  }
 
-    /**
-     * Call all close methods implemented by any {@link MethodInterceptor} instances stored in local cache.
-     */
-    public void close() {
-        if (!closed.getAndSet(true)) {
-            for (final MethodInterceptor advice : ANNOTATION_CLASS_TO_ADVICE.values()) {
-                if (Closeable.class.isAssignableFrom(advice.getClass())) {
-                    try {
-                        ((Closeable) advice).close();
-                    } catch (final IOException e) {
-                        LOGGER.error("Error closing advice methods", e);
-                    }
-                }
-            }
+  /**
+   * Call all close methods implemented by any {@link MethodInterceptor} instances stored in local cache.
+   */
+  public void close() {
+    if (!closed.getAndSet(true)) {
+      for (final MethodInterceptor advice : ANNOTATION_CLASS_TO_ADVICE.values()) {
+        if (Closeable.class.isAssignableFrom(advice.getClass())) {
+          try {
+            ((Closeable) advice).close();
+          } catch (final IOException e) {
+            LOGGER.error("Error closing advice methods", e);
+          }
         }
+      }
     }
+  }
 
-    /**
-     * Extract the advice class (implements {@link MethodInterceptor}) from the marking {@link Annotation}.
-     * 
-     * @param annotation Annotation instance to inspect for an IMPLEMENTED_BY field
-     * @return A {@link MethodInterceptor} instance of the type held by the IMPLEMENTED_BY field, or null.
-     */
-    @SuppressWarnings("unchecked")
-    private Class<MethodInterceptor> extractAdviceClass(final Annotation annotation) {
-        try {
-            return (Class<MethodInterceptor>) annotation.annotationType().getMethod("IMPLEMENTED_BY").invoke(annotation);
-        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
-                        | SecurityException e) {
-            LOGGER.info("Annotations of type " + annotation.annotationType().getSimpleName()
-                            + " do not have an usable IMPLEMENTED_BY field (references a class that implements MethodInterceptor)");
-        }
-        return null;
+  /**
+   * Extract the advice class (implements {@link MethodInterceptor}) from the marking {@link Annotation}.
+   * 
+   * @param annotation
+   *          Annotation instance to inspect for an IMPLEMENTED_BY field
+   * @return A {@link MethodInterceptor} instance of the type held by the IMPLEMENTED_BY field, or null.
+   */
+  @SuppressWarnings("unchecked")
+  private Class<MethodInterceptor> extractAdviceClass(final Annotation annotation) {
+    try {
+      return (Class<MethodInterceptor>) annotation.annotationType().getMethod("IMPLEMENTED_BY").invoke(annotation);
+    } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
+            | SecurityException e) {
+      LOGGER.info("Annotations of type " + annotation.annotationType().getSimpleName()
+              + " do not have an usable IMPLEMENTED_BY field (references a class that implements MethodInterceptor)");
     }
+    return null;
+  }
 
-    private <T> T callZeroLengthConstructor(final Class<T> clazz) {
-        if (clazz == null) {
-            return null;
-        }
-        Constructor<T> constructor;
-        try {
-            constructor = clazz.getConstructor(new Class[] {});
-            constructor.setAccessible(true);
-            return constructor.newInstance(new Object[] {});
-        } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
-                        | IllegalArgumentException | InvocationTargetException e) {
-            return null;
-        }
+  private <T> T callZeroLengthConstructor(final Class<T> clazz) {
+    if (clazz == null) {
+      return null;
     }
+    Constructor<T> constructor;
+    try {
+      constructor = clazz.getConstructor(new Class[] {});
+      constructor.setAccessible(true);
+      return constructor.newInstance(new Object[] {});
+    } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException
+            | InvocationTargetException e) {
+      return null;
+    }
+  }
 
 }

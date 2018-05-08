@@ -12,6 +12,8 @@
         <github.site.location>${project.parent.version}/AdviseLogback</github.site.location>
         <java.version>1.7</java.version>
         <junit.version>4.12</junit.version>
+        <parameter.jacoco.branch.coverage>0.40</parameter.jacoco.branch.coverage>
+        <parameter.jacoco.instruction.coverage>0.40</parameter.jacoco.instruction.coverage>
         <slf4j.version>1.7.12</slf4j.version>
     </properties>
     <dependencies>
@@ -32,20 +34,28 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>1.1.2</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${junit.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
             <artifactId>spring-context-support</artifactId>
-            <version>4.3.5.RELEASE</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-logging</groupId>
-                    <artifactId>commons-logging</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -62,13 +72,7 @@
         <dependency>
             <groupId>org.e-hoffman.testing</groupId>
             <artifactId>AdvisedJunit4</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jcl-over-slf4j</artifactId>
-            <version>${slf4j.version}</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
