@@ -2,34 +2,100 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.e-hoffman.maven</groupId>
-        <artifactId>OpenSourceParent</artifactId>
-        <version>1.0.3-SNAPSHOT</version>
+        <groupId>com.salesforce.maven</groupId>
+        <artifactId>MavenParent</artifactId>
+        <version>1.0.5</version>
     </parent>
     <groupId>org.e-hoffman.testing</groupId>
     <artifactId>Testing</artifactId>
     <version>1.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
+    <description></description>
     <modules>
         <module>AdvisedCore</module>
         <module>AdvisedJunit4</module>
         <module>AdviseLogging</module>
         <module>AdviseContext</module>
+        <module>AdviseStaticEvictingClassloader</module>
+        <module>EhoffmanTestRunner</module>
     </modules>
     <properties>
-        <github.global.server>github</github.global.server>
+        <github.domain>github.com</github.domain>
         <github.owner>rexhoffman</github.owner>
         <github.project>Testing</github.project>
         <github.site.location>${project.version}/</github.site.location>
-        <java.version>1.7</java.version>
-        <junit.version>4.12</junit.version>
-        <released>false</released>
-        <slf4j.version>1.7.10</slf4j.version>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <parameter.disable.semantic.versioning>true</parameter.disable.semantic.versioning>
+        <parameter.license>BSD-3</parameter.license>
+        <version.asm>5.1</version.asm>
+        <version.assertj>3.8.0</version.assertj>
+        <version.jgrapht>1.0.1</version.jgrapht>
+        <version.jopt>5.0.4</version.jopt>
+        <version.junit>5.1.0</version.junit>
+        <version.junit>4.12</version.junit>
+        <version.junit.jupiter>5.1.1</version.junit.jupiter>
+        <version.logback>1.2.3</version.logback>
+        <version.slf4j>1.7.25</version.slf4j>
+        <version.slf4j>1.7.10</version.slf4j>
+        <version.spring.framework>5.0.5.RELEASE</version.spring.framework>
     </properties>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-aop</artifactId>
+                <version>${version.spring.framework}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-beans</artifactId>
+                <version>${version.spring.framework}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>${version.spring.framework}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-context-support</artifactId>
+                <version>${version.spring.framework}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-core</artifactId>
+                <version>${version.spring.framework}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-instrument</artifactId>
+                <version>${version.spring.framework}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    <inceptionYear>2016</inceptionYear>
+    <organization>
+        <name>Rex Hoffman</name>
+        <url>https://github.com/rexhoffman/</url>
+    </organization>
+    <licenses>
+        <license>
+            <name>BSD-3</name>
+            <url>https://opensource.org/licenses/BSD-3</url>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <id>rexhoffman</id>
+            <email>rex@e-hoffman.org</email>
+            <timezone>-8</timezone>
+        </developer>
+    </developers>
     <scm>
-        <connection>scm:git:git:github.com:${github.owner}/${github.project}.git</connection>
-        <developerConnection>scm:git:git:github.com:${github.owner}/${github.project}.git</developerConnection>
-        <url>https://github.com/${github.owner}/${github.project}/blob/master/</url>
+        <connection>scm:git:git:${github.domain}:${github.owner}/${github.project}.git</connection>
+        <developerConnection>scm:git:git:${github.domain}:${github.owner}/${github.project}.git</developerConnection>
+        <url>https://${github.domain}/${github.owner}/${github.project}/blob/master/</url>
     </scm>
 </project>

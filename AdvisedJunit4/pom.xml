@@ -12,6 +12,8 @@
         <github.site.location>${project.parent.version}/AdvisedJunit4</github.site.location>
         <java.version>1.7</java.version>
         <junit.version>4.12</junit.version>
+        <parameter.jacoco.branch.coverage>0.00</parameter.jacoco.branch.coverage>
+        <parameter.jacoco.instruction.coverage>0.00</parameter.jacoco.instruction.coverage>
         <slf4j.version>1.7.12</slf4j.version>
     </properties>
     <dependencies>
@@ -52,12 +54,6 @@
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
             <version>1.7.1</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jcl-over-slf4j</artifactId>
-            <version>${slf4j.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
