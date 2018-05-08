@@ -92,7 +92,6 @@ public class ProviderAwareObjectFactoryAggregate implements ObjectFactory {
     return parameters;
   }
 
-  @SuppressWarnings("PMD.AvoidBranchingStatementAsLastInLoop")
   private Object getArgumentFor(Class<?> argumentType, Annotation[] annotations) {
     for (Annotation annotation : annotations) {
       String requestedInstanceName = getInstanceIfPresent(annotation);
@@ -140,7 +139,7 @@ public class ProviderAwareObjectFactoryAggregate implements ObjectFactory {
       if (name.equals(methodName) && output.isAssignableFrom(method.getReturnType())) {
         try {
           return (T) method.invoke(annotation, (Object[]) null);
-        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
           // moving right along.
         }
       }

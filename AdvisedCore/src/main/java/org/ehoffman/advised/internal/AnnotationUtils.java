@@ -41,11 +41,17 @@ public class AnnotationUtils {
       Method method = annotation.annotationType().getMethod("IMPLEMENTED_BY");
       return method != null && Class.class.isAssignableFrom(method.getReturnType())
               && MethodInterceptor.class.isAssignableFrom((Class<?>) method.invoke(annotation, (Object[]) null));
-    } catch (IllegalArgumentException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+    } catch (IllegalArgumentException | NoSuchMethodException | IllegalAccessException | InvocationTargetException ex) {
       return false;
     }
   }
 
+  /**
+   * Get a list of annotations in order (based on input) that have IMPLEMENTED_BY field that is a class.
+   * IMPLEMENTED_BY's class must implement {@link MethodInterceptor}.
+   * @param annotations array of annotations.
+   * @return List of Advice annotations meant for tests.
+   */
   public static List<Annotation> inspect(Annotation... annotations) {
     List<Annotation> output = new ArrayList<>();
     for (Annotation annotation : annotations) {
@@ -56,7 +62,7 @@ public class AnnotationUtils {
           if (Annotation.class.isAssignableFrom(method.getReturnType())) {
             try {
               output.addAll(inspect((Annotation) method.invoke(annotation, (Object[]) null)));
-            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
               // TODO Auto-generated catch block
             }
           }
@@ -64,7 +70,7 @@ public class AnnotationUtils {
                   && Annotation.class.isAssignableFrom(method.getReturnType().getComponentType())) {
             try {
               output.addAll(inspect((Annotation[]) method.invoke(annotation, (Object[]) null)));
-            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
               // TODO Auto-generated catch block
             }
           }

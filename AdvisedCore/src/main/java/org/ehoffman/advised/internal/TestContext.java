@@ -52,7 +52,8 @@ import org.slf4j.LoggerFactory;
 public class TestContext {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TestContext.class);
-  private static final ConcurrentHashMap<Class<? extends Annotation>, MethodInterceptor> ANNOTATION_CLASS_TO_ADVICE = new ConcurrentHashMap<Class<? extends Annotation>, MethodInterceptor>();
+  private static final ConcurrentHashMap<Class<? extends Annotation>, MethodInterceptor> ANNOTATION_CLASS_TO_ADVICE = 
+          new ConcurrentHashMap<Class<? extends Annotation>, MethodInterceptor>();
   private final AtomicBoolean closed = new AtomicBoolean(false);
 
   /**
@@ -97,8 +98,8 @@ public class TestContext {
         if (Closeable.class.isAssignableFrom(advice.getClass())) {
           try {
             ((Closeable) advice).close();
-          } catch (final IOException e) {
-            LOGGER.error("Error closing advice methods", e);
+          } catch (final IOException ex) {
+            LOGGER.error("Error closing advice methods", ex);
           }
         }
       }
@@ -117,7 +118,7 @@ public class TestContext {
     try {
       return (Class<MethodInterceptor>) annotation.annotationType().getMethod("IMPLEMENTED_BY").invoke(annotation);
     } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
-            | SecurityException e) {
+            | SecurityException ex) {
       LOGGER.info("Annotations of type " + annotation.annotationType().getSimpleName()
               + " do not have an usable IMPLEMENTED_BY field (references a class that implements MethodInterceptor)");
     }
@@ -134,7 +135,7 @@ public class TestContext {
       constructor.setAccessible(true);
       return constructor.newInstance(new Object[] {});
     } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException
-            | InvocationTargetException e) {
+            | InvocationTargetException ex) {
       return null;
     }
   }
