@@ -40,11 +40,11 @@ import org.aopalliance.intercept.MethodInterceptor;
 public @interface RestrictiveClassloader {
 
   /**
-   * {@link #IMPLEMENTED_BY()} returns a Class that implements {@link org.aopalliance.intercept.MethodInterceptor}.
+   * {@link #implementedBy()} returns a Class that implements {@link org.aopalliance.intercept.MethodInterceptor}.
    * This field will be accessed via reflection so the name must be exact.  If the class also implements
    * {@link java.io.Closeable} the {@link java.io.Closeable#close()} method will be called at the close of the global context.
    * @return the {@link MethodInterceptor} used to build the context, should never need to be changed.
    */
-  Class<? extends MethodInterceptor> IMPLEMENTED_BY() default RunInClassLoaderInterceptor.class;
+  Class<? extends MethodInterceptor> implementedBy() default RunInClassLoaderInterceptor.class;
   
 }

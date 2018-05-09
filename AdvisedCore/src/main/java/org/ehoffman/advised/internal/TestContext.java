@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  * constructor. Third any state the {@link MethodInterceptor} should be done so in a thread safe way. Either all in the zero length
  * argument constructor, or with synchronized logic. Fourth if a {@link MethodInterceptor} needs to tear down state it has
  * constructed, it should implement {@link Closeable} Fifth the marking {@link Annotation} should have a single parameter
- * IMPLEMENTED_BY with a default value of the Class of the {@link MethodInterceptor} the author wishes to use.
+ * implementedBy with a default value of the Class of the {@link MethodInterceptor} the author wishes to use.
  * 
  * @author rex
  */
@@ -75,7 +75,7 @@ public class TestContext {
    * @param annotation
    *          the annotation who's related {@link MethodInterceptor} instance will be returned.
    * 
-   * @return an advice instance singleton from the annotationClass's IMPLEMENTED_BY parameter if any, and is constructible, or null.
+   * @return an advice instance singleton from the annotationClass's implementedBy parameter if any, and is constructible, or null.
    */
   public MethodInterceptor getAdviceFor(final Annotation annotation) {
     if (closed.get()) {
@@ -110,17 +110,17 @@ public class TestContext {
    * Extract the advice class (implements {@link MethodInterceptor}) from the marking {@link Annotation}.
    * 
    * @param annotation
-   *          Annotation instance to inspect for an IMPLEMENTED_BY field
+   *          Annotation instance to inspect for an implementedBy field
    * @return A {@link MethodInterceptor} instance of the type held by the IMPLEMENTED_BY field, or null.
    */
   @SuppressWarnings("unchecked")
   private Class<MethodInterceptor> extractAdviceClass(final Annotation annotation) {
     try {
-      return (Class<MethodInterceptor>) annotation.annotationType().getMethod("IMPLEMENTED_BY").invoke(annotation);
+      return (Class<MethodInterceptor>) annotation.annotationType().getMethod("implementedBy").invoke(annotation);
     } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
             | SecurityException ex) {
       LOGGER.info("Annotations of type " + annotation.annotationType().getSimpleName()
-              + " do not have an usable IMPLEMENTED_BY field (references a class that implements MethodInterceptor)");
+              + " do not have an usable implementedBy field (references a class that implements MethodInterceptor)");
     }
     return null;
   }

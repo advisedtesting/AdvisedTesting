@@ -38,7 +38,7 @@ public class AnnotationUtils {
 
   public static boolean hasAdviceClass(final Annotation annotation) {
     try {
-      Method method = annotation.annotationType().getMethod("IMPLEMENTED_BY");
+      Method method = annotation.annotationType().getMethod("implementedBy");
       return method != null && Class.class.isAssignableFrom(method.getReturnType())
               && MethodInterceptor.class.isAssignableFrom((Class<?>) method.invoke(annotation, (Object[]) null));
     } catch (IllegalArgumentException | NoSuchMethodException | IllegalAccessException | InvocationTargetException ex) {
@@ -47,8 +47,8 @@ public class AnnotationUtils {
   }
 
   /**
-   * Get a list of annotations in order (based on input) that have IMPLEMENTED_BY field that is a class.
-   * IMPLEMENTED_BY's class must implement {@link MethodInterceptor}.
+   * Get a list of annotations in order (based on input) that have implementedBy field that is a class.
+   * implementedBy's class must implement {@link MethodInterceptor}.
    * @param annotations array of annotations.
    * @return List of Advice annotations meant for tests.
    */

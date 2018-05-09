@@ -26,13 +26,10 @@
  */
 package org.ehoffman.aop.context;
 
-import static java.lang.annotation.ElementType.CONSTRUCTOR;
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -41,11 +38,10 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.ehoffman.advised.ObjectFactory;
 import org.ehoffman.aop.context.internal.IoCContextAdvice;
 
-@Target({ METHOD, CONSTRUCTOR, FIELD, PARAMETER })
+@Target({ ElementType.METHOD, ElementType.CONSTRUCTOR, ElementType.FIELD, ElementType.PARAMETER })
 @Retention(RUNTIME)
 @Documented
 @Repeatable(IoCContexts.class)
-@SuppressWarnings("PMD.TooManyStaticImports")
 public @interface IoCContext {
 
   /**
@@ -57,9 +53,8 @@ public @interface IoCContext {
   String name() default "__default";
 
   /**
-   * Only meaningful when used as Parameter annotation.
-   * Specifies the name of an instance in a the object factory related to this annotation we desire to be passed to the test as
-   * input at runtime.
+   * Only meaningful when used as Parameter annotation. Specifies the name of an instance in a the object factory related to this
+   * annotation we desire to be passed to the test as input at runtime.
    * 
    * @return the name of an instance in an {@link IoCContext}
    */
@@ -81,11 +76,11 @@ public @interface IoCContext {
   Class<? extends ObjectFactory> objectFactoryClass() default ObjectFactory.class;
 
   /**
-   * {@link #IMPLEMENTED_BY()} returns a Class that implements {@link org.aopalliance.intercept.MethodInterceptor}. This field will
+   * {@link #implementedBy()} returns a Class that implements {@link org.aopalliance.intercept.MethodInterceptor}. This field will
    * be accessed via reflection so the name must be exact. If the class also implements {@link java.io.Closeable} the
    * {@link java.io.Closeable#close()} method will be called at the close of the global context.
    * 
    * @return the {@link MethodInterceptor} used to build the context, should never need to be changed.
    */
-  Class<? extends MethodInterceptor> IMPLEMENTED_BY() default IoCContextAdvice.class;
+  Class<? extends MethodInterceptor> implementedBy() default IoCContextAdvice.class;
 }
