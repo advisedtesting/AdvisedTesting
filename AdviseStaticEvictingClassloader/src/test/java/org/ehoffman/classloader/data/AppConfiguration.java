@@ -24,25 +24,30 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.ehoffman.classloader;
+package org.ehoffman.classloader.data;
 
-import java.lang.instrument.ClassFileTransformer;
-import java.security.ProtectionDomain;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-import org.springframework.context.support.BeanDefinitionDsl.Autowire;
+@Configuration
+public class AppConfiguration {
 
-public class EvictingStaticTransformer implements ClassFileTransformer {
+  @Bean(name = "bill")
+  public String getBill() {
+    return new String("bi" + "ll"); // hack to force string to not be interned.
+  }
 
-  public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
-          byte[] classfileBuffer) {
-    ClassContainsStaticInitialization asmScanner = new ClassContainsStaticInitialization();
-    if (className.equals(Autowire.class.getName())) {
-      System.out.println("here");
-    }
-    if (asmScanner.test(className)) {
-      throw new ClassFormatError("Dissallowing Statics on class " + className);
-    }
-    return null;
+  @Bean(name = "ted")
+  public String getTed() {
+    return "ted";
+  }
+
+  @Bean(name = "testBean")
+  public TestBean testbean() {
+    return new TestBean();
+  }
+
+  public class TestBean {
   }
 
 }

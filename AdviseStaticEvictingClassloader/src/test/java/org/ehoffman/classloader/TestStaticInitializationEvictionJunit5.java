@@ -51,9 +51,9 @@ class TestStaticInitializationEvictionJunit5 {
         () -> assertThat(asmScanner.test(ContainsStaticLiteralNonFinal.class.getName()))
             .describedAs("Static literal non final fields should cause classes should be evicted").isTrue(),
         () -> assertThat(asmScanner.test(ContainsStaticFinalNonLiteral.class.getName()))
-            .describedAs("Static final non literal fields should cause class to be evicted").isFalse(),
+            .describedAs("Static final non literal fields should cause class to be evicted").isTrue(),
         () -> assertThat(asmScanner.test(StaticInitBlockClass.class.getName())).isTrue(),
-        () -> assertThat(asmScanner.test(NestedContainsStaticNonFinalOrNonLiteral.Nested.class.getName())).isFalse(),
+        () -> assertThat(asmScanner.test(NestedContainsStaticNonFinalOrNonLiteral.Nested.class.getName())).isTrue(),
         () -> assertThat(asmScanner.test(ContainsStaticFinalLiteral.class.getName())).isFalse(),
         () -> assertThat(asmScanner.test(NestedContainsStaticNonFinalOrNonLiteral.class.getName())).isFalse(),
         () -> assertThat(asmScanner.test(TestStaticInitializationEvictionJunit5.class.getName())).isFalse());
@@ -69,7 +69,6 @@ class TestStaticInitializationEvictionJunit5 {
   }
 
   @Test
-  
   public void shoudlFailUsingAClassWithAStaticInit() {
     
   }

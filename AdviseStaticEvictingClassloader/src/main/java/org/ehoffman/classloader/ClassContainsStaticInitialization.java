@@ -53,9 +53,20 @@ public class ClassContainsStaticInitialization implements Predicate<String> {
 
     boolean shouldEvict = false;
     
+    boolean isEnumeration = false; //enumerations can not avoid static member variables -- just make sure they are final.
+    
+    @Override
+    public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
+      isEnumeration = isEnum(access);
+    }
+
+    
+    
     @Override
     public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
-      if (isStatic(access) && (!isFinal(access) || value == null)) {
+      if (isStatic(access) 
+          && (!isFinal(access) || value == null)
+          && (!isFinal(access) && isEnumeration)) {
         shouldEvict = true;
       }
       return super.visitField(access, name, desc, signature, value);
@@ -67,6 +78,10 @@ public class ClassContainsStaticInitialization implements Predicate<String> {
 
     public boolean isFinal(int access) {
       return ((access & Opcodes.ACC_FINAL) != 0);
+    }
+    
+    public boolean isEnum(int access) {
+      return ((access & Opcodes.ACC_ENUM) != 0);
     }
     
     @Override
