@@ -32,6 +32,7 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 
+import org.ehoffman.aop.context.IoCContext;
 import org.ehoffman.classloader.data.ContainsStaticFinalLiteral;
 import org.ehoffman.classloader.data.ContainsStaticFinalNonLiteral;
 import org.ehoffman.classloader.data.ContainsStaticLiteralNonFinal;
@@ -40,6 +41,7 @@ import org.ehoffman.classloader.data.StaticInitBlockClass;
 import org.ehoffman.junit.aop.Junit4AopClassRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.context.ApplicationContext;
 import org.springframework.instrument.classloading.ShadowingClassLoader;
 
 @RunWith(Junit4AopClassRunner.class)
@@ -72,6 +74,15 @@ public class TestStaticInitializationEvictionJunit4 {
     assertThatThrownBy(() -> loader.loadClass(ContainsStaticLiteralNonFinal.class.getName())).isInstanceOf(ClassFormatError.class);
   }
 
+  @Test
+  @RestrictiveClassloader
+  @IoCContext(name = "bob", classes = { org.ehoffman.classloader.data.AppConfiguration.class })
+  @IoCContext(name = "ted", classes = { org.ehoffman.classloader.data.AppConfiguration.class })
+  public void testTestIoCContext2(ApplicationContext context, org.ehoffman.classloader.data.AppConfiguration.TestBean bean) {
+    assertThat(context).isNotNull();
+    assertThat(bean).isNotNull();
+  }
+  
   @Test
   @RestrictiveClassloader
   public void shoudlFailUsingAClassWithAStaticInit() {

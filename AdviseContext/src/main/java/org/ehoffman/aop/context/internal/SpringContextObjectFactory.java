@@ -76,6 +76,7 @@ public class SpringContextObjectFactory implements ObjectFactory {
   public SpringContextObjectFactory(Class<?>... classes) {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     context.register(classes);
+    context.setClassLoader(Thread.currentThread().getContextClassLoader());
     context.refresh();
     this.context = context;
   }
