@@ -11,21 +11,14 @@
     <name>${project.artifactId}</name>
     <description></description>
     <properties>
-        <github.domain>github.com</github.domain>
-        <github.owner>rex-hoffman</github.owner>
-        <github.project>DeterministicComponentClassloader</github.project>
-        <github.site.location>${project.version}/</github.site.location>
+        <github.site.location>${project.version}/AdviseStaticEvictingClassloader</github.site.location>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <parameter.disable.semantic.versioning>true</parameter.disable.semantic.versioning>
-        <parameter.license>BSD-3</parameter.license>
         <version.asm>5.1</version.asm>
-        <version.assertj>3.8.0</version.assertj>
         <version.jgrapht>1.0.1</version.jgrapht>
         <version.jopt>5.0.4</version.jopt>
-        <version.junit>4.12</version.junit>
         <version.junit.jupiter>5.1.1</version.junit.jupiter>
-        <version.logback>1.2.3</version.logback>
     </properties>
     <dependencies>
         <dependency>
