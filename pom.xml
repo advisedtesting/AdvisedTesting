@@ -31,8 +31,8 @@
         <parameter.license>BSD-3</parameter.license>
         <version.aopalliance>1.0</version.aopalliance>
         <version.asm>5.1</version.asm>
-        <version.assertj>3.8.0</version.assertj>
         <version.assertj>3.9.1</version.assertj>
+        <version.assertj>3.8.0</version.assertj>
         <version.jgrapht>1.0.1</version.jgrapht>
         <version.jopt>5.0.4</version.jopt>
         <version.junit>4.12</version.junit>
