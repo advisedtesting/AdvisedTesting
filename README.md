@@ -1,4 +1,4 @@
-[![Build Status](https://secure.travis-ci.org/rexhoffman/Testing.png)](http://travis-ci.org/rexhoffman/MavenBase)
+[![Build Status](https://api.travis-ci.org/repos/rexhoffman/Testing.svg?branch=master)](https://travis-ci.org/rexhoffman/Testing/#)
 
 # Testing
 
