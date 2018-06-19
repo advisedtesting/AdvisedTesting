@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016, Saleforce.com, Inc
+ * Copyright © 2016, Rex Hoffman
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,7 +24,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.ehoffman.classloader.data;
+package org.ehoffman.test.classloader.data;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

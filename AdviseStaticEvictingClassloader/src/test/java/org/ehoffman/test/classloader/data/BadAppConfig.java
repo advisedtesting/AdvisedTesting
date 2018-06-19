@@ -24,10 +24,16 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.ehoffman.classloader.data;
+package org.ehoffman.test.classloader.data;
 
-public class ContainsStaticLiteralNonFinal {
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.context.annotation.Import;
+
+@Import(AppConfiguration.class)
+public class BadAppConfig {
+
+  public static final List<String> mutableState = new ArrayList<>();
   
-  public static String o = "w00t";
-
 }
