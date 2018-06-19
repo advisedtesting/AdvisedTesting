@@ -87,7 +87,7 @@ public class ClassContainsStaticInitialization implements Predicate<String> {
     @Override
     public MethodVisitor visitMethod(int access, String name, 
                               String desc, String signature, String[] exceptions) {
-      if ("<clinit>".equals(name)) {
+      if (!isEnumeration && "<clinit>".equals(name)) {
         shouldEvict = true;
       }
       return super.visitMethod(access, name, desc, signature, exceptions);

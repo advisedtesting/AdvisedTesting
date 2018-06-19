@@ -82,7 +82,7 @@ public class SpringContextObjectFactory implements ObjectFactory {
   }
 
   public SpringContextObjectFactory(List<Class<?>> classes) {
-    this(new Class<?>[classes.size()]);
+    this(classes.toArray(new Class[] {}));
   }
 
 }

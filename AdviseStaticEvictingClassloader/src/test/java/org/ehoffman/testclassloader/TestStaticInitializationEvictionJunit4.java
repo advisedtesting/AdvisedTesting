@@ -24,7 +24,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.ehoffman.classloader;
+package org.ehoffman.testclassloader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -33,12 +33,15 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 
 import org.ehoffman.aop.context.IoCContext;
-import org.ehoffman.classloader.data.ContainsStaticFinalLiteral;
-import org.ehoffman.classloader.data.ContainsStaticFinalNonLiteral;
-import org.ehoffman.classloader.data.ContainsStaticLiteralNonFinal;
-import org.ehoffman.classloader.data.NestedContainsStaticNonFinalOrNonLiteral;
-import org.ehoffman.classloader.data.StaticInitBlockClass;
+import org.ehoffman.classloader.ClassContainsStaticInitialization;
+import org.ehoffman.classloader.EvictingStaticTransformer;
+import org.ehoffman.classloader.RestrictiveClassloader;
 import org.ehoffman.junit.aop.Junit4AopClassRunner;
+import org.ehoffman.test.classloader.data.ContainsStaticFinalLiteral;
+import org.ehoffman.test.classloader.data.ContainsStaticFinalNonLiteral;
+import org.ehoffman.test.classloader.data.ContainsStaticLiteralNonFinal;
+import org.ehoffman.test.classloader.data.NestedContainsStaticNonFinalOrNonLiteral;
+import org.ehoffman.test.classloader.data.StaticInitBlockClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.context.ApplicationContext;
@@ -76,12 +79,21 @@ public class TestStaticInitializationEvictionJunit4 {
 
   @Test
   @RestrictiveClassloader
-  @IoCContext(name = "bob", classes = { org.ehoffman.classloader.data.AppConfiguration.class })
-  @IoCContext(name = "ted", classes = { org.ehoffman.classloader.data.AppConfiguration.class })
-  public void testTestIoCContext2(ApplicationContext context, org.ehoffman.classloader.data.AppConfiguration.TestBean bean) {
+  @IoCContext(name = "bob", classes = { org.ehoffman.test.classloader.data.AppConfiguration.class })
+  @IoCContext(name = "ted", classes = { org.ehoffman.test.classloader.data.AppConfiguration.class })
+  public void testGoodContext(ApplicationContext context, org.ehoffman.test.classloader.data.AppConfiguration.TestBean bean) {
     assertThat(context).isNotNull();
     assertThat(bean).isNotNull();
   }
+  
+  /**
+  @Test
+  @RestrictiveClassloader
+  @IoCContext(name = "bob", classes = { BadAppConfig.class })
+  public void testBadContext(ApplicationContext context, org.ehoffman.test.classloader.data.AppConfiguration.TestBean bean) {
+    fail("Context should not be reachable.");
+  }
+  **/
   
   @Test
   @RestrictiveClassloader

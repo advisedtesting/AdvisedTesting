@@ -27,11 +27,8 @@
 package org.ehoffman.classloader;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
+import org.aopalliance.intercept.Invocation;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.instrument.classloading.ShadowingClassLoader;
@@ -41,28 +38,23 @@ public class RunInClassLoaderInterceptor implements MethodInterceptor {
   private final ShadowingClassLoader classloader;
   
   public RunInClassLoaderInterceptor() {
-    classloader = new ShadowingClassLoader(Thread.currentThread().getContextClassLoader());
+    classloader = new ShadowingClassLoader(ShadowingClassLoader.class.getClassLoader(), true);
+    classloader.excludePackage("org.ehoffman.advised");
+    classloader.excludePackage("org.ehoffman.junit.aop");
+    classloader.excludePackage("org.ehoffman.aop.context");
+    classloader.excludePackage("org.ehoffman.classloader");
+    classloader.excludePackage("org.springframework");
+    classloader.excludePackage("org.assertj");
+    classloader.excludeClass(MethodInterceptor.class.getName());
+    classloader.excludeClass(Invocation.class.getName());
     classloader.addTransformer(new EvictingStaticTransformer());
-  }
-  
-  private List<String> classesToStrings(Class<?>... classes) {
-    return Arrays.asList(classes).stream().map(clazz -> clazz.getName()).collect(Collectors.toList());
   }
   
   @Override
   public Object invoke(MethodInvocation invocation) throws Throwable {
-    Class<?> targetClass = invocation.getMethod().getDeclaringClass();
-    Class<?> inLoadTargetClass = classloader.loadClass(targetClass.getName());
-    Object newTestInstance = inLoadTargetClass.newInstance();
-    Method[] methods = inLoadTargetClass.getMethods();
-    Method methodOfTarget = Arrays.asList(methods).stream()
-        .filter(method -> method.getName().equals(invocation.getMethod().getName()))
-        .filter(method -> classesToStrings(method.getParameterTypes())
-                .equals(classesToStrings(invocation.getMethod().getParameterTypes())))
-        .findFirst().get();
     try {
       Thread.currentThread().setContextClassLoader(classloader);
-      return methodOfTarget.invoke(newTestInstance, invocation.getArguments());
+      return invocation.proceed();
     } catch (InvocationTargetException ite) {
       throw ite.getCause();
     }

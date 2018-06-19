@@ -24,23 +24,12 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.ehoffman.classloader;
+package org.ehoffman.test.classloader.data;
 
-import java.lang.instrument.ClassFileTransformer;
-import java.security.ProtectionDomain;
+public class NestedContainsStaticNonFinalOrNonLiteral {
 
-public class EvictingStaticTransformer implements ClassFileTransformer {
-
-  public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
-          byte[] classfileBuffer) {
-    ClassContainsStaticInitialization asmScanner = new ClassContainsStaticInitialization();
-    //if (className.equals("org/springframework/beans/factory/annotation/Autowire")) {
-    //  System.out.println("here");
-    //}
-    if (asmScanner.test(className)) {
-      throw new ClassFormatError("Dissallowing Statics on class " + className);
-    }
-    return null;
+  public static class Nested {
+    public static final Object o = new Object();
   }
-
+  
 }

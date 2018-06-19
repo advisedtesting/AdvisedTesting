@@ -24,12 +24,14 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.ehoffman.classloader.data;
+package org.ehoffman.test.classloader.data;
 
-public class NestedContainsStaticNonFinalOrNonLiteral {
+public class StaticInitBlockClass {
 
-  public static class Nested {
-    public static final Object o = new Object();
+  public static final String s = "sss";
+  
+  static {
+    System.out.println("s");
   }
   
 }
