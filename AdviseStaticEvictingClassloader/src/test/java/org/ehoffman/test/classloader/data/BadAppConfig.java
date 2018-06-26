@@ -24,10 +24,19 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.ehoffman.classloader.data;
+package org.ehoffman.test.classloader.data;
 
-public class ContainsStaticFinalNonLiteral {
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Lazy;
 
-  public static final Object o = new Object();
+@Import(AppConfiguration.class)
+public class BadAppConfig {
 
+  @Lazy
+  @Bean("badApple")
+  public Object getBadApple() {
+     return new StaticInitBlockClass();    
+  }
+  
 }

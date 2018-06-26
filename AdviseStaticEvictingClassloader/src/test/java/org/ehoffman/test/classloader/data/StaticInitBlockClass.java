@@ -24,10 +24,14 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.ehoffman.classloader.data;
+package org.ehoffman.test.classloader.data;
 
-public class ContainsStaticFinalLiteral {
+public class StaticInitBlockClass {
 
-  public static final String finalLiteral = "Final";
+  public static final String s = "sss";
+  
+  static {
+    System.out.println("s");
+  }
   
 }

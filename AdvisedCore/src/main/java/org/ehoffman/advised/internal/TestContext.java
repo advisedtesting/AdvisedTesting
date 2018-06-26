@@ -52,8 +52,8 @@ import org.slf4j.LoggerFactory;
 public class TestContext {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TestContext.class);
-  private static final ConcurrentHashMap<Class<? extends Annotation>, MethodInterceptor> ANNOTATION_CLASS_TO_ADVICE = 
-          new ConcurrentHashMap<Class<? extends Annotation>, MethodInterceptor>();
+  private static final ConcurrentHashMap<Class<? extends MethodInterceptor>, MethodInterceptor> INTECEPTORCLASS_TO_INSTANCE = 
+          new ConcurrentHashMap<Class<? extends MethodInterceptor>, MethodInterceptor>();
   private final AtomicBoolean closed = new AtomicBoolean(false);
 
   /**
@@ -74,18 +74,19 @@ public class TestContext {
    * 
    * @param annotation
    *          the annotation who's related {@link MethodInterceptor} instance will be returned.
+   * @param classLoader in which to load the MethodInterceptor.
    * 
    * @return an advice instance singleton from the annotationClass's implementedBy parameter if any, and is constructible, or null.
    */
-  public MethodInterceptor getAdviceFor(final Annotation annotation) {
+  public MethodInterceptor getAdviceFor(final Annotation annotation, ClassLoader classLoader) {
     if (closed.get()) {
       return null;
     } else {
-      ANNOTATION_CLASS_TO_ADVICE.computeIfAbsent(annotation.annotationType(), a -> {
-        final Class<MethodInterceptor> adviceClass = extractAdviceClass(annotation);
+      Class<MethodInterceptor> adviceClass = extractAdviceClass(annotation, classLoader);
+      INTECEPTORCLASS_TO_INSTANCE.computeIfAbsent(adviceClass, a -> {
         return callZeroLengthConstructor(adviceClass);
       });
-      return ANNOTATION_CLASS_TO_ADVICE.get(annotation.annotationType());
+      return INTECEPTORCLASS_TO_INSTANCE.get(adviceClass);
     }
   }
 
@@ -94,7 +95,7 @@ public class TestContext {
    */
   public void close() {
     if (!closed.getAndSet(true)) {
-      for (final MethodInterceptor advice : ANNOTATION_CLASS_TO_ADVICE.values()) {
+      for (final Object advice : INTECEPTORCLASS_TO_INSTANCE.values()) {
         if (Closeable.class.isAssignableFrom(advice.getClass())) {
           try {
             ((Closeable) advice).close();
@@ -103,6 +104,18 @@ public class TestContext {
           }
         }
       }
+    }
+  }
+  
+  public boolean isAdviceAnnotation(final Annotation annotation) {
+    try {
+      @SuppressWarnings("unchecked")
+      Class<MethodInterceptor> interceptor = (Class<MethodInterceptor>) annotation.annotationType()
+              .getMethod("implementedBy").invoke(annotation);
+      return interceptor != null;
+    } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
+            | SecurityException ex) {
+      return false;
     }
   }
 
@@ -114,11 +127,13 @@ public class TestContext {
    * @return A {@link MethodInterceptor} instance of the type held by the IMPLEMENTED_BY field, or null.
    */
   @SuppressWarnings("unchecked")
-  private Class<MethodInterceptor> extractAdviceClass(final Annotation annotation) {
+  private Class<MethodInterceptor> extractAdviceClass(final Annotation annotation, ClassLoader classloader) {
     try {
-      return (Class<MethodInterceptor>) annotation.annotationType().getMethod("implementedBy").invoke(annotation);
+      Class<MethodInterceptor> interceptor = (Class<MethodInterceptor>) annotation.annotationType()
+               .getMethod("implementedBy").invoke(annotation);
+      return (Class<MethodInterceptor>) classloader.loadClass(interceptor.getName());
     } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
-            | SecurityException ex) {
+            | SecurityException | ClassNotFoundException ex) {
       LOGGER.info("Annotations of type " + annotation.annotationType().getSimpleName()
               + " do not have an usable implementedBy field (references a class that implements MethodInterceptor)");
     }

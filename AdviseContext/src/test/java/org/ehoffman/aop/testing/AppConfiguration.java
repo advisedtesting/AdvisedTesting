@@ -47,7 +47,7 @@ public class AppConfiguration {
     return new TestBean();
   }
 
-  public static class TestBean {
+  public class TestBean {
   }
 
 }

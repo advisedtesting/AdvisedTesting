@@ -26,21 +26,41 @@
  */
 package org.ehoffman.classloader;
 
-import java.lang.instrument.ClassFileTransformer;
-import java.security.ProtectionDomain;
+import java.lang.reflect.InvocationTargetException;
 
-public class EvictingStaticTransformer implements ClassFileTransformer {
+import org.aopalliance.intercept.Invocation;
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
+import org.springframework.instrument.classloading.ShadowingClassLoader;
 
-  public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
-          byte[] classfileBuffer) {
-    ClassContainsStaticInitialization asmScanner = new ClassContainsStaticInitialization();
-    //if (className.equals("org/springframework/beans/factory/annotation/Autowire")) {
-    //  System.out.println("here");
-    //}
-    if (asmScanner.test(className)) {
-      throw new ClassFormatError("Dissallowing Statics on class " + className);
+public class RunInClassLoaderInterceptor implements MethodInterceptor {
+
+  private final ShadowingClassLoader classloader;
+  
+  public RunInClassLoaderInterceptor() {
+    classloader = new ShadowingClassLoader(ShadowingClassLoader.class.getClassLoader(), true);
+    //TODO: provide configuration mechanism, a class of a certain type?
+    //Ahh!  a detector that could inspect the classpath and decide which to include.
+    classloader.excludePackage("org.ehoffman.advised");
+    classloader.excludePackage("org.ehoffman.junit.aop");
+    classloader.excludePackage("org.ehoffman.aop.context");
+    classloader.excludePackage("org.ehoffman.classloader");
+    classloader.excludePackage("org.springframework");
+    classloader.excludePackage("org.assertj");
+    classloader.excludePackage("org.junit");
+    classloader.excludeClass(MethodInterceptor.class.getName());
+    classloader.excludeClass(Invocation.class.getName());
+    classloader.addTransformer(new EvictingStaticTransformer());
+  }
+  
+  @Override
+  public Object invoke(MethodInvocation invocation) throws Throwable {
+    try {
+      Thread.currentThread().setContextClassLoader(classloader);
+      return invocation.proceed();
+    } catch (InvocationTargetException ite) {
+      throw ite.getCause();
     }
-    return null;
   }
 
 }

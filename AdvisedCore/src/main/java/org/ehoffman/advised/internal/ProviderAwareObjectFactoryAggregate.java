@@ -48,8 +48,13 @@ public class ProviderAwareObjectFactoryAggregate implements ObjectFactory {
 
   @Override
   public <T> T getObject(Class<T> type) {
-    return contexts.entrySet().stream().map((entry) -> entry.getValue().getObject(type)).filter(o -> o != null).findFirst()
-            .orElseGet(() -> null);
+    for (Entry<Annotation, ObjectFactory> entry : contexts.entrySet()) {
+      T found = entry.getValue().getObject(type);
+      if (found != null) {
+        return found;
+      }
+    }
+    return null;
   }
 
   @Override

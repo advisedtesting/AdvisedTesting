@@ -26,6 +26,9 @@
  */
 package org.ehoffman.aop.context.internal;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.ehoffman.advised.ContextAwareMethodInvocation;
@@ -37,7 +40,8 @@ public class IoCContextAdvice implements MethodInterceptor {
   public Object invoke(MethodInvocation invocation) throws Throwable {
     if (ContextAwareMethodInvocation.class.isAssignableFrom(invocation.getClass())) {
       ContextAwareMethodInvocation cinvocation = ((ContextAwareMethodInvocation) invocation);
-      ObjectFactory objectFactory = new SpringContextObjectFactory(((IoCContext) cinvocation.getTargetAnnotation()).classes());
+      ObjectFactory objectFactory =
+              new SpringContextObjectFactory(sanitize(((IoCContext) cinvocation.getTargetAnnotation()).classes()));
       cinvocation.registerObjectFactory(objectFactory);
       return invocation.proceed();
     } else {
@@ -45,4 +49,13 @@ public class IoCContextAdvice implements MethodInterceptor {
               "This MethodInterceptor must be passed an instance of " + ContextAwareMethodInvocation.class.getName());
     }
   }
+  
+  private List<Class<?>> sanitize(Class<?>... classes) throws ClassNotFoundException {
+    List<Class<?>> output = new ArrayList<>();
+    for (Class<?> clazz : classes) {
+      output.add(Thread.currentThread().getContextClassLoader().loadClass(clazz.getName()));
+    }
+    return output;
+  }
+  
 }

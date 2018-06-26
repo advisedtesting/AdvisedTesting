@@ -24,10 +24,10 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.ehoffman.classloader.data;
+package org.ehoffman.test.classloader.data;
 
-public class ContainsStaticLiteralNonFinal {
-  
-  public static String o = "w00t";
+public class ContainsStaticFinalNonLiteral {
+
+  public static final Object o = new Object();
 
 }

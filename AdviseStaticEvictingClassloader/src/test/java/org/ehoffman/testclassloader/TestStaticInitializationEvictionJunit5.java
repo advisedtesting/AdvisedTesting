@@ -24,7 +24,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.ehoffman.classloader;
+package org.ehoffman.testclassloader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -32,11 +32,13 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 
 import java.io.IOException;
 
-import org.ehoffman.classloader.data.ContainsStaticFinalLiteral;
-import org.ehoffman.classloader.data.ContainsStaticFinalNonLiteral;
-import org.ehoffman.classloader.data.ContainsStaticLiteralNonFinal;
-import org.ehoffman.classloader.data.NestedContainsStaticNonFinalOrNonLiteral;
-import org.ehoffman.classloader.data.StaticInitBlockClass;
+import org.ehoffman.classloader.ClassContainsStaticInitialization;
+import org.ehoffman.classloader.EvictingStaticTransformer;
+import org.ehoffman.test.classloader.data.ContainsStaticFinalLiteral;
+import org.ehoffman.test.classloader.data.ContainsStaticFinalNonLiteral;
+import org.ehoffman.test.classloader.data.ContainsStaticLiteralNonFinal;
+import org.ehoffman.test.classloader.data.NestedContainsStaticNonFinalOrNonLiteral;
+import org.ehoffman.test.classloader.data.StaticInitBlockClass;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.instrument.classloading.ShadowingClassLoader;
@@ -51,9 +53,9 @@ class TestStaticInitializationEvictionJunit5 {
         () -> assertThat(asmScanner.test(ContainsStaticLiteralNonFinal.class.getName()))
             .describedAs("Static literal non final fields should cause classes should be evicted").isTrue(),
         () -> assertThat(asmScanner.test(ContainsStaticFinalNonLiteral.class.getName()))
-            .describedAs("Static final non literal fields should cause class to be evicted").isFalse(),
+            .describedAs("Static final non literal fields should cause class to be evicted").isTrue(),
         () -> assertThat(asmScanner.test(StaticInitBlockClass.class.getName())).isTrue(),
-        () -> assertThat(asmScanner.test(NestedContainsStaticNonFinalOrNonLiteral.Nested.class.getName())).isFalse(),
+        () -> assertThat(asmScanner.test(NestedContainsStaticNonFinalOrNonLiteral.Nested.class.getName())).isTrue(),
         () -> assertThat(asmScanner.test(ContainsStaticFinalLiteral.class.getName())).isFalse(),
         () -> assertThat(asmScanner.test(NestedContainsStaticNonFinalOrNonLiteral.class.getName())).isFalse(),
         () -> assertThat(asmScanner.test(TestStaticInitializationEvictionJunit5.class.getName())).isFalse());
@@ -69,7 +71,6 @@ class TestStaticInitializationEvictionJunit5 {
   }
 
   @Test
-  
   public void shoudlFailUsingAClassWithAStaticInit() {
     
   }

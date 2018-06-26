@@ -24,12 +24,30 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.ehoffman.classloader.data;
+package org.ehoffman.test.classloader.data;
 
-public class NestedContainsStaticNonFinalOrNonLiteral {
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-  public static class Nested {
-    public static final Object o = new Object();
+@Configuration
+public class AppConfiguration {
+
+  @Bean(name = "bill")
+  public String getBill() {
+    return new String("bi" + "ll"); // hack to force string to not be interned.
   }
-  
+
+  @Bean(name = "ted")
+  public String getTed() {
+    return "ted";
+  }
+
+  @Bean(name = "testBean")
+  public TestBean testbean() {
+    return new TestBean();
+  }
+
+  public class TestBean {
+  }
+
 }
