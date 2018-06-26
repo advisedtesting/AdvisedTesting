@@ -24,36 +24,10 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.ehoffman.classloader;
+package org.ehoffman.test.classloader.data;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+public class ContainsStaticFinalLiteral {
 
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
-import org.springframework.instrument.classloading.ShadowingClassLoader;
-
-public class RunInClassLoaderInterceptor implements MethodInterceptor {
-
-  private final ShadowingClassLoader classloader;
+  public static final String finalLiteral = "Final";
   
-  public RunInClassLoaderInterceptor() {
-    classloader = new ShadowingClassLoader(Thread.currentThread().getContextClassLoader());
-    classloader.addTransformer(new EvictingStaticTransformer());
-  }
-  
-  @Override
-  public Object invoke(MethodInvocation invocation) throws Throwable {
-    Class<?> targetClass = invocation.getMethod().getDeclaringClass();
-    Class<?> inLoadTargetClass = classloader.loadClass(targetClass.getName());
-    Object newTestInstance = inLoadTargetClass.newInstance();
-    Method methodOfTarget = inLoadTargetClass
-            .getMethod(invocation.getMethod().getName(), invocation.getMethod().getParameterTypes());
-    try {
-      return methodOfTarget.invoke(newTestInstance, invocation.getArguments());
-    } catch (InvocationTargetException ite) {
-      throw ite.getCause();
-    }
-  }
-
 }

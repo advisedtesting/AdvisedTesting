@@ -24,7 +24,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.ehoffman.classloader;
+package org.ehoffman.testclassloader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -32,19 +32,31 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 
-import org.ehoffman.classloader.data.ContainsStaticFinalLiteral;
-import org.ehoffman.classloader.data.ContainsStaticFinalNonLiteral;
-import org.ehoffman.classloader.data.ContainsStaticLiteralNonFinal;
-import org.ehoffman.classloader.data.NestedContainsStaticNonFinalOrNonLiteral;
-import org.ehoffman.classloader.data.StaticInitBlockClass;
+import org.ehoffman.aop.context.IoCContext;
+import org.ehoffman.classloader.ClassContainsStaticInitialization;
+import org.ehoffman.classloader.EvictingStaticTransformer;
+import org.ehoffman.classloader.RestrictiveClassloader;
 import org.ehoffman.junit.aop.Junit4AopClassRunner;
+import org.ehoffman.test.classloader.data.BadAppConfig;
+import org.ehoffman.test.classloader.data.ContainsStaticFinalLiteral;
+import org.ehoffman.test.classloader.data.ContainsStaticFinalNonLiteral;
+import org.ehoffman.test.classloader.data.ContainsStaticLiteralNonFinal;
+import org.ehoffman.test.classloader.data.NestedContainsStaticNonFinalOrNonLiteral;
+import org.ehoffman.test.classloader.data.StaticInitBlockClass;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.BeanCreationException;
+import org.springframework.context.ApplicationContext;
 import org.springframework.instrument.classloading.ShadowingClassLoader;
 
 @RunWith(Junit4AopClassRunner.class)
 public class TestStaticInitializationEvictionJunit4 {
 
+  @Rule
+  public TemporaryFolder folder = new TemporaryFolder();
+  
   @Test
   public void testClassContainsStaticInitializationPredicate() throws IOException {
     ClassContainsStaticInitialization asmScanner = new ClassContainsStaticInitialization();
@@ -74,8 +86,38 @@ public class TestStaticInitializationEvictionJunit4 {
 
   @Test
   @RestrictiveClassloader
-  public void shoudlFailUsingAClassWithAStaticInit() {
+  @IoCContext(name = "bob", classes = { org.ehoffman.test.classloader.data.AppConfiguration.class })
+  @IoCContext(name = "ted", classes = { org.ehoffman.test.classloader.data.AppConfiguration.class })
+  public void testGoodContext(ApplicationContext context, org.ehoffman.test.classloader.data.AppConfiguration.TestBean bean) {
+    assertThat(bean.getClass().getClassLoader().getClass().getName()).contains("Shadow");
+    assertThat(context).isNotNull();
+    assertThat(bean).isNotNull();
+  }
+  
+  /**
+   * <p>
+   * Even a parameter like: @IoCContext(instance = "badApple") Object bean would trip up the classloader, just
+   * earlier in the test execution than the expected exception handling could deal with.
+   * </p>
+   * <p> 
+   * Usually devs would list "badApple" by type which would cause the test class to fail to load (for all tests
+   * in the restrictive class loader), but it is possible that an interface could be used to get a bean, and that
+   * the implementation would trip up the rules.
+   * </p>
+   */
+  @Test(expected = BeanCreationException.class)
+  @RestrictiveClassloader
+  @IoCContext(name = "bob", classes = { BadAppConfig.class })
+  public void testBadContext(ApplicationContext context) {
+    assertThat(context.getBean("badApple")).isNotNull();
+    fail("Context should not be reachable.");
+  }
+  
+  @Test
+  @RestrictiveClassloader
+  public void shoudlFailUsingAClassWithAStaticInit() throws IOException {
     try {
+      assertThat(folder.newFolder()).isDirectory().canRead().canWrite();
       new StaticInitBlockClass();
       fail("Class should not have been loadable.");
     } catch (ClassFormatError cfe) {
