@@ -45,13 +45,17 @@ import org.ehoffman.advised.ObjectFactory;
 import org.ehoffman.advised.internal.ProviderAwareObjectFactoryAggregate;
 import org.ehoffman.advised.internal.TestContext;
 import org.junit.AssumptionViolatedException;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.internal.runners.model.EachTestNotifier;
+import org.junit.rules.RunRules;
+import org.junit.rules.TestRule;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
+import org.junit.runners.model.TestClass;
 
 public class Junit4AopClassRunner extends BlockJUnit4ClassRunner {
 
@@ -178,12 +182,31 @@ public class Junit4AopClassRunner extends BlockJUnit4ClassRunner {
     }
 
   }
+  
+  /**
+   * Get rules for this test object.
+   * 
+   * @param target
+   *          the test case instance
+   * @return a list of TestRules that should be applied when executing this test
+   */
+  @Override
+  protected List<TestRule> getTestRules(Object target) {
+    TestClass testClass = new TestClass(target.getClass());
+    List<TestRule> result = testClass.getAnnotatedMethodValues(target, Rule.class, TestRule.class);
+
+    result.addAll(testClass.getAnnotatedFieldValues(target, Rule.class, TestRule.class));
+
+    return result;
+  }
 
   public class DelayedConstructionStatement extends Statement {
     private final String testName;
     private final List<String> parameterTypes;
     private final String targetClass;
     private final ProviderAwareObjectFactoryAggregate registry;
+    private boolean wrapped = false;
+    private Statement wrappedStatement = null;
 
     public DelayedConstructionStatement(FrameworkMethod fmethod, Class<?> targetClass, ProviderAwareObjectFactoryAggregate registry) {
       this.testName = fmethod.getMethod().getName();
@@ -194,20 +217,52 @@ public class Junit4AopClassRunner extends BlockJUnit4ClassRunner {
     }
 
     public void evaluate() throws Throwable {
-      ClassLoader loader = Thread.currentThread().getContextClassLoader();
-      Class<?> targetClassInLoader = loader.loadClass(targetClass);
-      Object target = targetClassInLoader.newInstance();
-      List<Class<?>> parameters = new ArrayList<>();
-      for (String className : parameterTypes) {
-        parameters.add(loader.loadClass(className));
+      if (wrapped) {
+        wrappedStatement.evaluate();
+      } else {
+        wrapped = true;
+        ClassLoader loader = Thread.currentThread().getContextClassLoader();
+        Class<?> targetClassInLoader = loader.loadClass(targetClass);
+        Object target = targetClassInLoader.newInstance();
+        List<Class<?>> parameters = new ArrayList<>();
+        for (String className : parameterTypes) {
+          parameters.add(loader.loadClass(className));
+        }
+        Method method = targetClassInLoader.getMethod(testName, parameters.toArray(new Class[] {}));
+        FrameworkMethod fmethod = new FrameworkMethod(method);
+        Statement newTarget = new IvokationMethodWithArguments(target, fmethod, registry.getArgumentsFor(method));
+        //simulates standard statement processing by junit 4.
+        newTarget = possiblyExpectingExceptions(fmethod, target, newTarget);
+        newTarget = withPotentialTimeout(fmethod, target, newTarget);
+        newTarget = withBefores(fmethod, target, newTarget);
+        newTarget = withAfters(fmethod, target, newTarget);
+        //newTarget = withRules(fmethod, target, newTarget);
+        List<TestRule> testRules = getTestRules(target);
+        newTarget = new RunRules(newTarget, testRules, describeChild(fmethod));
+        newTarget.evaluate();
       }
-      Method method = targetClassInLoader.getMethod(testName, parameters.toArray(new Class[] {}));
-      FrameworkMethod fmethod = new FrameworkMethod(method);
-      //if (parameterTypes.size() == 0) {
-      //  methodBlock(fmethod).evaluate();
-      //} else {
-        fmethod.invokeExplosively(target, registry.getArgumentsFor(method));
-      //}
     }
+  }
+  
+  public static class IvokationMethodWithArguments extends Statement {
+
+    private final Object target;
+    private final FrameworkMethod method;
+    private final Object[] arguments;
+    
+    
+    
+    public IvokationMethodWithArguments(Object target, FrameworkMethod method, Object[] arguments) {
+      super();
+      this.target = target;
+      this.method = method;
+      this.arguments = arguments;
+    }
+
+    @Override
+    public void evaluate() throws Throwable {
+      method.invokeExplosively(target, arguments);
+    }
+    
   }
 }

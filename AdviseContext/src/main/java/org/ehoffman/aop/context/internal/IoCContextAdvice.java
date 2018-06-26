@@ -40,7 +40,8 @@ public class IoCContextAdvice implements MethodInterceptor {
   public Object invoke(MethodInvocation invocation) throws Throwable {
     if (ContextAwareMethodInvocation.class.isAssignableFrom(invocation.getClass())) {
       ContextAwareMethodInvocation cinvocation = ((ContextAwareMethodInvocation) invocation);
-      ObjectFactory objectFactory = new SpringContextObjectFactory(sanitize(((IoCContext) cinvocation.getTargetAnnotation()).classes()));
+      ObjectFactory objectFactory =
+              new SpringContextObjectFactory(sanitize(((IoCContext) cinvocation.getTargetAnnotation()).classes()));
       cinvocation.registerObjectFactory(objectFactory);
       return invocation.proceed();
     } else {
@@ -49,7 +50,7 @@ public class IoCContextAdvice implements MethodInterceptor {
     }
   }
   
-  private List<Class<?>> sanitize(Class... classes) throws ClassNotFoundException {
+  private List<Class<?>> sanitize(Class<?>... classes) throws ClassNotFoundException {
     List<Class<?>> output = new ArrayList<>();
     for (Class<?> clazz : classes) {
       output.add(Thread.currentThread().getContextClassLoader().loadClass(clazz.getName()));
