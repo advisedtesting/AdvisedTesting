@@ -39,12 +39,15 @@ public class RunInClassLoaderInterceptor implements MethodInterceptor {
   
   public RunInClassLoaderInterceptor() {
     classloader = new ShadowingClassLoader(ShadowingClassLoader.class.getClassLoader(), true);
+    //TODO: provide configuration mechanism, a class of a certain type?
+    //Ahh!  a detector that could inspect the classpath and decide which to include.
     classloader.excludePackage("org.ehoffman.advised");
     classloader.excludePackage("org.ehoffman.junit.aop");
     classloader.excludePackage("org.ehoffman.aop.context");
     classloader.excludePackage("org.ehoffman.classloader");
     classloader.excludePackage("org.springframework");
     classloader.excludePackage("org.assertj");
+    classloader.excludePackage("org.junit");
     classloader.excludeClass(MethodInterceptor.class.getName());
     classloader.excludeClass(Invocation.class.getName());
     classloader.addTransformer(new EvictingStaticTransformer());

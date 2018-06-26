@@ -30,8 +30,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.ehoffman.advised.ObjectFactory;
-import org.springframework.beans.factory.BeanNotOfRequiredTypeException;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
@@ -40,35 +38,23 @@ public class SpringContextObjectFactory implements ObjectFactory {
   @SuppressWarnings("unchecked")
   @Override
   public <T> T getObject(Class<T> type) {
-    try {
-      return context.getBean(type);
-    } catch (BeanNotOfRequiredTypeException | NoSuchBeanDefinitionException ex) {
-      if (ApplicationContext.class.isAssignableFrom(type)) {
-        return (T) context;
-      }
-      if (ObjectFactory.class.isAssignableFrom(type)) {
-        return (T) this;
-      }
-      return null;
+    if (ApplicationContext.class.isAssignableFrom(type)) {
+      return (T) context;
     }
+    if (ObjectFactory.class.isAssignableFrom(type)) {
+      return (T) this;
+    }
+    return context.getBean(type);
   }
 
   @Override
   public <T> T getObject(String name, Class<T> type) {
-    try {
-      return context.getBean(name, type);
-    } catch (BeanNotOfRequiredTypeException | NoSuchBeanDefinitionException ex) {
-      return null;
-    }
+    return context.getBean(name, type);
   }
 
   @Override
   public <T> Map<String, T> getAllObjects(Class<T> type) {
-    try {
-      return context.getBeansOfType(type);
-    } catch (BeanNotOfRequiredTypeException | NoSuchBeanDefinitionException ex) {
-      return null;
-    }
+    return context.getBeansOfType(type);
   }
 
   private ApplicationContext context;

@@ -74,6 +74,7 @@ public class TestContext {
    * 
    * @param annotation
    *          the annotation who's related {@link MethodInterceptor} instance will be returned.
+   * @param classLoader in which to load the MethodInterceptor.
    * 
    * @return an advice instance singleton from the annotationClass's implementedBy parameter if any, and is constructible, or null.
    */

@@ -26,14 +26,17 @@
  */
 package org.ehoffman.test.classloader.data;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Lazy;
 
 @Import(AppConfiguration.class)
 public class BadAppConfig {
 
-  public static final List<String> mutableState = new ArrayList<>();
+  @Lazy
+  @Bean("badApple")
+  public Object getBadApple() {
+     return new StaticInitBlockClass();    
+  }
   
 }
