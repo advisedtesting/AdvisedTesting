@@ -7,4 +7,5 @@
 **/target/
 **/.DS_Store
 **/.springBeans
+**/pom.xml.versionsBackup
 /travis-prep.sh
