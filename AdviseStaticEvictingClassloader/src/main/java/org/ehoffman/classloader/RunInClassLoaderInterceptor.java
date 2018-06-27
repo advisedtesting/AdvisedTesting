@@ -27,40 +27,44 @@
 package org.ehoffman.classloader;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
-import org.aopalliance.intercept.Invocation;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.ehoffman.advised.ContextAwareMethodInvocation;
 import org.springframework.instrument.classloading.ShadowingClassLoader;
 
 public class RunInClassLoaderInterceptor implements MethodInterceptor {
 
-  private final ShadowingClassLoader classloader;
-  
-  public RunInClassLoaderInterceptor() {
-    classloader = new ShadowingClassLoader(ShadowingClassLoader.class.getClassLoader(), true);
-    //TODO: provide configuration mechanism, a class of a certain type?
-    //Ahh!  a detector that could inspect the classpath and decide which to include.
-    classloader.excludePackage("org.ehoffman.advised");
-    classloader.excludePackage("org.ehoffman.junit.aop");
-    classloader.excludePackage("org.ehoffman.aop.context");
-    classloader.excludePackage("org.ehoffman.classloader");
-    classloader.excludePackage("org.springframework");
-    classloader.excludePackage("org.assertj");
-    classloader.excludePackage("org.junit");
-    classloader.excludeClass(MethodInterceptor.class.getName());
-    classloader.excludeClass(Invocation.class.getName());
-    classloader.addTransformer(new EvictingStaticTransformer());
-  }
+  private final Map<Class<? extends Supplier<Stream<String>>>, ShadowingClassLoader> classloaderBySupplier 
+      = new ConcurrentHashMap<>();
+
   
   @Override
   public Object invoke(MethodInvocation invocation) throws Throwable {
-    try {
-      Thread.currentThread().setContextClassLoader(classloader);
-      return invocation.proceed();
-    } catch (InvocationTargetException ite) {
-      throw ite.getCause();
+    if (ContextAwareMethodInvocation.class.isAssignableFrom(invocation.getClass())) {
+      ContextAwareMethodInvocation cinvocation = ((ContextAwareMethodInvocation) invocation);
+      RestrictiveClassloader rc = (RestrictiveClassloader) cinvocation.getTargetAnnotation();
+      Class<? extends  Supplier<Stream<String>>> supplierClass = rc.delegatingPackagesSupplier();
+      Supplier<Stream<String>> packageSupplier = supplierClass.newInstance();
+      ShadowingClassLoader targetClassLoader = classloaderBySupplier.computeIfAbsent(supplierClass, targetClass -> {
+        ShadowingClassLoader classloader = new ShadowingClassLoader(ShadowingClassLoader.class.getClassLoader(), true);
+        classloader.addTransformer(new EvictingStaticTransformer());
+        packageSupplier.get().forEach(packageName -> classloader.excludePackage(packageName));
+        return classloader;
+      });
+      try {
+        Thread.currentThread().setContextClassLoader(targetClassLoader);
+        return invocation.proceed();
+      } catch (InvocationTargetException ite) {
+        throw ite.getCause();
+      }
+    } else {
+      throw new IllegalStateException(
+              "This MethodInterceptor must be passed an instance of " + RestrictiveClassloader.class.getName());
     }
   }
-
 }

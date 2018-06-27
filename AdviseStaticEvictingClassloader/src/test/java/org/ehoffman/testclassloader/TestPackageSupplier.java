@@ -24,19 +24,25 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.ehoffman.test.classloader.data;
+package org.ehoffman.testclassloader;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Lazy;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
-@Import(AppConfiguration.class)
-public class BadAppConfig {
+public class TestPackageSupplier implements Supplier<Stream<String>> {
 
-  @Lazy
-  @Bean("badApple")
-  public Object getBadApple() {
-     return new StaticInitBlockClass();    
+  @Override
+  public Stream<String> get() {
+    return Stream.of(
+    "org.ehoffman.advised",
+    "org.ehoffman.junit.aop",
+    "org.ehoffman.aop.context",
+    "org.ehoffman.classloader",
+    "org.springframework",
+    "org.assertj",
+    "org.junit",
+    "org.aopalliance",
+    "test.classloader.data");
   }
-  
+
 }
