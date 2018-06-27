@@ -24,14 +24,19 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.ehoffman.test.classloader.data;
+package test.classloader.data;
 
-public class StaticInitBlockClass {
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Lazy;
 
-  public static final String s = "sss";
-  
-  static {
-    System.out.println("s");
+@Import(AppConfiguration.class)
+public class BadAppConfig {
+
+  @Lazy
+  @Bean("badApple")
+  public Object getBadApple() {
+     return new StaticInitBlockClass();    
   }
   
 }

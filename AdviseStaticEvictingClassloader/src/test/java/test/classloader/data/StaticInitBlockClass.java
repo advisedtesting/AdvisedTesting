@@ -24,12 +24,16 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.ehoffman.test.classloader.data;
+package test.classloader.data;
 
-public class NestedContainsStaticNonFinalOrNonLiteral {
+public class StaticInitBlockClass {
 
-  public static class Nested {
-    public static final Object o = new Object();
+  public static final String s = "sss";
+  
+  static {
+    if (StaticInitBlockClass.class.getClassLoader().getClass().getName().contains("Shadow")) {
+      System.out.println("Shouldn't be doable");
+    }
   }
   
 }

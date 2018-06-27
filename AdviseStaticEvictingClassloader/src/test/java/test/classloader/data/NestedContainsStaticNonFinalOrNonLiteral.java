@@ -24,36 +24,12 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.ehoffman.classloader;
+package test.classloader.data;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import java.util.function.Supplier;
-import java.util.stream.Stream;
+public class NestedContainsStaticNonFinalOrNonLiteral {
 
-import org.aopalliance.intercept.MethodInterceptor;
-
-@Target({ElementType.METHOD, ElementType.CONSTRUCTOR, ElementType.FIELD, ElementType.PARAMETER })
-@Retention(RetentionPolicy.RUNTIME)
-@Documented
-public @interface RestrictiveClassloader {
-
-  /**
-   * A class of type with a no arg constructor, that returns a stream of packages to delegate to the parent class loader.
-   * No enforcement of statics will occur on the white listed classes.
-   * @return the class representing the supplier.
-   */
-  Class<? extends Supplier<Stream<String>>> delegatingPackagesSupplier() default MinimalPackageSupplier.class;
-  
-  /**
-   * {@link #implementedBy()} returns a Class that implements {@link org.aopalliance.intercept.MethodInterceptor}.
-   * This field will be accessed via reflection so the name must be exact.  If the class also implements
-   * {@link java.io.Closeable} the {@link java.io.Closeable#close()} method will be called at the close of the global context.
-   * @return the {@link MethodInterceptor} used to build the context, should never need to be changed.
-   */
-  Class<? extends MethodInterceptor> implementedBy() default RunInClassLoaderInterceptor.class;
+  public static class Nested {
+    public static final Object o = new Object();
+  }
   
 }

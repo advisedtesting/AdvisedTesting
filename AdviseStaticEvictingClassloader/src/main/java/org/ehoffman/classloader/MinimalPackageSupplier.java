@@ -24,10 +24,32 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.ehoffman.test.classloader.data;
+package org.ehoffman.classloader;
 
-public class ContainsStaticLiteralNonFinal {
-  
-  public static String o = "w00t";
+import java.util.function.Supplier;
+import java.util.stream.Stream;
+
+import org.springframework.instrument.classloading.ShadowingClassLoader;
+
+/**
+ * Spring's {@link ShadowingClassLoader} will still use it's defaults {@link ShadowingClassLoader#DEFAULT_EXCLUDED_PACKAGES}.
+ * The packages will not be evicted from classloading by the {@link RunInClassLoaderInterceptor}.
+ * The covered classes will be loaded by the parent (URLClassLoader) provided by the jvm to junit.
+ * @author rex
+ */
+public class MinimalPackageSupplier implements Supplier<Stream<String>> {
+
+  @Override
+  public Stream<String> get() {
+    return Stream.of(
+      "org.ehoffman.advised",
+      "org.ehoffman.junit.aop",
+      "org.ehoffman.aop.context",
+      "org.ehoffman.classloader",
+      "org.springframework",
+      "org.assertj",
+      "org.junit",
+      "org.aopalliance");//it supplies the shadowing classloader....
+  }
 
 }

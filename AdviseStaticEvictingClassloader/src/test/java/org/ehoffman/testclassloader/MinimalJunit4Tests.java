@@ -32,8 +32,6 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 
-import org.ehoffman.aop.context.IoCContext;
-import org.ehoffman.classloader.ClassContainsStaticInitialization;
 import org.ehoffman.classloader.EvictingStaticTransformer;
 import org.ehoffman.classloader.RestrictiveClassloader;
 import org.ehoffman.junit.aop.Junit4AopClassRunner;
@@ -41,77 +39,23 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.BeanCreationException;
-import org.springframework.context.ApplicationContext;
 import org.springframework.instrument.classloading.ShadowingClassLoader;
 
-import test.classloader.data.BadAppConfig;
-import test.classloader.data.ContainsStaticFinalLiteral;
-import test.classloader.data.ContainsStaticFinalNonLiteral;
 import test.classloader.data.ContainsStaticLiteralNonFinal;
-import test.classloader.data.NestedContainsStaticNonFinalOrNonLiteral;
 import test.classloader.data.StaticInitBlockClass;
 
 @RunWith(Junit4AopClassRunner.class)
-public class TestStaticInitializationEvictionJunit4 {
+public class MinimalJunit4Tests {
 
   @Rule
   public TemporaryFolder folder = new TemporaryFolder();
   
-  @Test
-  public void testClassContainsStaticInitializationPredicate() throws IOException {
-    ClassContainsStaticInitialization asmScanner = new ClassContainsStaticInitialization();
-    assertThat(asmScanner.test(ContainsStaticLiteralNonFinal.class.getName()))
-        .describedAs("Static literal non final fields should cause classes should be evicted").isTrue();
-    assertThat(asmScanner.test(ContainsStaticFinalNonLiteral.class.getName()))
-        .describedAs("Static final non literal fields should cause class to be evicted").isTrue();
-    assertThat(asmScanner.test(StaticInitBlockClass.class.getName()))
-        .describedAs("Static init block should cause class to be evicted").isTrue();
-    assertThat(asmScanner.test(NestedContainsStaticNonFinalOrNonLiteral.Nested.class.getName()))
-        .describedAs("Nested classes are evicted as well").isTrue();
-    assertThat(asmScanner.test(ContainsStaticFinalLiteral.class.getName()))
-        .describedAs("Static final literal containing classes are not evicted").isFalse();
-    assertThat(asmScanner.test(NestedContainsStaticNonFinalOrNonLiteral.class.getName()))
-        .describedAs("Classes that contain bad nested classes are not prevented").isFalse();
-    assertThat(asmScanner.test(TestStaticInitializationEvictionJunit4.class.getName()))
-        .describedAs("This class is also good").isFalse();
-  }
-
   @Test
   public void testSimpleClassloaderChecks() throws ClassNotFoundException {
     ShadowingClassLoader loader = new ShadowingClassLoader(this.getClass().getClassLoader());
     loader.addTransformer(new EvictingStaticTransformer());
     loader.loadClass(TestStaticInitializationEvictionJunit4.class.getName());
     assertThatThrownBy(() -> loader.loadClass(ContainsStaticLiteralNonFinal.class.getName())).isInstanceOf(ClassFormatError.class);
-  }
-
-  @Test
-  @RestrictiveClassloader
-  @IoCContext(name = "bob", classes = { test.classloader.data.AppConfiguration.class })
-  @IoCContext(name = "ted", classes = { test.classloader.data.AppConfiguration.class })
-  public void testGoodContext(ApplicationContext context, test.classloader.data.AppConfiguration.TestBean bean) {
-    assertThat(bean.getClass().getClassLoader().getClass().getName()).contains("Shadow");
-    assertThat(context).isNotNull();
-    assertThat(bean).isNotNull();
-  }
-  
-  /**
-   * <p>
-   * Even a parameter like: @IoCContext(instance = "badApple") Object bean would trip up the classloader, just
-   * earlier in the test execution than the expected exception handling could deal with.
-   * </p>
-   * <p> 
-   * Usually devs would list "badApple" by type which would cause the test class to fail to load (for all tests
-   * in the restrictive class loader), but it is possible that an interface could be used to get a bean, and that
-   * the implementation would trip up the rules.
-   * </p>
-   */
-  @Test(expected = BeanCreationException.class)
-  @RestrictiveClassloader
-  @IoCContext(name = "bob", classes = { BadAppConfig.class })
-  public void testBadContext(ApplicationContext context) {
-    assertThat(context.getBean("badApple")).isNotNull();
-    fail("Context should not be reachable.");
   }
   
   @Test
@@ -126,4 +70,15 @@ public class TestStaticInitializationEvictionJunit4 {
     }
   }
   
+  
+  @Test
+  @RestrictiveClassloader(delegatingPackagesSupplier = TestPackageSupplier.class)
+  public void shoudlNotFailUsingAClassWithAStaticInit() throws IOException {
+    try {
+      assertThat(folder.newFolder()).isDirectory().canRead().canWrite();
+      new StaticInitBlockClass();
+    } catch (ClassFormatError cfe) {
+      fail("Class should be loadable");
+    }
+  }
 }

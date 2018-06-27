@@ -34,14 +34,15 @@ import java.io.IOException;
 
 import org.ehoffman.classloader.ClassContainsStaticInitialization;
 import org.ehoffman.classloader.EvictingStaticTransformer;
-import org.ehoffman.test.classloader.data.ContainsStaticFinalLiteral;
-import org.ehoffman.test.classloader.data.ContainsStaticFinalNonLiteral;
-import org.ehoffman.test.classloader.data.ContainsStaticLiteralNonFinal;
-import org.ehoffman.test.classloader.data.NestedContainsStaticNonFinalOrNonLiteral;
-import org.ehoffman.test.classloader.data.StaticInitBlockClass;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.instrument.classloading.ShadowingClassLoader;
+
+import test.classloader.data.ContainsStaticFinalLiteral;
+import test.classloader.data.ContainsStaticFinalNonLiteral;
+import test.classloader.data.ContainsStaticLiteralNonFinal;
+import test.classloader.data.NestedContainsStaticNonFinalOrNonLiteral;
+import test.classloader.data.StaticInitBlockClass;
 
 class TestStaticInitializationEvictionJunit5 {
 
