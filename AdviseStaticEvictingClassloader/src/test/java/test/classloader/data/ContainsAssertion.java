@@ -26,17 +26,10 @@
  */
 package test.classloader.data;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Lazy;
+public class ContainsAssertion {
 
-@Import(AppConfiguration.class)
-public class BadAppConfig {
-
-  @Lazy
-  @Bean("badApple")
-  public Object getBadApple() {
-    return new StaticInitBlockClass();
+  public ContainsAssertion() {
+    assert (Math.random() > .5);
   }
   
 }
