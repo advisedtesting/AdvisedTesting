@@ -46,6 +46,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.instrument.classloading.ShadowingClassLoader;
 
 import test.classloader.data.BadAppConfig;
+import test.classloader.data.ContainsAssertion;
 import test.classloader.data.ContainsStaticFinalLiteral;
 import test.classloader.data.ContainsStaticFinalNonLiteral;
 import test.classloader.data.ContainsStaticLiteralNonFinal;
@@ -73,8 +74,8 @@ public class TestStaticInitializationEvictionJunit4 {
         .describedAs("Static final literal containing classes are not evicted").isFalse();
     assertThat(asmScanner.test(NestedContainsStaticNonFinalOrNonLiteral.class.getName()))
         .describedAs("Classes that contain bad nested classes are not prevented").isFalse();
-    assertThat(asmScanner.test(TestStaticInitializationEvictionJunit4.class.getName()))
-        .describedAs("This class is also good").isFalse();
+    assertThat(asmScanner.test(ContainsAssertion.class.getName()))
+        .describedAs("Classes with assertions are permitted").isFalse();
   }
 
   @Test

@@ -29,11 +29,16 @@ package org.ehoffman.classloader;
 import java.io.IOException;
 import java.util.function.Predicate;
 
+import org.springframework.asm.AnnotationVisitor;
+import org.springframework.asm.Attribute;
 import org.springframework.asm.ClassReader;
 import org.springframework.asm.ClassVisitor;
 import org.springframework.asm.FieldVisitor;
+import org.springframework.asm.Handle;
+import org.springframework.asm.Label;
 import org.springframework.asm.MethodVisitor;
 import org.springframework.asm.Opcodes;
+import org.springframework.asm.TypePath;
 
 public class ClassContainsStaticInitialization implements Predicate<String> {
 
@@ -51,6 +56,8 @@ public class ClassContainsStaticInitialization implements Predicate<String> {
  
   private static class UnsafeClassVistor extends ClassVisitor {
 
+    boolean allowAssertions = true;
+    
     boolean shouldEvict = false;
     
     boolean isEnumeration = false; //enumerations can not avoid static member variables -- just make sure they are final.
@@ -66,7 +73,8 @@ public class ClassContainsStaticInitialization implements Predicate<String> {
     public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
       if (isStatic(access) 
           && (!isFinal(access) || value == null)
-          && (!isFinal(access) && isEnumeration)) {
+          && (!isFinal(access) && isEnumeration)
+          && (!"$assertionsDisabled".equals(name) && !allowAssertions)) {
         shouldEvict = true;
       }
       return super.visitField(access, name, desc, signature, value);
@@ -88,6 +96,9 @@ public class ClassContainsStaticInitialization implements Predicate<String> {
     public MethodVisitor visitMethod(int access, String name, 
                               String desc, String signature, String[] exceptions) {
       if (!isEnumeration && "<clinit>".equals(name)) {
+        if (allowAssertions) {
+          return new UnsafeStaticInitVistor(this.api, this);
+        }
         shouldEvict = true;
       }
       return super.visitMethod(access, name, desc, signature, exceptions);
@@ -100,6 +111,175 @@ public class ClassContainsStaticInitialization implements Predicate<String> {
     public UnsafeClassVistor(int api) {
       super(api);
     }
+    
+    public void evict() {
+      this.shouldEvict = true;
+    }
+  }
+  
+  /**
+   * <p>
+   * This methodVisitor evicts any method who's only operations
+   * are anything other than setting the class's static
+   * $assertionsDisabled with {@link Class#desiredAssertionStatus}'s
+   * result.
+   * </p>
+   * <p>
+   * If a class uses the assert keyword this static member variable
+   * is constructed and set in this way.
+   * </p>
+   * <p>
+   * Should only be used to validate &lt;cinit&gt; methods.
+   * </p>
+   * @author rex
+   */
+  public static class UnsafeStaticInitVistor extends MethodVisitor {
+
+    private boolean shouldEvict = false;
+    
+    private final UnsafeClassVistor visitor;
+    
+    public UnsafeStaticInitVistor(int api, UnsafeClassVistor visitor) {
+      super(api);
+      this.visitor = visitor;
+    }
+    
+
+    @Override
+    public void visitFieldInsn(int opcode, String owner, String name, String desc) {
+      shouldEvict = shouldEvict 
+              || opcode != Opcodes.PUTSTATIC
+              || !"$assertionsDisabled".equals(name);
+      super.visitFieldInsn(opcode, owner, name, desc);
+    }
+
+    @Override
+    public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int index) {
+      shouldEvict = true;
+      super.visitLocalVariable(name, desc, signature, start, end, index);
+    }
+    
+    @Override
+    public void visitEnd() {
+      if (shouldEvict) {
+        visitor.evict();
+      }
+    }
+
+    @Override
+    public void visitAttribute(Attribute attr) {
+      super.visitAttribute(attr);
+    }
+
+    @Override
+    public void visitCode() {
+      super.visitCode();
+    }
+
+    @Override
+    public void visitJumpInsn(int opcode, Label label) {
+      super.visitJumpInsn(opcode, label);
+    }
+
+    @Override
+    public void visitMaxs(int maxStack, int maxLocals) {
+      super.visitMaxs(maxStack, maxLocals);
+    }
+
+    @Override
+    public void visitParameter(String name, int access) {
+      // TODO Auto-generated method stub
+      super.visitParameter(name, access);
+    }
+
+    @Override
+    public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String desc, boolean visible) {
+      // TODO Auto-generated method stub
+      return super.visitTypeAnnotation(typeRef, typePath, desc, visible);
+    }
+
+    @Override
+    public AnnotationVisitor visitParameterAnnotation(int parameter, String desc, boolean visible) {
+      // TODO Auto-generated method stub
+      return super.visitParameterAnnotation(parameter, desc, visible);
+    }
+
+    @Override
+    public void visitFrame(int type, int numLocal, Object[] local, int numStack, Object[] stack) {
+      super.visitFrame(type, numLocal, local, numStack, stack);
+    }
+
+    @Override
+    public void visitTypeInsn(int opcode, String type) {
+      shouldEvict = true;
+      super.visitTypeInsn(opcode, type);
+    }
+
+    @Override
+    public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
+      // TODO Auto-generated method stub
+      shouldEvict = shouldEvict 
+          || opcode != Opcodes.INVOKEVIRTUAL
+          || !"java/lang/Class".equals(owner)
+          || !"desiredAssertionStatus".equals(name)
+          || !"()Z".equals(desc);
+              
+      super.visitMethodInsn(opcode, owner, name, desc, itf);
+    }
+
+    @Override
+    public void visitInvokeDynamicInsn(String name, String desc, Handle bsm, Object... bsmArgs) {
+      shouldEvict = true;
+      super.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
+    }
+
+    @Override
+    public void visitLabel(Label label) {
+      super.visitLabel(label);
+    }
+
+    @Override
+    public void visitTableSwitchInsn(int min, int max, Label dflt, Label... labels) {
+      shouldEvict = true;
+      super.visitTableSwitchInsn(min, max, dflt, labels);
+    }
+
+    @Override
+    public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
+      shouldEvict = true;
+      super.visitLookupSwitchInsn(dflt, keys, labels);
+    }
+
+    @Override
+    public void visitMultiANewArrayInsn(String desc, int dims) {
+      shouldEvict = true;
+      super.visitMultiANewArrayInsn(desc, dims);
+    }
+
+    @Override
+    public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {
+      shouldEvict = true;
+      super.visitTryCatchBlock(start, end, handler, type);
+    }
+
+    @Override
+    public AnnotationVisitor visitTryCatchAnnotation(int typeRef, TypePath typePath, String desc, boolean visible) {
+      shouldEvict = true;
+      return super.visitTryCatchAnnotation(typeRef, typePath, desc, visible);
+    }
+
+    @Override
+    public AnnotationVisitor visitLocalVariableAnnotation(int typeRef, TypePath typePath, Label[] start, Label[] end, int[] index,
+            String desc, boolean visible) {
+      shouldEvict = true;
+      return super.visitLocalVariableAnnotation(typeRef, typePath, start, end, index, desc, visible);
+    }
+
+    @Override
+    public void visitLineNumber(int line, Label start) {
+      super.visitLineNumber(line, start);
+    }
+    
   }
   
 }
