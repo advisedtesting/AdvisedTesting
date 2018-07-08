@@ -24,26 +24,10 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.ehoffman.testclassloader;
+package test.classloader.data;
 
-import java.util.function.Supplier;
-import java.util.stream.Stream;
-
-public class TestPackageSupplier implements Supplier<Stream<String>> {
-
-  @Override
-  public Stream<String> get() {
-    return Stream.of(
-    "org.ehoffman.advised",
-    "org.ehoffman.junit.aop",
-    "org.ehoffman.aop.context",
-    "org.ehoffman.classloader",
-    "org.ehoffman.testclassloader",
-    "org.springframework",
-    "org.assertj",
-    "org.junit",
-    "org.aopalliance",
-    "test.classloader.data");
-  }
+public class ContainsStaticUnsetVar {
+  
+  public static Object object;
 
 }

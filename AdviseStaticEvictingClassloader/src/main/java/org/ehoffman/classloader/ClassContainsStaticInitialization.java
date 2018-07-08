@@ -27,10 +27,12 @@
 package org.ehoffman.classloader;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import org.springframework.asm.AnnotationVisitor;
-import org.springframework.asm.Attribute;
 import org.springframework.asm.ClassReader;
 import org.springframework.asm.ClassVisitor;
 import org.springframework.asm.FieldVisitor;
@@ -40,7 +42,7 @@ import org.springframework.asm.MethodVisitor;
 import org.springframework.asm.Opcodes;
 import org.springframework.asm.TypePath;
 
-public class ClassContainsStaticInitialization implements Predicate<String> {
+public class ClassContainsStaticInitialization implements Function<String, List<String>>, Predicate<String> {
 
   public boolean test(String className) {
     ClassReader reader;
@@ -50,32 +52,95 @@ public class ClassContainsStaticInitialization implements Predicate<String> {
       reader.accept(visitor, 0);
       return visitor.shouldEvict();
     } catch (IOException ioe) {
-      throw new IllegalArgumentException("Class is not readable " + className, ioe);
+      throw new IllegalArgumentException("Class is not readable " + className.replace('/', '.'), ioe);
     }
+  }
+  
+  public boolean test(byte[] bytes) {
+    ClassReader reader;
+    reader = new ClassReader(bytes);
+    UnsafeClassVistor visitor = new UnsafeClassVistor(Opcodes.ASM6);
+    reader.accept(visitor, 0);
+    return visitor.shouldEvict();
+  }
+
+  @Override
+  public List<String> apply(String className) {
+    ClassReader reader;
+    try {
+      reader = new ClassReader(className);
+      UnsafeClassVistor visitor = new UnsafeClassVistor(Opcodes.ASM6, true);
+      reader.accept(visitor, 0);
+      return visitor.getErrors();
+    } catch (IOException ioe) {
+      throw new IllegalArgumentException("Class is not readable " + className.replace('/', '.'), ioe);
+    }
+  }
+  
+  public List<String> apply(byte[] bytes) {
+    ClassReader reader;
+    reader = new ClassReader(bytes);
+    UnsafeClassVistor visitor = new UnsafeClassVistor(Opcodes.ASM6, true);
+    reader.accept(visitor, 0);
+    return visitor.getErrors();
   }
  
   private static class UnsafeClassVistor extends ClassVisitor {
 
-    boolean allowAssertions = true;
+    private final boolean allowAssertions = true;
     
-    boolean shouldEvict = false;
+    private final boolean captureErrors;
+    
+    private boolean shouldEvict = false;
+    
+    private String className;
     
     boolean isEnumeration = false; //enumerations can not avoid static member variables -- just make sure they are final.
     
+    private final List<String> errors;
+    
+    public UnsafeClassVistor(int api, boolean captureErrors) {
+      super(api);
+      this.captureErrors = captureErrors;
+      if (captureErrors) {
+        errors = new ArrayList<>();
+      } else {
+        errors = null;
+      }
+    }
+    
+    public UnsafeClassVistor(int api) {
+      this(api, false);
+    }
+    
     @Override
     public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
+      className = name;
       isEnumeration = isEnum(access);
-    }
-
+    }    
     
+    private boolean isStaticFinalLiteral(int access, Object value) {
+      return isStatic(access) && isFinal(access) && value != null;
+    }
+    
+    private boolean isStaticFinalEnumeration(int access) {
+      return isStatic(access) && isFinal(access) && isEnumeration;
+    }
+    
+    private boolean isAssertionSupport(String name) {
+      return "$assertionsDisabled".equals(name) && allowAssertions;
+    }
     
     @Override
     public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
       if (isStatic(access) 
-          && (!isFinal(access) || value == null)
-          && (!isFinal(access) && isEnumeration)
-          && (!"$assertionsDisabled".equals(name) && !allowAssertions)) {
+          && !(isStaticFinalEnumeration(access)
+               || isStaticFinalLiteral(access, value)
+               || isAssertionSupport(name))) {
         shouldEvict = true;
+        if (captureErrors) {
+          addError("Disallowed static field with name \"" + name + "\"");
+        }
       }
       return super.visitField(access, name, desc, signature, value);
     }
@@ -108,13 +173,20 @@ public class ClassContainsStaticInitialization implements Predicate<String> {
       return shouldEvict;
     }
     
-    public UnsafeClassVistor(int api) {
-      super(api);
+    public List<String> getErrors() {
+      return errors;
+    }
+    
+    public void addError(String error) {
+      if (errors != null) {
+        this.errors.add(error + " on class: " + className.replace('/', '.'));
+      }
     }
     
     public void evict() {
       this.shouldEvict = true;
     }
+    
   }
   
   /**
@@ -163,50 +235,8 @@ public class ClassContainsStaticInitialization implements Predicate<String> {
     public void visitEnd() {
       if (shouldEvict) {
         visitor.evict();
+        visitor.addError("Disallowed <cinit> method (does more than enable the assert keyword)");
       }
-    }
-
-    @Override
-    public void visitAttribute(Attribute attr) {
-      super.visitAttribute(attr);
-    }
-
-    @Override
-    public void visitCode() {
-      super.visitCode();
-    }
-
-    @Override
-    public void visitJumpInsn(int opcode, Label label) {
-      super.visitJumpInsn(opcode, label);
-    }
-
-    @Override
-    public void visitMaxs(int maxStack, int maxLocals) {
-      super.visitMaxs(maxStack, maxLocals);
-    }
-
-    @Override
-    public void visitParameter(String name, int access) {
-      // TODO Auto-generated method stub
-      super.visitParameter(name, access);
-    }
-
-    @Override
-    public AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String desc, boolean visible) {
-      // TODO Auto-generated method stub
-      return super.visitTypeAnnotation(typeRef, typePath, desc, visible);
-    }
-
-    @Override
-    public AnnotationVisitor visitParameterAnnotation(int parameter, String desc, boolean visible) {
-      // TODO Auto-generated method stub
-      return super.visitParameterAnnotation(parameter, desc, visible);
-    }
-
-    @Override
-    public void visitFrame(int type, int numLocal, Object[] local, int numStack, Object[] stack) {
-      super.visitFrame(type, numLocal, local, numStack, stack);
     }
 
     @Override
@@ -223,7 +253,6 @@ public class ClassContainsStaticInitialization implements Predicate<String> {
           || !"java/lang/Class".equals(owner)
           || !"desiredAssertionStatus".equals(name)
           || !"()Z".equals(desc);
-              
       super.visitMethodInsn(opcode, owner, name, desc, itf);
     }
 
@@ -231,11 +260,6 @@ public class ClassContainsStaticInitialization implements Predicate<String> {
     public void visitInvokeDynamicInsn(String name, String desc, Handle bsm, Object... bsmArgs) {
       shouldEvict = true;
       super.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);
-    }
-
-    @Override
-    public void visitLabel(Label label) {
-      super.visitLabel(label);
     }
 
     @Override
@@ -281,5 +305,5 @@ public class ClassContainsStaticInitialization implements Predicate<String> {
     }
     
   }
-  
+
 }

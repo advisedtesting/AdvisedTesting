@@ -42,6 +42,7 @@ import org.junit.runner.RunWith;
 import org.springframework.instrument.classloading.ShadowingClassLoader;
 
 import test.classloader.data.ContainsStaticLiteralNonFinal;
+import test.classloader.data.ContainsStaticUnsetVar;
 import test.classloader.data.StaticInitBlockClass;
 
 @RunWith(Junit4AopClassRunner.class)
@@ -80,5 +81,17 @@ public class MinimalJunit4Tests {
     } catch (ClassFormatError cfe) {
       fail("Class should be loadable");
     }
+  }
+  
+  @Test(expected = ClassFormatError.class)
+  @RestrictiveClassloader(logStatics = true)
+  public void logsInitBlock() {
+    new StaticInitBlockClass();
+  }
+  
+  @Test(expected = ClassFormatError.class)
+  @RestrictiveClassloader(logStatics = true)
+  public void logsNonLiteral() {
+    new ContainsStaticUnsetVar();
   }
 }

@@ -49,6 +49,33 @@ public @interface RestrictiveClassloader {
   Class<? extends Supplier<Stream<String>>> delegatingPackagesSupplier() default MinimalPackageSupplier.class;
   
   /**
+   * <p>
+   * <b>THIS WILL ONLY BE HONORED IDES</b>, specifically Eclipse and Idea (others would be trivial to add).
+   * </p>
+   * <p>
+   * If set to true all violating elements of a loaded class will be logged (java logger) as warnings, otherwise
+   * classes will refuse to load.
+   *</p>
+   *<p>
+   * Please note that the warning will only be logged once per class per test runner execution, not once per test.
+   * </p>
+   * <p>
+   * The default is false.
+   * </p>
+   * @return true if we will not fail on violations, but only warn.
+   */
+  boolean warnOnly() default false;
+  
+  
+  /**
+   * <p>
+   * Log all static fields, static init blocks found on the class, default is false.
+   * </p>
+   * @return true if we will log, defaalts to false.
+   */
+  boolean logStatics() default false;
+  
+  /**
    * {@link #implementedBy()} returns a Class that implements {@link org.aopalliance.intercept.MethodInterceptor}.
    * This field will be accessed via reflection so the name must be exact.  If the class also implements
    * {@link java.io.Closeable} the {@link java.io.Closeable#close()} method will be called at the close of the global context.
