@@ -31,9 +31,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.ehoffman.aop.context.IoCContext;
 import org.ehoffman.classloader.ClassContainsStaticInitialization;
+import org.ehoffman.classloader.EvictingClassLoader;
 import org.ehoffman.classloader.EvictingStaticTransformer;
 import org.ehoffman.classloader.RestrictiveClassloader;
 import org.ehoffman.junit.aop.Junit4AopClassRunner;
@@ -43,13 +45,13 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.context.ApplicationContext;
-import org.springframework.instrument.classloading.ShadowingClassLoader;
 
 import test.classloader.data.BadAppConfig;
 import test.classloader.data.ContainsAssertion;
 import test.classloader.data.ContainsStaticFinalLiteral;
 import test.classloader.data.ContainsStaticFinalNonLiteral;
 import test.classloader.data.ContainsStaticLiteralNonFinal;
+import test.classloader.data.ContainsStaticUnsetVar;
 import test.classloader.data.NestedContainsStaticNonFinalOrNonLiteral;
 import test.classloader.data.StaticInitBlockClass;
 
@@ -62,6 +64,8 @@ public class TestStaticInitializationEvictionJunit4 {
   @Test
   public void testClassContainsStaticInitializationPredicate() throws IOException {
     ClassContainsStaticInitialization asmScanner = new ClassContainsStaticInitialization();
+    assertThat(asmScanner.test(ContainsStaticUnsetVar.class.getName()))
+        .describedAs("Classes that contains statics should be evicted").isTrue(); 
     assertThat(asmScanner.test(ContainsStaticLiteralNonFinal.class.getName()))
         .describedAs("Static literal non final fields should cause classes should be evicted").isTrue();
     assertThat(asmScanner.test(ContainsStaticFinalNonLiteral.class.getName()))
@@ -80,8 +84,8 @@ public class TestStaticInitializationEvictionJunit4 {
 
   @Test
   public void testSimpleClassloaderChecks() throws ClassNotFoundException {
-    ShadowingClassLoader loader = new ShadowingClassLoader(this.getClass().getClassLoader());
-    loader.addTransformer(new EvictingStaticTransformer());
+    EvictingClassLoader loader = new EvictingClassLoader(new ArrayList<>(), new EvictingStaticTransformer(),
+            this.getClass().getClassLoader());
     loader.loadClass(TestStaticInitializationEvictionJunit4.class.getName());
     assertThatThrownBy(() -> loader.loadClass(ContainsStaticLiteralNonFinal.class.getName())).isInstanceOf(ClassFormatError.class);
   }
@@ -91,7 +95,7 @@ public class TestStaticInitializationEvictionJunit4 {
   @IoCContext(name = "bob", classes = { test.classloader.data.AppConfiguration.class })
   @IoCContext(name = "ted", classes = { test.classloader.data.AppConfiguration.class })
   public void testGoodContext(ApplicationContext context, test.classloader.data.AppConfiguration.TestBean bean) {
-    assertThat(bean.getClass().getClassLoader().getClass().getName()).contains("Shadow");
+    assertThat(bean.getClass().getClassLoader().getClass().getName()).isEqualTo(EvictingClassLoader.class.getName());
     assertThat(context).isNotNull();
     assertThat(bean).isNotNull();
   }

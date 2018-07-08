@@ -30,16 +30,16 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.ehoffman.advised.ContextAwareMethodInvocation;
-import org.springframework.instrument.classloading.ShadowingClassLoader;
 
 public class RunInClassLoaderInterceptor implements MethodInterceptor {
 
-  private final Map<Class<? extends Supplier<Stream<String>>>, ShadowingClassLoader> classloaderBySupplier 
+  private final Map<RestrictiveClassloader, ClassLoader> classloaderBySupplier 
       = new ConcurrentHashMap<>();
 
   
@@ -50,17 +50,25 @@ public class RunInClassLoaderInterceptor implements MethodInterceptor {
       RestrictiveClassloader rc = (RestrictiveClassloader) cinvocation.getTargetAnnotation();
       Class<? extends  Supplier<Stream<String>>> supplierClass = rc.delegatingPackagesSupplier();
       Supplier<Stream<String>> packageSupplier = supplierClass.newInstance();
-      ShadowingClassLoader targetClassLoader = classloaderBySupplier.computeIfAbsent(supplierClass, targetClass -> {
-        ShadowingClassLoader classloader = new ShadowingClassLoader(ShadowingClassLoader.class.getClassLoader(), true);
-        classloader.addTransformer(new EvictingStaticTransformer());
+      ClassLoader targetClassLoader = classloaderBySupplier.computeIfAbsent(rc, targetClass -> {
+        boolean warnOnly = rc.warnOnly() && InDeveloperEnvironment.inDev();
+        EvictingStaticTransformer transformer = new EvictingStaticTransformer(warnOnly, rc.logStatics());
+        return new EvictingClassLoader(packageSupplier.get().collect(Collectors.toList()),
+                transformer, this.getClass().getClassLoader());
+        /*
+        SimpleInstrumentableClassLoader classloader 
+            = new SimpleInstrumentableClassLoader(this.getClass().getClassLoader());
+        classloader.addTransformer(new EvictingStaticTransformer(warnOnly, rc.logStatics()));
         packageSupplier.get().forEach(packageName -> classloader.excludePackage(packageName));
-        return classloader;
+        return classloader; */
       });
       try {
         Thread.currentThread().setContextClassLoader(targetClassLoader);
         return invocation.proceed();
       } catch (InvocationTargetException ite) {
         throw ite.getCause();
+      } finally {
+        Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
       }
     } else {
       throw new IllegalStateException(

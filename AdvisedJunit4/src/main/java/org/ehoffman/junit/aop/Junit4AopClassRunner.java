@@ -222,11 +222,11 @@ public class Junit4AopClassRunner extends BlockJUnit4ClassRunner {
       } else {
         wrapped = true;
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        Class<?> targetClassInLoader = loader.loadClass(targetClass);
+        Class<?> targetClassInLoader = Class.forName(targetClass, true, loader);
         Object target = targetClassInLoader.newInstance();
         List<Class<?>> parameters = new ArrayList<>();
         for (String className : parameterTypes) {
-          parameters.add(loader.loadClass(className));
+          parameters.add(Class.forName(className, true, loader));
         }
         Method method = targetClassInLoader.getMethod(testName, parameters.toArray(new Class[] {}));
         FrameworkMethod fmethod = new FrameworkMethod(method);

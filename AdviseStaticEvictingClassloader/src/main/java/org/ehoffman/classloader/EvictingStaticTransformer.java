@@ -28,17 +28,65 @@ package org.ehoffman.classloader;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.security.ProtectionDomain;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class EvictingStaticTransformer implements ClassFileTransformer {
 
-  public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
-          byte[] classfileBuffer) {
-    ClassContainsStaticInitialization asmScanner = new ClassContainsStaticInitialization();
-    //if (className.equals("org/springframework/beans/factory/annotation/Autowire")) {
-    //  System.out.println("here");
-    //}
-    if (asmScanner.test(className)) {
-      throw new ClassFormatError("Dissallowing Statics on class " + className);
+  private final Logger logger = Logger.getLogger(EvictingStaticTransformer.class.getName());
+  
+  private final boolean warnOnly;
+
+  private final boolean logErrors;
+
+  
+  private final ClassContainsStaticInitialization asmScanner;
+  
+  public EvictingStaticTransformer() {
+    this(false, false);
+  }
+
+  public EvictingStaticTransformer(boolean warnOnly, boolean logErrors) {
+    this.warnOnly = warnOnly;
+    this.logErrors = logErrors;
+    this.asmScanner = new ClassContainsStaticInitialization();
+  }
+
+
+  /**
+   * Potentially print warnings about static state, and potentially throw ClassFormatErrors when static state is found.
+   * 
+   * @param loader the parent class loader, ignored.
+   * @param className the class to verify, ignored.
+   * @param classBeingRedefined ignored.
+   * @param protectionDomain ignored.
+   * @param classfileBuffer ignored.
+   * @return always null, or a thrown {@link ClassFormatError}
+   */
+  public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
+          ProtectionDomain protectionDomain, byte[] classfileBuffer) {
+    if (logErrors) {
+      List<String> errors = asmScanner.apply(classfileBuffer);
+      if (errors.size() > 0) {
+        logger.log(Level.WARNING, "Static state found in class " + className.replace('/', '.')
+                + " in non-dev mode this will result in ClassFormatErrors");
+        for (String error : errors) {
+          logger.log(Level.WARNING, error);
+        }
+        if (!warnOnly) {
+          throw new ClassFormatError("Dissallowing Statics on class " + className.replace('/', '.'));
+        }
+      }
+    } else {
+      if (asmScanner.test(classfileBuffer)) {
+        if (!warnOnly) {
+          throw new ClassFormatError("Dissallowing Statics on class " + className.replace('/', '.'));
+        } else {
+          logger.log(Level.WARNING, "Static state found in class " + className.replace('/', '.') 
+                  + " in logOnly mode this will result in ClassFormatErrors");
+        }
+      }
     }
     return null;
   }
