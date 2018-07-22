@@ -85,9 +85,14 @@ public class ClassContainsStaticInitialization implements Function<String, List<
     return visitor.getErrors();
   }
  
+  /**
+   * Not thread safe.
+   * 
+   * @author rex
+   */
   private static class UnsafeClassVistor extends ClassVisitor {
 
-    private final boolean allowAssertions = true;
+    private final boolean allowAssertions;
     
     private final boolean captureErrors;
     
@@ -99,14 +104,19 @@ public class ClassContainsStaticInitialization implements Function<String, List<
     
     private final List<String> errors;
     
-    public UnsafeClassVistor(int api, boolean captureErrors) {
+    public UnsafeClassVistor(int api, boolean captureErrors, boolean allowAssertionKeyWord) {
       super(api);
+      this.allowAssertions = allowAssertionKeyWord;
       this.captureErrors = captureErrors;
       if (captureErrors) {
         errors = new ArrayList<>();
       } else {
         errors = null;
       }
+    }
+    
+    public UnsafeClassVistor(int api, boolean captureErrors) {
+      this(api, captureErrors, true);
     }
     
     public UnsafeClassVistor(int api) {

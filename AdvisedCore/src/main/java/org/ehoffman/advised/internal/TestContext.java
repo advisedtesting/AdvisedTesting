@@ -84,7 +84,7 @@ public class TestContext {
     } else {
       Class<MethodInterceptor> adviceClass = extractAdviceClass(annotation, classLoader);
       INTECEPTORCLASS_TO_INSTANCE.computeIfAbsent(adviceClass, a -> {
-        return callZeroLengthConstructor(adviceClass);
+        return callZeroArguementConstructor(adviceClass);
       });
       return INTECEPTORCLASS_TO_INSTANCE.get(adviceClass);
     }
@@ -135,12 +135,12 @@ public class TestContext {
     } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
             | SecurityException | ClassNotFoundException ex) {
       LOGGER.info("Annotations of type " + annotation.annotationType().getSimpleName()
-              + " do not have an usable implementedBy field (references a class that implements MethodInterceptor)");
+              + " does not have an usable implementedBy field (references a class that implements MethodInterceptor)");
     }
     return null;
   }
 
-  private <T> T callZeroLengthConstructor(final Class<T> clazz) {
+  private <T> T callZeroArguementConstructor(final Class<T> clazz) {
     if (clazz == null) {
       return null;
     }
