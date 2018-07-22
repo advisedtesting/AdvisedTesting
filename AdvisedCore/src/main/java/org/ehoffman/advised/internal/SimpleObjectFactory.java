@@ -22,28 +22,52 @@
  */
 package org.ehoffman.advised.internal;
 
-public class ExceptionEvaluator {
+import java.util.AbstractMap;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-  /**
-   * Attempts to find and exception of exceptionType, in the causedBy chain of throwable.
-   * @param <T> an exception type represented by exceptionType parameter.
-   * @param thowable the throwable to inspect.
-   * @param exceptionType the class of exception we want (including subclass of)
-   * @return null if not found, otherwise the found exception.
-   */
-  @SuppressWarnings("unchecked")
-  public static <T extends Exception> T convertExceptionIfPossible(Throwable thowable, Class<T> exceptionType) {
-    if (exceptionType == null) {
-      throw new IllegalArgumentException("Desired execption type cannot be null");
-    }
-    Throwable current = thowable;
-    while (current != null) {
-      if (exceptionType.isAssignableFrom(current.getClass())) {
-        return (T) current;
-      } else {
-        current = current.getCause();
-      }
-    }
-    return null;
+import org.ehoffman.advised.ObjectFactory;
+
+public class SimpleObjectFactory implements ObjectFactory {
+
+  private final Map<String, Object> contents = new LinkedHashMap<>();
+
+  public SimpleObjectFactory() {
   }
+  
+  public SimpleObjectFactory(Map<String, Object> contexts) {
+    contents.putAll(contexts);
+  }
+
+  public void add(String name, Object value) {
+    contents.put(name, value);
+  }
+  
+  
+  @Override
+  public <T> T getObject(Class<T> type) {
+    return getAllObjects(type).entrySet().stream().findFirst()
+            .orElse(new AbstractMap.SimpleEntry<String, T>(null, null)).getValue();
+  }
+
+  @Override
+  public <T> T getObject(String name, Class<T> type) {
+    return getAllObjects(type).get(name);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> Map<String, T> getAllObjects(Class<T> type) {
+    Map<String, T> output = new HashMap<>();
+    contents.entrySet().forEach(e -> {
+      if (e.getValue() != null
+          && type.isAssignableFrom(e.getValue().getClass())) {
+        output.put(e.getKey(), (T) e.getValue());
+      }
+    });
+    return output;
+  }
+  
+
 }
