@@ -28,6 +28,13 @@ package org.ehoffman.advised.internal;
 
 public class ExceptionEvaluator {
 
+  /**
+   * Attempts to find and exception of exceptionType, in the causedBy chain of throwable.
+   * @param <T> an exception type represented by exceptionType parameter.
+   * @param thowable the throwable to inspect.
+   * @param exceptionType the class of exception we want (including subclass of)
+   * @return null if not found, otherwise the found exception.
+   */
   @SuppressWarnings("unchecked")
   public static <T extends Exception> T convertExceptionIfPossible(Throwable thowable, Class<T> exceptionType) {
     if (exceptionType == null) {

@@ -36,12 +36,11 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.ehoffman.advised.internal.TestContext;
-import org.ehoffman.advised.internal.AnnotationContextUtilsTest.MethodItercepticator;
-import org.ehoffman.advised.internal.AnnotationContextUtilsTest.RightType;
 import org.junit.Test;
 
 import io.leangen.geantyref.AnnotationFormatException;
@@ -53,6 +52,10 @@ public class TestContextTests {
   @Retention(RUNTIME)
   @Documented
   public @interface RightType {
+    /**
+     * example.
+     * @return example.
+     */
     Class<? extends MethodInterceptor> implementedBy() default MethodInterceptor.class;
   }
   
@@ -80,20 +83,24 @@ public class TestContextTests {
     }
   }
   
-  @SuppressWarnings("serial")
+  private Map<String, Object> mapOf(String key, Object value) {
+    Map<String, Object> output = new HashMap<>();
+    output.put(key, value);
+    return output;
+  }
+  
   @Test
   public void testContext() throws AnnotationFormatException {
     TestContext context = new TestContext();
-    RightType rightTypeRightValue = TypeFactory.annotation(RightType.class, 
-            new HashMap<String, Object>() {{ put("implementedBy", MethodItercepticator.class);}});
+    RightType rightTypeRightValue = TypeFactory.annotation(RightType.class, mapOf("implementedBy", MethodItercepticator.class));
     MethodInterceptor interceptor1 = context.getAdviceFor(rightTypeRightValue, Thread.currentThread().getContextClassLoader());
     assertThat(interceptor1).isNotNull().isInstanceOf(MethodItercepticator.class);
     MethodInterceptor interceptor2 = context.getAdviceFor(rightTypeRightValue, Thread.currentThread().getContextClassLoader());
     assertThat(interceptor1).isSameAs(interceptor2);
     assertThat(context.isAdviceAnnotation(rightTypeRightValue)).isTrue();
     
-    RightType closeableAnnotation = TypeFactory.annotation(RightType.class, 
-            new HashMap<String, Object>() {{ put("implementedBy", CloseableMethodItercepticator.class);}});
+    RightType closeableAnnotation = TypeFactory.annotation(RightType.class,
+            mapOf("implementedBy", CloseableMethodItercepticator.class));
     CloseableMethodItercepticator closeable = (CloseableMethodItercepticator) 
             context.getAdviceFor(closeableAnnotation, Thread.currentThread().getContextClassLoader());
     assertThat(closeable.closed).isFalse();
