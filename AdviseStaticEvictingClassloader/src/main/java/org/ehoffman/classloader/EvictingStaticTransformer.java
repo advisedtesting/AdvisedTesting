@@ -58,10 +58,10 @@ public class EvictingStaticTransformer implements ClassFileTransformer {
    * Potentially print warnings about static state, and potentially throw ClassFormatErrors when static state is found.
    * 
    * @param loader the parent class loader, ignored.
-   * @param className the class to verify, ignored.
+   * @param className the name of the class to verify.
    * @param classBeingRedefined ignored.
    * @param protectionDomain ignored.
-   * @param classfileBuffer ignored.
+   * @param classfileBuffer contains the bytes of a java class to be transformed.
    * @return always null, or a thrown {@link ClassFormatError}
    */
   public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,

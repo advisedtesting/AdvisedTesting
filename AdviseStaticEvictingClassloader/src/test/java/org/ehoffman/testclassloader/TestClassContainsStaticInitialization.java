@@ -24,29 +24,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.ehoffman.classloader;
+package org.ehoffman.testclassloader;
 
-/**
- * This needs refactored -- should be provided by junit runner, in the context.
- * @author rex
- */
-public class InDeveloperEnvironment {
-  
-  /**
-   * This is sloppy, should look for a class added in to the classpath to pass information back to the ide.
-   * @return true if running in an ide.
-   */
-  public static boolean inDev() {
-    boolean inEclipse = false;
-    try {
-      InDeveloperEnvironment.class.getClassLoader().loadClass("org.eclipse.jdt.internal.junit.runner.RemoteTestRunner");
-      inEclipse = true;
-    } catch (ClassNotFoundException ex) {
-      //standard failure.
-    }
-    return System.getProperty("java.class.path").contains("idea_rt")
-            || inEclipse
-            || System.getProperty("java.class.path").contains("org.eclipse.osgi");
-  }
+public class TestClassContainsStaticInitialization {
 
 }
