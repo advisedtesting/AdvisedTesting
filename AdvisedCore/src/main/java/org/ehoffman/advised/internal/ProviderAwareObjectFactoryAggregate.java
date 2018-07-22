@@ -27,7 +27,6 @@
 package org.ehoffman.advised.internal;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -99,7 +98,7 @@ public class ProviderAwareObjectFactoryAggregate implements ObjectFactory {
 
   private Object getArgumentFor(Class<?> argumentType, Annotation[] annotations) {
     for (Annotation annotation : annotations) {
-      String requestedInstanceName = getInstanceIfPresent(annotation);
+      String requestedInstanceName = AdviceAnnotationEvaluator.getInstanceIfPresent(annotation);
       if (requestedInstanceName != null && !"".equals(requestedInstanceName)) {
         return invokeOnFoundObjectFactory(annotation, o -> o.getObject(requestedInstanceName, argumentType));
       }
@@ -109,47 +108,15 @@ public class ProviderAwareObjectFactoryAggregate implements ObjectFactory {
   }
 
   private <T, X> X invokeOnFoundObjectFactory(Annotation annotation, Function<ObjectFactory, X> function) {
-    String desiredName = getNameIfPresent(annotation);
+    String desiredName = AdviceAnnotationEvaluator.getNameIfPresent(annotation);
     for (Entry<Annotation, ObjectFactory> context : contexts.entrySet()) {
       if (context.getKey().annotationType().isAssignableFrom(annotation.annotationType())
-              && (desiredName == null || desiredName.equals(getNameIfPresent(context.getKey())))) {
+              && (desiredName == null || desiredName.equals(AdviceAnnotationEvaluator.getNameIfPresent(context.getKey())))) {
         return function.apply(context.getValue());
       }
     }
     return null;
   }
 
-  private String getInstanceIfPresent(Annotation annotation) {
-    String value = getValueIfPresent(annotation, "instance", String.class);
-    if (!"__default".equals(value)) {
-      return value;
-    } else {
-      return null;
-    }
-  }
-
-  private String getNameIfPresent(Annotation annotation) {
-    String value = getValueIfPresent(annotation, "name", String.class);
-    if (!"__default".equals(value)) {
-      return value;
-    } else {
-      return null;
-    }
-  }
-
-  @SuppressWarnings("unchecked")
-  private <T> T getValueIfPresent(Annotation annotation, String name, Class<T> output) {
-    for (Method method : annotation.annotationType().getMethods()) {
-      String methodName = method.getName();
-      if (name.equals(methodName) && output.isAssignableFrom(method.getReturnType())) {
-        try {
-          return (T) method.invoke(annotation, (Object[]) null);
-        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-          // moving right along.
-        }
-      }
-    }
-    return null;
-  }
 
 }

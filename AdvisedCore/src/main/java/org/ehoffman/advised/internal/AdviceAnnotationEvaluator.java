@@ -34,14 +34,15 @@ import java.util.List;
 
 import org.aopalliance.intercept.MethodInterceptor;
 
-public class AnnotationUtils {
+public class AdviceAnnotationEvaluator {
 
-  public static boolean hasAdviceClass(final Annotation annotation) {
+  private static boolean hasAdviceClass(final Annotation annotation) {
+    Class<?> value = getValueIfPresent(annotation, "implementedBy", Class.class);
     try {
-      Method method = annotation.annotationType().getMethod("implementedBy");
-      return method != null && Class.class.isAssignableFrom(method.getReturnType())
-              && MethodInterceptor.class.isAssignableFrom((Class<?>) method.invoke(annotation, (Object[]) null));
-    } catch (IllegalArgumentException | NoSuchMethodException | IllegalAccessException | InvocationTargetException ex) {
+      return value != null 
+              && MethodInterceptor.class.isAssignableFrom(value)
+              && value.getConstructor() != null;
+    } catch (NoSuchMethodException | SecurityException ex) {
       return false;
     }
   }
@@ -58,20 +59,24 @@ public class AnnotationUtils {
       if (hasAdviceClass(annotation)) {
         output.add(annotation);
       } else {
+        //get all fields on the annotation.
         for (Method method : annotation.annotationType().getMethods()) {
+          method.setAccessible(true);
+          //does this method return a single annotation
           if (Annotation.class.isAssignableFrom(method.getReturnType())) {
             try {
               output.addAll(inspect((Annotation) method.invoke(annotation, (Object[]) null)));
             } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-              // TODO Auto-generated catch block
+              // Should not be reachable
             }
           }
+          //does this method return an array of annotations
           if (method.getReturnType().getComponentType() != null
                   && Annotation.class.isAssignableFrom(method.getReturnType().getComponentType())) {
             try {
               output.addAll(inspect((Annotation[]) method.invoke(annotation, (Object[]) null)));
             } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-              // TODO Auto-generated catch block
+              // Should not be reachable
             }
           }
         }
@@ -80,17 +85,38 @@ public class AnnotationUtils {
     return output;
   }
 
-  @SuppressWarnings("unchecked")
-  public static <T extends Exception> T convertExceptionIfPossible(Throwable thowable, Class<T> exceptionType) {
-    if (exceptionType.isAssignableFrom(thowable.getClass())) {
-      return (T) thowable;
+  static String getInstanceIfPresent(Annotation annotation) {
+    String value = getValueIfPresent(annotation, "instance", String.class);
+    if (!"__default".equals(value)) {
+      return value;
     } else {
-      if (thowable.getCause() == null) {
-        return null;
-      } else {
-        return convertExceptionIfPossible(thowable.getCause(), exceptionType);
+      return null;
+    }
+  }
+
+  static String getNameIfPresent(Annotation annotation) {
+    String value = getValueIfPresent(annotation, "name", String.class);
+    if (!"__default".equals(value)) {
+      return value;
+    } else {
+      return null;
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  static <T> T getValueIfPresent(Annotation annotation, String name, Class<T> output) {
+    for (Method method : annotation.annotationType().getMethods()) {
+      String methodName = method.getName();
+      if (name.equals(methodName) && output.isAssignableFrom(method.getReturnType())) {
+        try {
+          method.setAccessible(true);
+          return (T) method.invoke(annotation, (Object[]) null);
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+          // moving right along.
+        }
       }
     }
+    return null;
   }
 
 }
