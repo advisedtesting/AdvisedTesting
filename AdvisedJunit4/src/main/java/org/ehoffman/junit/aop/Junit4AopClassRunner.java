@@ -26,8 +26,8 @@
  */
 package org.ehoffman.junit.aop;
 
-import static org.ehoffman.advised.internal.AnnotationUtils.convertExceptionIfPossible;
-import static org.ehoffman.advised.internal.AnnotationUtils.inspect;
+import static org.ehoffman.advised.internal.AdviceAnnotationEvaluator.inspect;
+import static org.ehoffman.advised.internal.ExceptionEvaluator.convertExceptionIfPossible;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
