@@ -40,9 +40,9 @@ public class WaitTest {
   @Test
   public void failingWaitTest() {
     ThrowingCallable callable = () -> new Wait<Object>().on(() -> {
-      throw new RuntimeException("failed");
+      throw new NullPointerException("failed");
     }).trying(2).toComplete();
-    assertThatThrownBy(callable).hasMessage("failed").isInstanceOf(RuntimeException.class);
+    assertThatThrownBy(callable).hasMessage("failed").isInstanceOf(NullPointerException.class);
   }
 
   @Test

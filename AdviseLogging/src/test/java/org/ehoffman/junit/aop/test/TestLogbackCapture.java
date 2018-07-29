@@ -34,6 +34,10 @@ import org.slf4j.helpers.SubstituteLoggerFactory;
 
 public class TestLogbackCapture {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(TestLogbackCapture.class);
+  private static final String CAPTURED = "CAPTURED";
+  private static final String NOT_CAPTURED = "MISSED";
+  
   public TestLogbackCapture() throws InterruptedException {
     ILoggerFactory factory = LoggerFactory.getILoggerFactory();
     int count = 0;
@@ -43,10 +47,6 @@ public class TestLogbackCapture {
       count++;
     }
   }
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(TestLogbackCapture.class);
-  private static final String CAPTURED = "CAPTURED";
-  private static final String NOT_CAPTURED = "MISSED";
 
   private static class ILog {
     private final Logger logger = LoggerFactory.getLogger(ILog.class);
