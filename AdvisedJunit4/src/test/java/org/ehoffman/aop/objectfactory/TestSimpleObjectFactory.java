@@ -25,6 +25,7 @@ package org.ehoffman.aop.objectfactory;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
+import org.ehoffman.advised.internal.SimpleObjectFactory;
 import org.junit.Test;
 
 public class TestSimpleObjectFactory {
@@ -38,9 +39,9 @@ public class TestSimpleObjectFactory {
   @Test
   public void getAndSetTests() {
     SimpleObjectFactory factory = new SimpleObjectFactory();
-    factory.put(TEST_INT, 1);
-    factory.put(TEST_STRING1, "1");
-    factory.put(TEST_LONG, 1L);
+    factory.add(TEST_INT, 1);
+    factory.add(TEST_STRING1, "1");
+    factory.add(TEST_LONG, 1L);
     assertThat(factory.getObject(Integer.class)).isEqualTo(1);
     assertThat(factory.getObject(String.class)).isEqualTo("1");
     assertThat(factory.getObject(Long.class)).isEqualTo(1L);
@@ -50,11 +51,11 @@ public class TestSimpleObjectFactory {
   @Test
   public void getAndSetMultipleTests() {
     SimpleObjectFactory factory = new SimpleObjectFactory();
-    factory.put(TEST_INT, 1);
-    factory.put(TEST_STRING1, "1");
-    factory.put(TEST_STRING2, "2");
-    factory.put(TEST_STRING3, "3");
-    factory.put(TEST_LONG, 1L);
+    factory.add(TEST_INT, 1);
+    factory.add(TEST_STRING1, "1");
+    factory.add(TEST_STRING2, "2");
+    factory.add(TEST_STRING3, "3");
+    factory.add(TEST_LONG, 1L);
     assertThat(factory.getObject(Integer.class)).isEqualTo(1);
     assertThat(factory.getAllObjects(String.class)).containsEntry(TEST_STRING1, "1").containsEntry(TEST_STRING2, "2")
             .containsEntry(TEST_STRING3, "3");

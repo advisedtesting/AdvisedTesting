@@ -80,7 +80,8 @@ public class LoggerAdviceTest {
     @Test
     @CaptureLogging
     public void simpleLoggerTest() {
-      ILog.doSomething();     
+      ILog.doSomething();
+      assertThat(true).isNotNull();
     }
     
   }

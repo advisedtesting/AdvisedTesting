@@ -22,10 +22,10 @@
  */
 package org.ehoffman.advised.internal;
 
-import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.ehoffman.advised.ObjectFactory;
 
@@ -43,12 +43,21 @@ public class SimpleObjectFactory implements ObjectFactory {
   public void add(String name, Object value) {
     contents.put(name, value);
   }
-  
-  
+
   @Override
   public <T> T getObject(Class<T> type) {
-    return getAllObjects(type).entrySet().stream().findFirst()
-            .orElse(new AbstractMap.SimpleEntry<String, T>(null, null)).getValue();
+    @SuppressWarnings("unchecked")
+    Map<String, ? extends T> possibleOutputs = (Map<String, ? extends T>) contents.entrySet().stream()
+            .filter(o -> type.isAssignableFrom(o.getValue().getClass()))
+            .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
+    if (possibleOutputs.size() == 1) {
+      return possibleOutputs.values().iterator().next();
+    }
+    if (possibleOutputs.size() > 1) {
+      throw new IllegalStateException("Multiple objects from the ObjectFactory can satisfy that type, but we"
+              + " are searching for a singleton. Matching names are " + possibleOutputs.keySet());
+    }
+    return null;
   }
 
   @Override
@@ -68,6 +77,5 @@ public class SimpleObjectFactory implements ObjectFactory {
     });
     return output;
   }
-  
-
+ 
 }
