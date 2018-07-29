@@ -44,10 +44,8 @@ public class LogbackCapture {
 
   private static final ThreadLocal<LogbackCapture> INSTANCE = new ThreadLocal<LogbackCapture>();
 
-  private final Logger logger;
-  private final OutputStreamAppender<ILoggingEvent> appender;
-  private final Encoder<ILoggingEvent> encoder;
   private final ByteArrayOutputStream logs;
+  private final OutputStreamAppender<ILoggingEvent> appender;
 
   public static void start() {
     start(null, null);
@@ -84,10 +82,10 @@ public class LogbackCapture {
   }
 
   private LogbackCapture(final String loggerName, final String layoutPattern) {
-    logs = new ByteArrayOutputStream(4096);
-    encoder = buildEncoder(layoutPattern);
-    appender = buildAppender(encoder, logs);
-    logger = getLogbackLogger(loggerName);
+    this.logs = new ByteArrayOutputStream(4096);
+    Encoder<ILoggingEvent> encoder = buildEncoder(layoutPattern);
+    this.appender = buildAppender(encoder, logs);
+    Logger logger = getLogbackLogger(loggerName);
     logger.addAppender(appender);
   }
 
@@ -101,19 +99,13 @@ public class LogbackCapture {
   }
 
   private static Logger getLogbackLogger(String name) {
-    if (name == null || name.isEmpty()) {
-      name = ROOT_LOGGER_NAME;
-    }
-    final Logger logger = getContext().getLogger(name);
-    return logger;
+    return getContext()
+           .getLogger(name == null ||  name.isEmpty() ? ROOT_LOGGER_NAME : name);
   }
 
   private static Encoder<ILoggingEvent> buildEncoder(String layoutPattern) {
-    if (layoutPattern == null) {
-      layoutPattern = "[%p] %m%n";
-    }
     final PatternLayoutEncoder encoder = new PatternLayoutEncoder();
-    encoder.setPattern(layoutPattern);
+    encoder.setPattern(layoutPattern == null ? "[%p] %m%n" : layoutPattern);
     encoder.setCharset(Charset.forName("UTF-16"));
     encoder.setContext(getContext());
     encoder.start();
