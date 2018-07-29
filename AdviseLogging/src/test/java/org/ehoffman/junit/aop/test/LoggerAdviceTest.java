@@ -23,9 +23,7 @@
 package org.ehoffman.junit.aop.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.ArrayList;
-import java.util.List;
+import static org.junit.Assert.fail;
 
 import org.ehoffman.advised.logback.CaptureLogging;
 import org.ehoffman.junit.aop.Junit4AopClassRunner;
@@ -41,15 +39,19 @@ public class LoggerAdviceTest {
 
   private static final Logger logger = LoggerFactory.getLogger(LoggerAdviceTest.class);
 
+  private static ThreadLocal<Boolean> shouldFail = new ThreadLocal<>();
+  
   @Test
   public void runFailingTestVerifyMessageContainsLogs() {
     logger.debug("test");
-    final List<Class<?>> classes = new ArrayList<>();
-    classes.add(Junit4AopRunner.class);
-    final Result result = JUnitCore.runClasses(classes.toArray(new Class[classes.size()]));
-    for (final Failure f : result.getFailures()) {
-      f.getException().printStackTrace();
-      assertThat(f.getException().getMessage()).contains("Test Logs: \n[INFO] CAPTURED");
+    shouldFail.set(true);
+    try {
+      final Result result = JUnitCore.runClasses(new Class[] { Junit4AopRunner.class });
+      assertThat(result.getFailures()).hasSize(1);
+      Failure failure = result.getFailures().get(0);
+      assertThat(failure.getException().getMessage()).contains("Test Logs: \n[INFO] CAPTURED");
+    } finally {
+      shouldFail.set(null);
     }
   }
 
@@ -70,7 +72,9 @@ public class LoggerAdviceTest {
     @CaptureLogging
     public void simpleLoggerTest2() {
       ILog.doSomething();
+      if (shouldFail.get() != null && shouldFail.get()) {
+        fail("This inner test should fail.");
+      }
     }
   }
-
 }

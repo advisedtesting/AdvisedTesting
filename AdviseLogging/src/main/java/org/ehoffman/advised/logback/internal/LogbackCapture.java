@@ -22,7 +22,6 @@
  */
 package org.ehoffman.advised.logback.internal;
 
-import static ch.qos.logback.classic.Level.ALL;
 import static org.slf4j.Logger.ROOT_LOGGER_NAME;
 
 import java.io.ByteArrayOutputStream;
@@ -30,7 +29,6 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
@@ -52,10 +50,7 @@ public class LogbackCapture {
   private final ByteArrayOutputStream logs;
 
   public static void start() {
-    if (INSTANCE.get() != null) {
-      throw new IllegalStateException("already started");
-    }
-    INSTANCE.set(new LogbackCapture(null, null, null));
+    start(null, null);
   }
 
   /**
@@ -63,16 +58,14 @@ public class LogbackCapture {
    * 
    * @param loggerName
    *          if null, defaults to the root logger
-   * @param level
-   *          if null, defaults to all levels
    * @param layoutPattern
    *          if null, defaults to "[%p] %m%n"
    */
-  public static void start(final String loggerName, final Level level, final String layoutPattern) {
+  public static void start(final String loggerName, final String layoutPattern) {
     if (INSTANCE.get() != null) {
       throw new IllegalStateException("already started");
     }
-    INSTANCE.set(new LogbackCapture(loggerName, level, layoutPattern));
+    INSTANCE.set(new LogbackCapture(loggerName, layoutPattern));
   }
 
   /**
@@ -90,11 +83,11 @@ public class LogbackCapture {
     return result;
   }
 
-  private LogbackCapture(final String loggerName, final Level level, final String layoutPattern) {
+  private LogbackCapture(final String loggerName, final String layoutPattern) {
     logs = new ByteArrayOutputStream(4096);
     encoder = buildEncoder(layoutPattern);
     appender = buildAppender(encoder, logs);
-    logger = getLogbackLogger(loggerName, level);
+    logger = getLogbackLogger(loggerName);
     logger.addAppender(appender);
   }
 
@@ -107,15 +100,11 @@ public class LogbackCapture {
     }
   }
 
-  private static Logger getLogbackLogger(String name, Level level) {
+  private static Logger getLogbackLogger(String name) {
     if (name == null || name.isEmpty()) {
       name = ROOT_LOGGER_NAME;
     }
-    if (level == null) {
-      level = ALL;
-    }
     final Logger logger = getContext().getLogger(name);
-    logger.setLevel(level);
     return logger;
   }
 

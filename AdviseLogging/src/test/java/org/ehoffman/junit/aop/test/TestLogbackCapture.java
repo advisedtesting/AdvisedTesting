@@ -23,6 +23,7 @@
 package org.ehoffman.junit.aop.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.ehoffman.advised.logback.internal.LogbackCapture;
 import org.junit.Test;
@@ -67,5 +68,46 @@ public class TestLogbackCapture {
     LOGGER.info(NOT_CAPTURED);
     assertThat(logging).contains(CAPTURED).doesNotContain(NOT_CAPTURED);
   }
+  
+  @Test
+  public void simpleDoubleStartLoggerTest() {
+    try {
+      LogbackCapture.start();
+      assertThatThrownBy(() -> LogbackCapture.start()).isInstanceOf(IllegalStateException.class).hasMessage("already started");
+    } finally {
+      LogbackCapture.stop();
+    }
+  }
+  
+  @Test
+  public void simpleDoubleStopLoggerTest() {
+    LogbackCapture.start();
+    LogbackCapture.stop();
+    assertThatThrownBy(() -> LogbackCapture.stop()).isInstanceOf(IllegalStateException.class).hasMessage("was not running");
+  }
 
+  @Test
+  public void withSettingsTest() {
+    LogbackCapture.start(TestLogbackCapture.class.getName(), "[%p] %m%n");
+    Logger log = LoggerFactory.getLogger(TestLogbackCapture.class.getName());
+    log.warn("a warning");
+    assertThat(LogbackCapture.stop()).contains("a warning");
+  }
+  
+  @Test
+  public void withSettingsNullTest() {
+    LogbackCapture.start(null, "[%p] %m%n");
+    Logger log = LoggerFactory.getLogger(TestLogbackCapture.class.getName());
+    log.warn("a warning");
+    assertThat(LogbackCapture.stop()).contains("a warning");
+  }
+
+  @Test
+  public void withSettingsEmptyStringTest() {
+    LogbackCapture.start("", "[%p] %m%n");
+    Logger log = LoggerFactory.getLogger(TestLogbackCapture.class.getName());
+    log.warn("a warning");
+    assertThat(LogbackCapture.stop()).contains("a warning");
+  }
+  
 }
