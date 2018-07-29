@@ -25,6 +25,7 @@ package org.ehoffman.junit.aop.test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -57,7 +58,7 @@ public class WaitTest {
     Future<?> future = ex.submit(runnable);
     ex.shutdownNow();
     assertThatThrownBy(() -> future.get())
-        .hasCauseExactlyInstanceOf(RuntimeException.class)
+        .hasCauseExactlyInstanceOf(CompletionException.class)
         .hasRootCauseExactlyInstanceOf(InterruptedException.class);   
   }
 }

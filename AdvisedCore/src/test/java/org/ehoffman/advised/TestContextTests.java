@@ -65,7 +65,7 @@ public class TestContextTests {
   
   public static class CloseableMethodItercepticator implements MethodInterceptor, Closeable {
     
-    boolean closed = false;
+    private boolean closed = false;
     
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {

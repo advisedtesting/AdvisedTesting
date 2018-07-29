@@ -22,15 +22,13 @@
  */
 package org.ehoffman.advised.logback.internal;
 
+import java.util.concurrent.CompletionException;
 import java.util.function.Supplier;
 
 public class Wait<T> {
 
   private Supplier<T> supplier = null;
   private int retries = 1;
-  
-  public Wait() {
-  }
   
   public Wait<T> on(Supplier<T> supplier)  {
     this.supplier = supplier;
@@ -63,7 +61,7 @@ public class Wait<T> {
         }
         retryCount++;
       } catch (InterruptedException iex) {
-        throw new RuntimeException(iex);
+        throw new CompletionException(iex);
       }
     }
     return output;
