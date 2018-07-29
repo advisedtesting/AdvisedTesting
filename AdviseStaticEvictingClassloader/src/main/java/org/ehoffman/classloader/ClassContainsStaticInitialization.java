@@ -96,7 +96,7 @@ public class ClassContainsStaticInitialization implements Function<String, List<
     
     private String className;
     
-    boolean isEnumeration = false; //enumerations can not avoid static member variables -- just make sure they are final.
+    private boolean isEnumeration = false; //enumerations can not avoid static member variables -- just make sure they are final.
     
     private final List<String> errors;
     

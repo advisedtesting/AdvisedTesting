@@ -81,7 +81,7 @@ public class AdviceAnnotationEvaluator {
     return output;
   }
 
-  static String getInstanceIfPresent(Annotation annotation) {
+  public static String getInstanceIfPresent(Annotation annotation) {
     String value = getValueIfPresent(annotation, "instance", String.class);
     if (!"__default".equals(value)) {
       return value;
@@ -90,7 +90,7 @@ public class AdviceAnnotationEvaluator {
     }
   }
 
-  static String getNameIfPresent(Annotation annotation) {
+  public static String getNameIfPresent(Annotation annotation) {
     String value = getValueIfPresent(annotation, "name", String.class);
     if (!"__default".equals(value)) {
       return value;
@@ -99,8 +99,17 @@ public class AdviceAnnotationEvaluator {
     }
   }
 
+  /**
+   * Finds the value of a field on an annotation.
+   * 
+   * @param <T> the type of the field.
+   * @param annotation to inspect
+   * @param name for a field with this name
+   * @param output and a type of this Class
+   * @return the field's value on the annotation if found.
+   */
   @SuppressWarnings("unchecked")
-  static <T> T getValueIfPresent(Annotation annotation, String name, Class<T> output) {
+  public static <T> T getValueIfPresent(Annotation annotation, String name, Class<T> output) {
     if (annotation == null) {
       return null;
     }

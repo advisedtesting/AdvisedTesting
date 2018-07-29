@@ -66,10 +66,5 @@ class TestStaticInitializationEvictionJunit5 {
     loader.loadClass(TestStaticInitializationEvictionJunit5.class.getName());
     assertThatThrownBy(() -> loader.loadClass(ContainsStaticLiteralNonFinal.class.getName())).isInstanceOf(ClassFormatError.class);
   }
-
-  @Test
-  public void shoudlFailUsingAClassWithAStaticInit() {
-    
-  }
   
 }

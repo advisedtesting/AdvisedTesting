@@ -31,6 +31,20 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 
 public class SpringContextObjectFactory implements ObjectFactory {
 
+  private final ApplicationContext context;
+  
+  public SpringContextObjectFactory(Class<?>... classes) {
+    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+    context.register(classes);
+    context.setClassLoader(Thread.currentThread().getContextClassLoader());
+    context.refresh();
+    this.context = context;
+  }
+  
+  public SpringContextObjectFactory(List<Class<?>> classes) {
+    this(classes.toArray(new Class[] {}));
+  }
+  
   @SuppressWarnings("unchecked")
   @Override
   public <T> T getObject(Class<T> type) {
@@ -51,20 +65,6 @@ public class SpringContextObjectFactory implements ObjectFactory {
   @Override
   public <T> Map<String, T> getAllObjects(Class<T> type) {
     return context.getBeansOfType(type);
-  }
-
-  private ApplicationContext context;
-
-  public SpringContextObjectFactory(Class<?>... classes) {
-    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
-    context.register(classes);
-    context.setClassLoader(Thread.currentThread().getContextClassLoader());
-    context.refresh();
-    this.context = context;
-  }
-
-  public SpringContextObjectFactory(List<Class<?>> classes) {
-    this(classes.toArray(new Class[] {}));
   }
 
 }
