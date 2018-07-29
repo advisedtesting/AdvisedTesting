@@ -24,42 +24,49 @@ package org.ehoffman.advised.logback.internal;
 
 import java.util.function.Supplier;
 
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
-import org.slf4j.ILoggerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.helpers.SubstituteLoggerFactory;
+public class Wait<T> {
 
-public class LoggerAdvice implements MethodInterceptor {
-
-  private static Logger LOGGER = LoggerFactory.getLogger(LoggerAdvice.class);
-
-  public LoggerAdvice() throws InterruptedException {
-    Supplier<ILoggerFactory> factorySupplier = () -> {
-      ILoggerFactory factory = LoggerFactory.getILoggerFactory();
-      return (SubstituteLoggerFactory.class.isAssignableFrom(factory.getClass())) ? null : factory;
-    };
-    new Wait<ILoggerFactory>().on(factorySupplier).trying(5).toComplete();
+  private Supplier<T> supplier = null;
+  private int retries = 1;
+  
+  public Wait() {
   }
-
-  @Override
-  public Object invoke(final MethodInvocation invocation) throws Throwable {
-    LOGGER.info("forcing logger to start");
-    LogbackCapture.start();
-    Object output = null;
-    Throwable throwable = null;
-    try {
-      output = invocation.proceed();
-    } catch (final Throwable thr) {
-      throwable = thr;
-    } finally {
-      final String logging = LogbackCapture.stop();
-      if (throwable != null) {
-        throw new TestLoggingWithCause(logging, throwable);
+  
+  public Wait<T> on(Supplier<T> supplier)  {
+    this.supplier = supplier;
+    return this;
+  }
+  
+  public Wait<T> trying(int times) {
+    this.retries = times;
+    return this;
+  }
+  
+  /**
+   * Waits on the prior specified supplier to be able to return a non null value, or throw an {@link InterruptedException}.
+   * @return the output if available before the number of retries are up, 
+   * @throws an {@link InterruptedException}, or a {@link RuntimeException}, if the last retry resulted in an exception.
+   */
+  public T toComplete() {
+    T output = null;
+    int retryCount = 0;
+    while (output == null && retryCount < retries) {
+      try {
+        output = supplier.get(); 
+        retryCount++;
+        if (output == null) {
+          Thread.sleep(500);
+        }
+      } catch (RuntimeException ex) {
+        if (retryCount == retries - 1) {
+          throw ex;
+        }
+        retryCount++;
+      } catch (InterruptedException iex) {
+        throw new RuntimeException(iex);
       }
     }
     return output;
   }
-
+  
 }

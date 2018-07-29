@@ -76,5 +76,12 @@ public class LoggerAdviceTest {
         fail("This inner test should fail.");
       }
     }
+    
+    @Test
+    @CaptureLogging
+    public void simpleLoggerTest() {
+      ILog.doSomething();     
+    }
+    
   }
 }

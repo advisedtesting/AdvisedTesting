@@ -143,23 +143,9 @@ public class LogbackCapture {
    *           {@link LoggerContext} to be set.
    */
   private static LoggerContext getContext() {
-    LoggerContext context = null;
-    int retryCount = 0;
-    while (context == null && retryCount < 10) {
-      try {
-        context = ContextSelectorStaticBinder.getSingleton().getContextSelector().getDefaultLoggerContext();
-        retryCount++;
-        if (context == null) {
-          Thread.sleep(500);
-        }
-      } catch (NullPointerException ex) {
-        if (retryCount == 10) {
-          throw ex;
-        }
-      } catch (InterruptedException iex) {
-        throw new RuntimeException(iex);
-      }
-    }
-    return context;
+    return new Wait<LoggerContext>()
+            .on(() -> ContextSelectorStaticBinder.getSingleton().getContextSelector().getDefaultLoggerContext())
+            .trying(10)
+            .toComplete();
   }
 }
