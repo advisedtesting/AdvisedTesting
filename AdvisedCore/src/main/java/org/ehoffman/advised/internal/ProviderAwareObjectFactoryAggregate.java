@@ -24,7 +24,9 @@ package org.ehoffman.advised.internal;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -93,14 +95,18 @@ public class ProviderAwareObjectFactoryAggregate implements ObjectFactory {
   }
 
   private Object getArgumentFor(Class<?> argumentType, Annotation[] annotations) {
-    for (Annotation annotation : annotations) {
+    Object output = null;
+    Iterator<Annotation> iter = Arrays.asList(annotations).iterator();
+    while (iter.hasNext() && output == null) {
+      Annotation annotation = iter.next();
       String requestedInstanceName = AdviceAnnotationEvaluator.getInstanceIfPresent(annotation);
       if (requestedInstanceName != null && !"".equals(requestedInstanceName)) {
-        return invokeOnFoundObjectFactory(annotation, o -> o.getObject(requestedInstanceName, argumentType));
+        output = invokeOnFoundObjectFactory(annotation, o -> o.getObject(requestedInstanceName, argumentType));
+      } else {
+        output = invokeOnFoundObjectFactory(annotation, o -> o.getObject(argumentType));
       }
-      return invokeOnFoundObjectFactory(annotation, o -> o.getObject(argumentType));
-    }
-    return this.getObject(argumentType);
+    }   
+    return output != null ? output : this.getObject(argumentType);
   }
 
   private <T, X> X invokeOnFoundObjectFactory(Annotation annotation, Function<ObjectFactory, X> function) {
