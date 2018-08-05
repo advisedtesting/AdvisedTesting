@@ -41,7 +41,7 @@
         <version.logback>1.2.3</version.logback>
         <version.logback>1.2.3</version.logback>
         <version.slf4j>1.7.25</version.slf4j>
-        <version.spring.framework>5.0.5.RELEASE</version.spring.framework>
+        <version.spring.framework>5.0.8.RELEASE</version.spring.framework>
     </properties>
     <dependencyManagement>
         <dependencies>

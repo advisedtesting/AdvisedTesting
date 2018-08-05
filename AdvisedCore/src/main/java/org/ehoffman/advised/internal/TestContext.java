@@ -75,10 +75,13 @@ public class TestContext {
    * @return an advice instance singleton from the annotationClass's implementedBy parameter if any, and is constructible, or null.
    */
   public MethodInterceptor getAdviceFor(final Annotation annotation, ClassLoader classLoader) {
-    if (closed.get()) {
+    if (closed.get() || annotation == null) {
       return null;
     } else {
       Class<MethodInterceptor> adviceClass = extractAdviceClass(annotation, classLoader);
+      if (adviceClass == null) {
+        return null;
+      }
       INTECEPTORCLASS_TO_INSTANCE.computeIfAbsent(adviceClass, a -> {
         return callZeroArguementConstructor(adviceClass);
       });

@@ -79,6 +79,13 @@ public class TestContextTests {
     }
   }
   
+  public static class ThrowingCloseableMethodItercepticator extends CloseableMethodItercepticator {
+    @Override
+    public void close() throws IOException {
+      throw new IOException();
+    }
+  }
+  
   private Map<String, Object> mapOf(String key, Object value) {
     Map<String, Object> output = new HashMap<>();
     output.put(key, value);
@@ -103,6 +110,21 @@ public class TestContextTests {
     context.close();
     assertThat(context.getAdviceFor(rightTypeRightValue, Thread.currentThread().getContextClassLoader())).isNull();
     assertThat(closeable.closed).isTrue();
+    context.close(); //safe to close twice
   }
 
+  @Test
+  public void negativeTests() throws AnnotationFormatException {
+    TestContext context = new TestContext();
+    Test testType = TypeFactory.annotation(Test.class, mapOf("", ""));
+    assertThat(context.isAdviceAnnotation(testType)).isFalse();
+    assertThat(context.getAdviceFor(testType, Thread.currentThread().getContextClassLoader())).isNull();
+    
+    RightType closeableAnnotation = TypeFactory.annotation(RightType.class,
+            mapOf("implementedBy", ThrowingCloseableMethodItercepticator.class));
+    @SuppressWarnings("unused")
+    CloseableMethodItercepticator closeable = (ThrowingCloseableMethodItercepticator) 
+            context.getAdviceFor(closeableAnnotation, Thread.currentThread().getContextClassLoader());
+    context.close();
+  }
 }
