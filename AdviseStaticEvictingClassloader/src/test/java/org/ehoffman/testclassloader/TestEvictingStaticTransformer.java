@@ -31,6 +31,7 @@ import org.ehoffman.classloader.EvictingStaticTransformer;
 import org.junit.Test;
 import org.springframework.util.FileCopyUtils;
 
+import test.classloader.data.ContainsEnumerationSwitchStatement;
 import test.classloader.data.ContainsStaticLiteralNonFinal;
 
 public class TestEvictingStaticTransformer {
@@ -78,5 +79,11 @@ public class TestEvictingStaticTransformer {
   public void testFailLogMode() throws IOException {
     assertThatThrownBy(() -> 
        transform(false, true, ContainsStaticLiteralNonFinal.class)).isExactlyInstanceOf(ClassFormatError.class);
+  }
+  
+  @Test
+  public void testWontFailOnEnumSwitch() throws IOException {
+    transform(false, true, ContainsEnumerationSwitchStatement.class);
+    assertThat(true).isNotNull();
   }
 }

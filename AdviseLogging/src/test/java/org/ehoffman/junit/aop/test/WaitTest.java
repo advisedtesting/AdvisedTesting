@@ -39,7 +39,7 @@ public class WaitTest {
 
   @Test
   public void failingWaitTest() {
-    ThrowingCallable callable = () -> new Wait<Object>().on(() -> {
+    ThrowingCallable callable = () -> new Wait<>().on(() -> {
       throw new IllegalStateException("failed");
     }).trying(2).toComplete();
     assertThatThrownBy(callable).hasMessage("failed").isInstanceOf(IllegalStateException.class);
@@ -47,13 +47,13 @@ public class WaitTest {
 
   @Test
   public void nullingOutWaitTest() {
-    assertThat(new Wait<Object>().on(() -> null).trying(3).toComplete()).isNull();
+    assertThat(new Wait<>().on(() -> null).trying(3).toComplete()).isNull();
   }
   
   
   @Test
   public void simulateInterruptWaitTest() throws InterruptedException, ExecutionException {
-    Runnable runnable = () -> new Wait<Object>().on(() -> null).trying(20).toComplete();
+    Runnable runnable = () -> new Wait<>().on(() -> null).trying(20).toComplete();
     ExecutorService ex = Executors.newSingleThreadExecutor(); 
     Future<?> future = ex.submit(runnable);
     ex.shutdownNow();

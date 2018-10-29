@@ -129,6 +129,7 @@ public class Junit4AopClassRunner extends BlockJUnit4ClassRunner {
       this.annotation = annotation;
     }
 
+    @Override
     public void evaluate() throws Throwable {
       ClassLoader classloader = Thread.currentThread().getContextClassLoader();
       MethodInterceptor advisor = context.getAdviceFor(annotation, classloader);
@@ -213,6 +214,8 @@ public class Junit4AopClassRunner extends BlockJUnit4ClassRunner {
       this.registry = registry;
     }
 
+    @Override
+    @SuppressWarnings("deprecation")
     public void evaluate() throws Throwable {
       if (wrapped) {
         wrappedStatement.evaluate();

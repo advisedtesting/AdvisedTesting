@@ -42,7 +42,7 @@ import ch.qos.logback.core.encoder.Encoder;
  */
 public class LogbackCapture {
 
-  private static final ThreadLocal<LogbackCapture> INSTANCE = new ThreadLocal<LogbackCapture>();
+  private static final ThreadLocal<LogbackCapture> INSTANCE = new ThreadLocal<>();
 
   private final ByteArrayOutputStream logs;
   private final OutputStreamAppender<ILoggingEvent> appender;
@@ -114,7 +114,7 @@ public class LogbackCapture {
 
   private static OutputStreamAppender<ILoggingEvent> buildAppender(final Encoder<ILoggingEvent> encoder,
           final OutputStream outputStream) {
-    final OutputStreamAppender<ILoggingEvent> appender = new OutputStreamAppender<ILoggingEvent>();
+    final OutputStreamAppender<ILoggingEvent> appender = new OutputStreamAppender<>();
     appender.setName("logcapture");
     appender.setContext(getContext());
     appender.setEncoder(encoder);

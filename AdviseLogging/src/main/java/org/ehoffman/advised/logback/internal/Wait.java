@@ -43,7 +43,8 @@ public class Wait<T> {
   /**
    * Waits on the prior specified supplier to be able to return a non null value, or throw an {@link InterruptedException}.
    * @return the output if available before the number of retries are up, 
-   * @throws an {@link InterruptedException}, or a {@link RuntimeException}, if the last retry resulted in an exception.
+   * @throws RuntimeException if the last retry resulted in an exception.
+   * @throws CompletionException if the process is interrupted.
    */
   public T toComplete() {
     T output = null;
