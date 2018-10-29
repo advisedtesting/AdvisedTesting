@@ -49,7 +49,7 @@ public class TestContext {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TestContext.class);
   private static final ConcurrentHashMap<Class<? extends MethodInterceptor>, MethodInterceptor> INTECEPTORCLASS_TO_INSTANCE = 
-          new ConcurrentHashMap<Class<? extends MethodInterceptor>, MethodInterceptor>();
+          new ConcurrentHashMap<>();
   private final AtomicBoolean closed = new AtomicBoolean(false);
 
   /**

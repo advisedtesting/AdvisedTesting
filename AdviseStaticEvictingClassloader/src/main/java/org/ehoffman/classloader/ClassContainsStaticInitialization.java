@@ -140,6 +140,7 @@ public class ClassContainsStaticInitialization implements Function<String, List<
     @Override
     public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
       if (isStatic(access) 
+          && !isSynthetic(access)
           && !(isStaticFinalEnumeration(access)
                || isStaticFinalLiteral(access, value)
                || isAssertionSupport(name))) {
@@ -161,6 +162,10 @@ public class ClassContainsStaticInitialization implements Function<String, List<
     
     public boolean isEnum(int access) {
       return ((access & Opcodes.ACC_ENUM) != 0);
+    }
+    
+    public boolean isSynthetic(int access) {
+      return ((access & Opcodes.ACC_SYNTHETIC) != 0);
     }
     
     @Override
