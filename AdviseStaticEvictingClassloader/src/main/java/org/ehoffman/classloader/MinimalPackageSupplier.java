@@ -31,6 +31,7 @@ import org.springframework.instrument.classloading.ShadowingClassLoader;
  * Spring's {@link ShadowingClassLoader} will still use it's defaults {@link ShadowingClassLoader#DEFAULT_EXCLUDED_PACKAGES}.
  * The packages will not be evicted from classloading by the {@link RunInClassLoaderInterceptor}.
  * The covered classes will be loaded by the parent (URLClassLoader) provided by the jvm to junit.
+ * In any class loaded by junit itself, the class must be loaded from the parent classloader.
  * @author rex
  */
 public class MinimalPackageSupplier implements Supplier<Stream<String>> {
@@ -45,7 +46,8 @@ public class MinimalPackageSupplier implements Supplier<Stream<String>> {
       "org.springframework",
       "org.assertj",
       "org.junit",
-      "org.aopalliance");//it supplies the shadowing classloader....
+      "org.aopalliance",
+      "org.hamcrest");
   }
 
 }
