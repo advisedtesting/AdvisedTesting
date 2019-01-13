@@ -55,6 +55,16 @@ import org.junit.runners.model.TestClass;
 
 public class Junit4AopClassRunner extends BlockJUnit4ClassRunner {
 
+  /**
+   * <p>
+   * Hold the instances of each {@link MethodInterceptor}.
+   * </p>
+   * <p>
+   * this is a bit sad, but in order for instances to be shared across junit 4 tests, and
+   * with the lack of a reference to a long lived object, the static context appears to be 
+   * necessary.
+   * </p>
+   */ 
   private static final TestContext CONTEXT = new TestContext();
   private final Class<?> targetClass;
   

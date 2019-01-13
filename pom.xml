@@ -8,7 +8,7 @@
     </parent>
     <groupId>org.e-hoffman.testing</groupId>
     <artifactId>Testing</artifactId>
-    <version>1.2.2-SNAPSHOT</version>
+    <version>1.2.2</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description></description>
@@ -33,7 +33,7 @@
         <parameter.license.regex>${license.regex.MIT}</parameter.license.regex>
         <version.aopalliance>1.0</version.aopalliance>
         <version.asm>7.0</version.asm>
-        <version.assertj>3.10.0</version.assertj>
+        <version.assertj>3.11.1</version.assertj>
         <version.jgrapht>1.2.0</version.jgrapht>
         <version.jopt>5.0.4</version.jopt>
         <version.junit>4.12</version.junit>
