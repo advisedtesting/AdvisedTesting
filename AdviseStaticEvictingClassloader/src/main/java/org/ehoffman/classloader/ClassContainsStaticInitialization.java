@@ -40,11 +40,34 @@ import org.springframework.asm.TypePath;
 
 public class ClassContainsStaticInitialization implements Function<String, List<String>>, Predicate<String> {
 
+  private int getVersionOpcode() {
+    try {
+      if (Opcodes.class.getField("ASM6") != null) {
+        return Opcodes.ASM6;
+      }
+    } catch (NoSuchFieldException | SecurityException e1) {
+      try {
+        if (Opcodes.class.getField("ASM5") != null) {
+          return Opcodes.ASM5;
+        }
+      } catch (NoSuchFieldException | SecurityException e2) {
+        return Opcodes.ASM4;
+      }
+    }
+    return Opcodes.ASM4;
+  }
+  
+  private final int versionOpcode;
+  
+  public ClassContainsStaticInitialization() {
+    this.versionOpcode = getVersionOpcode();
+  }
+  
   public boolean test(String className) {
     ClassReader reader;
     try {
       reader = new ClassReader(className);
-      UnsafeClassVistor visitor = new UnsafeClassVistor(Opcodes.ASM6);
+      UnsafeClassVistor visitor = new UnsafeClassVistor(versionOpcode);
       reader.accept(visitor, 0);
       return visitor.shouldEvict();
     } catch (IOException ioe) {
@@ -55,7 +78,7 @@ public class ClassContainsStaticInitialization implements Function<String, List<
   public boolean test(byte[] bytes) {
     ClassReader reader;
     reader = new ClassReader(bytes);
-    UnsafeClassVistor visitor = new UnsafeClassVistor(Opcodes.ASM6);
+    UnsafeClassVistor visitor = new UnsafeClassVistor(versionOpcode);
     reader.accept(visitor, 0);
     return visitor.shouldEvict();
   }
@@ -65,7 +88,7 @@ public class ClassContainsStaticInitialization implements Function<String, List<
     ClassReader reader;
     try {
       reader = new ClassReader(className);
-      UnsafeClassVistor visitor = new UnsafeClassVistor(Opcodes.ASM6, true);
+      UnsafeClassVistor visitor = new UnsafeClassVistor(versionOpcode, true);
       reader.accept(visitor, 0);
       return visitor.getErrors();
     } catch (IOException ioe) {
@@ -76,7 +99,7 @@ public class ClassContainsStaticInitialization implements Function<String, List<
   public List<String> apply(byte[] bytes) {
     ClassReader reader;
     reader = new ClassReader(bytes);
-    UnsafeClassVistor visitor = new UnsafeClassVistor(Opcodes.ASM6, true);
+    UnsafeClassVistor visitor = new UnsafeClassVistor(versionOpcode, true);
     reader.accept(visitor, 0);
     return visitor.getErrors();
   }
