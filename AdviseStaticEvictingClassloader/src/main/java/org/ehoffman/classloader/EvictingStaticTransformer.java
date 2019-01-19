@@ -25,17 +25,12 @@ package org.ehoffman.classloader;
 import java.lang.instrument.ClassFileTransformer;
 import java.security.ProtectionDomain;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class EvictingStaticTransformer implements ClassFileTransformer {
 
-  private final Logger logger = Logger.getLogger(EvictingStaticTransformer.class.getName());
-  
   private final boolean warnOnly;
 
   private final boolean logErrors;
-
   
   private final ClassContainsStaticInitialization asmScanner;
   
@@ -62,26 +57,24 @@ public class EvictingStaticTransformer implements ClassFileTransformer {
    */
   public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined,
           ProtectionDomain protectionDomain, byte[] classfileBuffer) {
-    if (logErrors) {
-      List<String> errors = asmScanner.apply(classfileBuffer);
-      if (errors.size() > 0) {
-        logger.log(Level.WARNING, "Static state found in class " + className.replace('/', '.')
-                + " in non-dev mode this will result in ClassFormatErrors");
-        for (String error : errors) {
-          logger.log(Level.WARNING, error);
-        }
-        if (!warnOnly) {
-          throw new ClassFormatError("Dissallowing Statics on class " + className.replace('/', '.'));
-        }
+    List<String> errors = asmScanner.apply(classfileBuffer);
+    if (errors.size() > 0) {
+      StringBuffer buffer = new StringBuffer();
+      buffer.append("Static state found in class ")
+            .append(className.replace('/', '.'));
+      if (warnOnly) {   
+        buffer.append(" in non-dev mode this will result in ClassFormatErrors\n");
       }
-    } else {
-      if (asmScanner.test(classfileBuffer)) {
-        if (!warnOnly) {
-          throw new ClassFormatError("Dissallowing Statics on class " + className.replace('/', '.'));
-        } else {
-          logger.log(Level.WARNING, "Static state found in class " + className.replace('/', '.') 
-                  + " in logOnly mode this will result in ClassFormatErrors");
+      int count = 0;
+      for (String error : errors) {
+        buffer.append("Error ").append(++count).append(" : ").append(error).append('\n');
+      }
+      if (warnOnly) {
+        if (logErrors) {
+          System.err.println(buffer);
         }
+      } else {
+        throw new ClassFormatError(buffer.toString());
       }
     }
     return null;
