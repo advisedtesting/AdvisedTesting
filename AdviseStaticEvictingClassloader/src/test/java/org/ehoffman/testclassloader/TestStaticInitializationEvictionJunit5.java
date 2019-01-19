@@ -22,41 +22,16 @@
  */
 package org.ehoffman.testclassloader;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertAll;
 
-import java.io.IOException;
-
-import org.ehoffman.classloader.ClassContainsStaticInitialization;
 import org.ehoffman.classloader.EvictingStaticTransformer;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.instrument.classloading.ShadowingClassLoader;
 
-import test.classloader.data.ContainsStaticFinalLiteral;
-import test.classloader.data.ContainsStaticFinalNonLiteral;
 import test.classloader.data.ContainsStaticLiteralNonFinal;
-import test.classloader.data.NestedContainsStaticNonFinalOrNonLiteral;
-import test.classloader.data.StaticInitBlockClass;
 
 class TestStaticInitializationEvictionJunit5 {
-
-  @Test
-  @DisplayName("Detect non final, and non literal statics in classes")
-  public void testClassContainsStaticInitializationPredicate() throws IOException {
-    ClassContainsStaticInitialization asmScanner = new ClassContainsStaticInitialization();
-    assertAll(
-        () -> assertThat(asmScanner.test(ContainsStaticLiteralNonFinal.class.getName()))
-            .describedAs("Static literal non final fields should cause classes should be evicted").isTrue(),
-        () -> assertThat(asmScanner.test(ContainsStaticFinalNonLiteral.class.getName()))
-            .describedAs("Static final non literal fields should cause class to be evicted").isTrue(),
-        () -> assertThat(asmScanner.test(StaticInitBlockClass.class.getName())).isTrue(),
-        () -> assertThat(asmScanner.test(NestedContainsStaticNonFinalOrNonLiteral.Nested.class.getName())).isTrue(),
-        () -> assertThat(asmScanner.test(ContainsStaticFinalLiteral.class.getName())).isFalse(),
-        () -> assertThat(asmScanner.test(NestedContainsStaticNonFinalOrNonLiteral.class.getName())).isFalse(),
-        () -> assertThat(asmScanner.test(TestStaticInitializationEvictionJunit5.class.getName())).isFalse());
-  }
 
   @Test
   @DisplayName("Classloader refuses static non literal, non final, fields, and static initalization blocks.")

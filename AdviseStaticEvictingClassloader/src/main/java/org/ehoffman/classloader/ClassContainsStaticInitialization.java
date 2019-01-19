@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 import org.springframework.asm.AnnotationVisitor;
 import org.springframework.asm.ClassReader;
@@ -38,7 +37,7 @@ import org.springframework.asm.MethodVisitor;
 import org.springframework.asm.Opcodes;
 import org.springframework.asm.TypePath;
 
-public class ClassContainsStaticInitialization implements Function<String, List<String>>, Predicate<String> {
+public class ClassContainsStaticInitialization implements Function<String, List<String>> {
 
   private int getVersionOpcode() {
     try {
@@ -62,33 +61,13 @@ public class ClassContainsStaticInitialization implements Function<String, List<
   public ClassContainsStaticInitialization() {
     this.versionOpcode = getVersionOpcode();
   }
-  
-  public boolean test(String className) {
-    ClassReader reader;
-    try {
-      reader = new ClassReader(className);
-      UnsafeClassVistor visitor = new UnsafeClassVistor(versionOpcode);
-      reader.accept(visitor, 0);
-      return visitor.shouldEvict();
-    } catch (IOException ioe) {
-      throw new IllegalArgumentException("Class is not readable " + className.replace('/', '.'), ioe);
-    }
-  }
-  
-  public boolean test(byte[] bytes) {
-    ClassReader reader;
-    reader = new ClassReader(bytes);
-    UnsafeClassVistor visitor = new UnsafeClassVistor(versionOpcode);
-    reader.accept(visitor, 0);
-    return visitor.shouldEvict();
-  }
 
   @Override
   public List<String> apply(String className) {
     ClassReader reader;
     try {
       reader = new ClassReader(className);
-      UnsafeClassVistor visitor = new UnsafeClassVistor(versionOpcode, true);
+      UnsafeClassVistor visitor = new UnsafeClassVistor(versionOpcode);
       reader.accept(visitor, 0);
       return visitor.getErrors();
     } catch (IOException ioe) {
@@ -99,7 +78,7 @@ public class ClassContainsStaticInitialization implements Function<String, List<
   public List<String> apply(byte[] bytes) {
     ClassReader reader;
     reader = new ClassReader(bytes);
-    UnsafeClassVistor visitor = new UnsafeClassVistor(versionOpcode, true);
+    UnsafeClassVistor visitor = new UnsafeClassVistor(versionOpcode);
     reader.accept(visitor, 0);
     return visitor.getErrors();
   }
@@ -110,12 +89,6 @@ public class ClassContainsStaticInitialization implements Function<String, List<
    * @author rex
    */
   private static class UnsafeClassVistor extends ClassVisitor {
-
-    private final boolean allowAssertions;
-    
-    private final boolean captureErrors;
-    
-    private boolean shouldEvict = false;
     
     private String className;
     
@@ -123,23 +96,9 @@ public class ClassContainsStaticInitialization implements Function<String, List<
     
     private final List<String> errors;
     
-    public UnsafeClassVistor(int api, boolean captureErrors, boolean allowAssertionKeyWord) {
-      super(api);
-      this.allowAssertions = allowAssertionKeyWord;
-      this.captureErrors = captureErrors;
-      if (captureErrors) {
-        errors = new ArrayList<>();
-      } else {
-        errors = null;
-      }
-    }
-    
-    public UnsafeClassVistor(int api, boolean captureErrors) {
-      this(api, captureErrors, true);
-    }
-    
     public UnsafeClassVistor(int api) {
-      this(api, false);
+      super(api);
+      errors = new ArrayList<>();
     }
     
     @Override
@@ -157,7 +116,7 @@ public class ClassContainsStaticInitialization implements Function<String, List<
     }
     
     private boolean isAssertionSupport(String name) {
-      return "$assertionsDisabled".equals(name) && allowAssertions;
+      return "$assertionsDisabled".equals(name);
     }
     
     @Override
@@ -167,10 +126,7 @@ public class ClassContainsStaticInitialization implements Function<String, List<
           && !(isStaticFinalEnumeration(access)
                || isStaticFinalLiteral(access, value)
                || isAssertionSupport(name))) {
-        shouldEvict = true;
-        if (captureErrors) {
-          addError("Disallowed static field with name \"" + name + "\"");
-        }
+        addError("Disallowed static field with name \"" + name + "\"");
       }
       return super.visitField(access, name, desc, signature, value);
     }
@@ -195,16 +151,9 @@ public class ClassContainsStaticInitialization implements Function<String, List<
     public MethodVisitor visitMethod(int access, String name, 
                               String desc, String signature, String[] exceptions) {
       if (!isEnumeration && "<clinit>".equals(name)) {
-        if (allowAssertions) {
-          return new UnsafeStaticInitVistor(this.api, this);
-        }
-        shouldEvict = true;
+        return new UnsafeStaticInitVistor(this.api, this);
       }
       return super.visitMethod(access, name, desc, signature, exceptions);
-    }
-    
-    public boolean shouldEvict() {
-      return shouldEvict;
     }
     
     public List<String> getErrors() {
@@ -215,10 +164,6 @@ public class ClassContainsStaticInitialization implements Function<String, List<
       if (errors != null) {
         this.errors.add(error + " on class: " + className.replace('/', '.'));
       }
-    }
-    
-    public void evict() {
-      this.shouldEvict = true;
     }
     
   }
@@ -268,7 +213,6 @@ public class ClassContainsStaticInitialization implements Function<String, List<
     @Override
     public void visitEnd() {
       if (shouldEvict) {
-        visitor.evict();
         visitor.addError("Disallowed <cinit> method (does more than enable the assert keyword)");
       }
     }

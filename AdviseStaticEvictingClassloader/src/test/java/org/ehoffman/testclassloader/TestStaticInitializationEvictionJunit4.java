@@ -60,22 +60,45 @@ public class TestStaticInitializationEvictionJunit4 {
   @Test
   public void testClassContainsStaticInitializationPredicate() throws IOException {
     ClassContainsStaticInitialization asmScanner = new ClassContainsStaticInitialization();
-    assertThat(asmScanner.test(ContainsStaticUnsetVar.class.getName()))
-        .describedAs("Classes that contains statics should be evicted").isTrue(); 
-    assertThat(asmScanner.test(ContainsStaticLiteralNonFinal.class.getName()))
-        .describedAs("Static literal non final fields should cause classes should be evicted").isTrue();
-    assertThat(asmScanner.test(ContainsStaticFinalNonLiteral.class.getName()))
-        .describedAs("Static final non literal fields should cause class to be evicted").isTrue();
-    assertThat(asmScanner.test(StaticInitBlockClass.class.getName()))
-        .describedAs("Static init block should cause class to be evicted").isTrue();
-    assertThat(asmScanner.test(NestedContainsStaticNonFinalOrNonLiteral.Nested.class.getName()))
-        .describedAs("Nested classes are evicted as well").isTrue();
-    assertThat(asmScanner.test(ContainsStaticFinalLiteral.class.getName()))
-        .describedAs("Static final literal containing classes are not evicted").isFalse();
-    assertThat(asmScanner.test(NestedContainsStaticNonFinalOrNonLiteral.class.getName()))
-        .describedAs("Classes that contain bad nested classes are not prevented").isFalse();
-    assertThat(asmScanner.test(ContainsAssertion.class.getName()))
-        .describedAs("Classes with assertions are permitted").isFalse();
+    assertThat(asmScanner.apply(ContainsStaticUnsetVar.class.getName()))
+        .describedAs("Classes that contains statics should be evicted")
+        .contains("Disallowed static field with name \"object\" on class: " + ContainsStaticUnsetVar.class.getName()); 
+   
+    assertThat(asmScanner.apply(ContainsStaticLiteralNonFinal.class.getName()))
+        .describedAs("Static literal non final fields should cause classes should be evicted")
+        .contains("Disallowed static field with name \"o\" on class: " + ContainsStaticLiteralNonFinal.class.getName())
+        .contains("Disallowed <cinit> method (does more than enable the assert keyword) on class: "
+                  + ContainsStaticLiteralNonFinal.class.getName()); 
+    
+    assertThat(asmScanner.apply(ContainsStaticFinalNonLiteral.class.getName()))
+        .describedAs("Static non literal final fields should cause classes should be evicted")
+        .contains("Disallowed static field with name \"o\" on class: " + ContainsStaticFinalNonLiteral.class.getName())
+        .contains("Disallowed <cinit> method (does more than enable the assert keyword) on class: "
+              + ContainsStaticFinalNonLiteral.class.getName()); 
+    
+    assertThat(asmScanner.apply(StaticInitBlockClass.class.getName()))
+        .describedAs("Static init block should cause class to be evicted")
+        .contains("Disallowed <cinit> method (does more than enable the assert keyword) on class: "
+              + StaticInitBlockClass.class.getName()); 
+    
+    assertThat(asmScanner.apply(NestedContainsStaticNonFinalOrNonLiteral.Nested.class.getName()))
+        .describedAs("Nested classes are evicted as well")
+        .contains("Disallowed static field with name \"o\" on class: "
+              + NestedContainsStaticNonFinalOrNonLiteral.Nested.class.getName())
+        .contains("Disallowed <cinit> method (does more than enable the assert keyword) on class: "
+              + NestedContainsStaticNonFinalOrNonLiteral.Nested.class.getName()); 
+        
+    assertThat(asmScanner.apply(ContainsStaticFinalLiteral.class.getName()))
+        .describedAs("Static final literal containing classes are not evicted")
+        .isEmpty();
+    
+    assertThat(asmScanner.apply(NestedContainsStaticNonFinalOrNonLiteral.class.getName()))
+        .describedAs("Classes that contain bad nested classes are not prevented")
+        .isEmpty();
+
+    assertThat(asmScanner.apply(ContainsAssertion.class.getName()))
+        .describedAs("Classes with assertions are permitted")
+        .isEmpty();
   }
 
   @Test
@@ -123,6 +146,7 @@ public class TestStaticInitializationEvictionJunit4 {
       new StaticInitBlockClass();
       fail("Class should not have been loadable.");
     } catch (ClassFormatError cfe) {
+      assertThat(cfe).hasMessageContaining("Disallowed <cinit> method");
       System.out.println("yup. bad class. life is good.");
     }
   }
