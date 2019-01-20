@@ -39,6 +39,8 @@ import org.springframework.asm.TypePath;
 
 public class ClassContainsStaticInitialization implements Function<String, List<String>> {
 
+  private final int versionOpcode;
+  
   private int getVersionOpcode() {
     try {
       if (Opcodes.class.getField("ASM6") != null) {
@@ -55,8 +57,6 @@ public class ClassContainsStaticInitialization implements Function<String, List<
     }
     return Opcodes.ASM4;
   }
-  
-  private final int versionOpcode;
   
   public ClassContainsStaticInitialization() {
     this.versionOpcode = getVersionOpcode();

@@ -139,7 +139,7 @@ public class EvictingClassLoader extends ClassLoader {
    * @param className the class we suspect was evicted.
    * @return errorMessage of eviction, or null.
    */
-  String getError(String className) {
+  public String getError(String className) {
     return classNameToError.get(className);
   }
 }

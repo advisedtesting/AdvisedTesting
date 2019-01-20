@@ -82,7 +82,7 @@ public class RunInClassLoaderInterceptor implements MethodInterceptor {
       try {
         return s_class.newInstance();
       } catch (InstantiationException | IllegalAccessException ex) {
-        throw new RuntimeException(ex);
+        throw new IllegalArgumentException("Class could not be instantiated " + s_class, ex);
       }
     }).flatMap(s -> s.get());
   }
