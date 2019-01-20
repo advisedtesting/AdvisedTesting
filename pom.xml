@@ -4,11 +4,11 @@
     <parent>
         <groupId>com.salesforce.maven</groupId>
         <artifactId>MavenParent</artifactId>
-        <version>1.0.6</version>
+        <version>1.0.8</version>
     </parent>
     <groupId>org.e-hoffman.testing</groupId>
     <artifactId>Testing</artifactId>
-    <version>1.2.4-SNAPSHOT</version>
+    <version>1.2.4</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description></description>
