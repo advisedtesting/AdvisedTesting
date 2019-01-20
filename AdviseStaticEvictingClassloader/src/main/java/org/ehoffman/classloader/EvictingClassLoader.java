@@ -29,7 +29,9 @@ import java.io.InputStream;
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class EvictingClassLoader extends ClassLoader {
 
@@ -43,6 +45,8 @@ public class EvictingClassLoader extends ClassLoader {
 
   private final ClassFileTransformer transformer;
 
+  private final Map<String, String> classNameToError = new HashMap<>();
+  
   public EvictingClassLoader(List<String> whiteList, ClassFileTransformer transformer, ClassLoader parent) {
     super(parent);
     this.whiteList = whiteList;
@@ -50,7 +54,9 @@ public class EvictingClassLoader extends ClassLoader {
     this.transformer = transformer;
   }
 
+  
 
+  
   private Class<?> getClass(String name) throws ClassNotFoundException {
     String file = name.replace('.', File.separatorChar) + ".class";
     byte[] bytes = null;
@@ -58,6 +64,9 @@ public class EvictingClassLoader extends ClassLoader {
       bytes = loadClassData(file);
       try {
         transformer.transform(null, name, null, null, bytes);
+      } catch (ClassFormatError error) {
+        classNameToError.put(name, error.getMessage());
+        throw error;
       } catch (IllegalClassFormatException icfe) {
         throw new ClassNotFoundException(name, icfe);
       }
@@ -87,6 +96,18 @@ public class EvictingClassLoader extends ClassLoader {
     return super.loadClass(name);
   }
 
+  @Override
+  public Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+    boolean shouldLoad = true;
+    for (String prefix : whiteList) {
+      shouldLoad = shouldLoad && !name.startsWith(prefix);
+    }
+    if (shouldLoad) {
+      return getClass(name);
+    }
+    return super.loadClass(name, resolve);
+  }
+  
   /**
    * Loads a given file (presumably .class) into a byte array. The file should be accessible as a resource, for example it could be
    * located on the classpath.
@@ -105,5 +126,20 @@ public class EvictingClassLoader extends ClassLoader {
     in.readFully(buff);
     in.close();
     return buff;
+  }
+  
+  /**
+   * <p>
+   * If this restrictive class loader didn't allow the class this will return the reason the class was evicted. 
+   * </p>
+   * <p> 
+   * Useful for transforming NoClassDefFoundErrors in subsequent calls to a class that attempted to
+   * link to a class that triggered a ClassFormatError in an imported class.
+   * </p>
+   * @param className the class we suspect was evicted.
+   * @return errorMessage of eviction, or null.
+   */
+  String getError(String className) {
+    return classNameToError.get(className);
   }
 }

@@ -42,7 +42,7 @@ public @interface RestrictiveClassloader {
    * No enforcement of statics will occur on the white listed classes.
    * @return the class representing the supplier.
    */
-  Class<? extends Supplier<Stream<String>>> delegatingPackagesSupplier() default MinimalPackageSupplier.class;
+  Class<? extends Supplier<Stream<String>>>[] delegatingPackagesSuppliers() default MinimalPackageSupplier.class;
   
   /**
    * <p>
@@ -62,14 +62,12 @@ public @interface RestrictiveClassloader {
    */
   boolean warnOnly() default false;
   
-  
   /**
-   * <p>
-   * Log all static fields, static init blocks found on the class, default is false.
-   * </p>
-   * @return true if we will log, defaalts to false.
+   * If a prior class load (due to eviction) causes a NoClassDefFoundError linkage error, convert the 
+   * message to display the issues with the evicted class.   The stack trace is unchanged.
+   * @return true by default.
    */
-  boolean logStatics() default false;
+  boolean transformLinkageErrors() default true;
   
   /**
    * {@link #implementedBy()} returns a Class that implements {@link org.aopalliance.intercept.MethodInterceptor}.

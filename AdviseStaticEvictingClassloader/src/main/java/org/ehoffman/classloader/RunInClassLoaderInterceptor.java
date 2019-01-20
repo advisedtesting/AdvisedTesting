@@ -35,7 +35,7 @@ import org.ehoffman.advised.ContextAwareMethodInvocation;
 
 public class RunInClassLoaderInterceptor implements MethodInterceptor {
 
-  private final Map<RestrictiveClassloader, ClassLoader> classloaderBySupplier 
+  private final Map<RestrictiveClassloader, EvictingClassLoader> classloaderBySupplier 
       = new ConcurrentHashMap<>();
 
   
@@ -44,25 +44,24 @@ public class RunInClassLoaderInterceptor implements MethodInterceptor {
     if (ContextAwareMethodInvocation.class.isAssignableFrom(invocation.getClass())) {
       ContextAwareMethodInvocation cinvocation = ((ContextAwareMethodInvocation) invocation);
       RestrictiveClassloader rc = (RestrictiveClassloader) cinvocation.getTargetAnnotation();
-      Class<? extends  Supplier<Stream<String>>> supplierClass = rc.delegatingPackagesSupplier();
-      Supplier<Stream<String>> packageSupplier = supplierClass.newInstance();
-      ClassLoader targetClassLoader = classloaderBySupplier.computeIfAbsent(rc, targetClass -> {
+      Supplier<Stream<String>> packageSupplier = convertToSingleSupplier(rc);
+      EvictingClassLoader targetClassLoader = classloaderBySupplier.computeIfAbsent(rc, targetClass -> {
         boolean warnOnly = rc.warnOnly() && InDeveloperEnvironment.inDev();
-        EvictingStaticTransformer transformer = new EvictingStaticTransformer(warnOnly, rc.logStatics());
+        EvictingStaticTransformer transformer = new EvictingStaticTransformer(warnOnly);
         return new EvictingClassLoader(packageSupplier.get().collect(Collectors.toList()),
                 transformer, this.getClass().getClassLoader());
-        /*
-        SimpleInstrumentableClassLoader classloader 
-            = new SimpleInstrumentableClassLoader(this.getClass().getClassLoader());
-        classloader.addTransformer(new EvictingStaticTransformer(warnOnly, rc.logStatics()));
-        packageSupplier.get().forEach(packageName -> classloader.excludePackage(packageName));
-        return classloader; */
       });
       try {
         Thread.currentThread().setContextClassLoader(targetClassLoader);
         return invocation.proceed();
       } catch (InvocationTargetException ite) {
         throw ite.getCause();
+      } catch (NoClassDefFoundError | ClassFormatError er) {
+        String name = er.getMessage().replace('/', '.');
+        String errorMsg = targetClassLoader.getError(name);
+        NoClassDefFoundError error = new NoClassDefFoundError(errorMsg);
+        error.setStackTrace(er.getStackTrace());
+        throw error;
       } finally {
         Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
       }
@@ -70,5 +69,17 @@ public class RunInClassLoaderInterceptor implements MethodInterceptor {
       throw new IllegalStateException(
               "This MethodInterceptor must be passed an instance of " + RestrictiveClassloader.class.getName());
     }
+  }
+
+
+  private Supplier<Stream<String>> convertToSingleSupplier(RestrictiveClassloader rc) {
+    Class<? extends  Supplier<Stream<String>>>[] supplierClasses = rc.delegatingPackagesSuppliers();
+    return () -> Stream.of(supplierClasses).map(s_class -> {
+      try {
+        return s_class.newInstance();
+      } catch (InstantiationException | IllegalAccessException ex) {
+        throw new RuntimeException(ex);
+      }
+    }).flatMap(s -> s.get());
   }
 }

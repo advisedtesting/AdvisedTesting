@@ -23,7 +23,6 @@
 package org.ehoffman.testclassloader;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.IOException;
 
@@ -47,43 +46,19 @@ public class TestEvictingStaticTransformer {
     return FileCopyUtils.copyToByteArray(this.getClass().getClassLoader().getResourceAsStream(resourceName));
   }
   
-  public void transform(Boolean warnOnly, boolean log, Class<?> clazz) throws IOException {
-    EvictingStaticTransformer transformer = new EvictingStaticTransformer(warnOnly, log);
+  public byte[] transform(Boolean warnOnly, Class<?> clazz) throws IOException {
+    EvictingStaticTransformer transformer = new EvictingStaticTransformer(warnOnly);
     byte[] classBytes = getBytesOfClass(clazz);
-    transformer.transform(Thread.currentThread().getContextClassLoader(), clazz.getName(), null, null, classBytes);
+    return transformer.transform(Thread.currentThread().getContextClassLoader(), clazz.getName(), null, null, classBytes);
   }
   
   @Test
   public void testWarningAndLogMode() throws IOException {
-    transform(true, true, ContainsStaticLiteralNonFinal.class);
-    assertThat(true).isNotNull();
-    //verify that no exception is thrown.
-    //need to capture log lines...
-  }
-
-  @Test
-  public void testWarningNoLogMode() throws IOException {
-    transform(true, false, ContainsStaticLiteralNonFinal.class);
-    assertThat(true).isNotNull();
-    //verify that no exception is thrown.
-  }
-
-  @Test
-  public void testFailNoLogMode() throws IOException {
-    assertThatThrownBy(() -> 
-       transform(false, false, ContainsStaticLiteralNonFinal.class)).isExactlyInstanceOf(ClassFormatError.class);
-    //need to capture log lines...
-  }
-  
-  @Test
-  public void testFailLogMode() throws IOException {
-    assertThatThrownBy(() -> 
-       transform(false, true, ContainsStaticLiteralNonFinal.class)).isExactlyInstanceOf(ClassFormatError.class);
+    assertThat(transform(true, ContainsStaticLiteralNonFinal.class)).isNull();
   }
   
   @Test
   public void testWontFailOnEnumSwitch() throws IOException {
-    transform(false, true, ContainsEnumerationSwitchStatement.class);
-    assertThat(true).isNotNull();
+    assertThat(transform(true, ContainsEnumerationSwitchStatement.class)).isNull();
   }
 }

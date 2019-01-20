@@ -69,7 +69,7 @@ public class MinimalJunit4Tests {
   
   
   @Test
-  @RestrictiveClassloader(delegatingPackagesSupplier = TestPackageSupplier.class)
+  @RestrictiveClassloader(delegatingPackagesSuppliers = TestPackageSupplier.class)
   public void shoudlNotFailUsingAClassWithAStaticInit() throws IOException {
     try {
       assertThat(folder.newFolder()).isDirectory().canRead().canWrite();
@@ -80,13 +80,13 @@ public class MinimalJunit4Tests {
   }
   
   @Test(expected = ClassFormatError.class)
-  @RestrictiveClassloader(logStatics = true)
+  @RestrictiveClassloader
   public void logsInitBlock() {
     new StaticInitBlockClass();
   }
   
   @Test(expected = ClassFormatError.class)
-  @RestrictiveClassloader(logStatics = true)
+  @RestrictiveClassloader
   public void logsNonLiteral() {
     new ContainsStaticUnsetVar();
   }

@@ -30,17 +30,14 @@ public class EvictingStaticTransformer implements ClassFileTransformer {
 
   private final boolean warnOnly;
 
-  private final boolean logErrors;
-  
   private final ClassContainsStaticInitialization asmScanner;
   
   public EvictingStaticTransformer() {
-    this(false, false);
+    this(false);
   }
 
-  public EvictingStaticTransformer(boolean warnOnly, boolean logErrors) {
+  public EvictingStaticTransformer(boolean warnOnly) {
     this.warnOnly = warnOnly;
-    this.logErrors = logErrors;
     this.asmScanner = new ClassContainsStaticInitialization();
   }
 
@@ -70,9 +67,7 @@ public class EvictingStaticTransformer implements ClassFileTransformer {
         buffer.append("Error ").append(++count).append(" : ").append(error).append('\n');
       }
       if (warnOnly) {
-        if (logErrors) {
-          System.err.println(buffer);
-        }
+        System.err.println(buffer);
       } else {
         throw new ClassFormatError(buffer.toString());
       }
