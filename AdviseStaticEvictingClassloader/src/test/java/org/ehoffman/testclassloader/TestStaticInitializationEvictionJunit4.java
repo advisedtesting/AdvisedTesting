@@ -138,13 +138,15 @@ public class TestStaticInitializationEvictionJunit4 {
   }
   
   @Test
-  public void simpleBasedClass() {
+  public void rewriteThrownExceptionWithCachedCause() {
     JUnitCore junit = new JUnitCore();
     Result result = junit.run(Embedded.class);
     assertThat(result.getFailures()).allMatch(f -> f.getMessage().contains("Disallowed <cinit> method"));
   }
   
-  
+  /**
+   * See {@link TestStaticInitializationEvictionJunit4#rewriteThrownExceptionWithCachedCause()} above.
+   */
   @RunWith(Junit4AopClassRunner.class)
   public static class Embedded {
     

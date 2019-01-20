@@ -59,9 +59,13 @@ public class RunInClassLoaderInterceptor implements MethodInterceptor {
       } catch (NoClassDefFoundError | ClassFormatError er) {
         String name = er.getMessage().replace('/', '.');
         String errorMsg = targetClassLoader.getError(name);
-        NoClassDefFoundError error = new NoClassDefFoundError(errorMsg);
-        error.setStackTrace(er.getStackTrace());
-        throw error;
+        if (errorMsg != null) {
+          NoClassDefFoundError error = new NoClassDefFoundError(errorMsg);
+          error.setStackTrace(er.getStackTrace());
+          throw error;
+        } else {
+          throw er;
+        }
       } finally {
         Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());
       }
