@@ -38,6 +38,8 @@ import org.ehoffman.junit.aop.Junit4AopClassRunner;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.junit.runner.JUnitCore;
+import org.junit.runner.Result;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.context.ApplicationContext;
@@ -53,9 +55,6 @@ import test.classloader.data.StaticInitBlockClass;
 
 @RunWith(Junit4AopClassRunner.class)
 public class TestStaticInitializationEvictionJunit4 {
-
-  @Rule
-  public TemporaryFolder folder = new TemporaryFolder();
   
   @Test
   public void testClassContainsStaticInitializationPredicate() throws IOException {
@@ -139,16 +138,40 @@ public class TestStaticInitializationEvictionJunit4 {
   }
   
   @Test
-  @RestrictiveClassloader
-  public void shoudlFailUsingAClassWithAStaticInit() throws IOException {
-    try {
-      assertThat(folder.newFolder()).isDirectory().canRead().canWrite();
-      new StaticInitBlockClass();
-      fail("Class should not have been loadable.");
-    } catch (ClassFormatError cfe) {
-      assertThat(cfe).hasMessageContaining("Disallowed <cinit> method");
-      System.out.println("yup. bad class. life is good.");
-    }
+  public void simpleBasedClass() {
+    JUnitCore junit = new JUnitCore();
+    Result result = junit.run(Embedded.class);
+    assertThat(result.getFailures()).allMatch(f -> f.getMessage().contains("Disallowed <cinit> method"));
   }
   
+  
+  @RunWith(Junit4AopClassRunner.class)
+  public static class Embedded {
+    
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
+    
+    @Test
+    @RestrictiveClassloader
+    public void shoudlFailUsingAClassWithAStaticInit() throws IOException {
+      assertThat(folder.newFolder()).isDirectory().canRead().canWrite();
+      new StaticInitBlockClass();
+    }
+  
+    @Test
+    @RestrictiveClassloader
+    public void shoudlFailThreeTimes() throws IOException {
+      Runnable run = () -> new StaticInitBlockClass();
+      assertThatThrownBy(() -> run.run())
+          .isExactlyInstanceOf(ClassFormatError.class)
+          .hasMessageContaining("Disallowed <cinit> method");
+      //notice the different error message, I couldn't find an easy way around it.
+      assertThatThrownBy(() -> run.run())
+         .isExactlyInstanceOf(ClassFormatError.class)
+         .hasMessageContaining("test/classloader/data/StaticInitBlockClass");
+      //so the @RestrictiveClassloader.implementedBy advice RunInClassLoaderInterceptor
+      //translates the thrown exception and replays the error message.
+      run.run();
+    }
+  }
 }
