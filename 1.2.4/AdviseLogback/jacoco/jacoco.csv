@@ -1,0 +1,5 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+AdviseLogback,org.ehoffman.advised.logback.internal,LogbackCapture,3,143,0,10,2,41,0,16,0,11
+AdviseLogback,org.ehoffman.advised.logback.internal,TestLoggingWithCause,0,11,0,0,0,2,0,1,0,1
+AdviseLogback,org.ehoffman.advised.logback.internal,LoggerAdvice,0,56,0,4,0,18,0,6,0,4
+AdviseLogback,org.ehoffman.advised.logback.internal,Wait,0,59,0,8,0,21,0,8,0,4

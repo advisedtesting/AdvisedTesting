@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Wait.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AdviseLogback</a> &gt; <a href="index.source.html" class="el_package">org.ehoffman.advised.logback.internal</a> &gt; <span class="el_source">Wait.java</span></div><h1>Wait.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright © 2016 Rex Hoffman
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+package org.ehoffman.advised.logback.internal;
+
+import java.util.concurrent.CompletionException;
+import java.util.function.Supplier;
+
+<span class="fc" id="L28">public class Wait&lt;T&gt; {</span>
+
+<span class="fc" id="L30">  private Supplier&lt;T&gt; supplier = null;</span>
+<span class="fc" id="L31">  private int retries = 1;</span>
+  
+  public Wait&lt;T&gt; on(Supplier&lt;T&gt; supplier)  {
+<span class="fc" id="L34">    this.supplier = supplier;</span>
+<span class="fc" id="L35">    return this;</span>
+  }
+  
+  public Wait&lt;T&gt; trying(int times) {
+<span class="fc" id="L39">    this.retries = times;</span>
+<span class="fc" id="L40">    return this;</span>
+  }
+  
+  /**
+   * Waits on the prior specified supplier to be able to return a non null value, or throw an {@link InterruptedException}.
+   * @return the output if available before the number of retries are up, 
+   * @throws RuntimeException if the last retry resulted in an exception.
+   * @throws CompletionException if the process is interrupted.
+   */
+  public T toComplete() {
+<span class="fc" id="L50">    T output = null;</span>
+<span class="fc" id="L51">    int retryCount = 0;</span>
+<span class="fc bfc" id="L52" title="All 4 branches covered.">    while (output == null &amp;&amp; retryCount &lt; retries) {</span>
+      try {
+<span class="fc" id="L54">        output = supplier.get(); </span>
+<span class="fc" id="L55">        retryCount++;</span>
+<span class="fc bfc" id="L56" title="All 2 branches covered.">        if (output == null) {</span>
+<span class="fc" id="L57">          Thread.sleep(500);</span>
+        }
+<span class="fc" id="L59">      } catch (RuntimeException ex) {</span>
+<span class="fc bfc" id="L60" title="All 2 branches covered.">        if (retryCount == retries - 1) {</span>
+<span class="fc" id="L61">          throw ex;</span>
+        }
+<span class="fc" id="L63">        retryCount++;</span>
+<span class="fc" id="L64">      } catch (InterruptedException iex) {</span>
+<span class="fc" id="L65">        throw new CompletionException(iex);</span>
+      }
+    }
+<span class="fc" id="L68">    return output;</span>
+  }
+  
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
