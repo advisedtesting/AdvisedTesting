@@ -1,0 +1,796 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<rss version="0.91">
+  <channel>
+    <title>Testing - Checkstyle report</title>
+    <link>https://github.com/rexhoffman/Testing/MavenParent/Testing/</link>
+    <description>Testing - Checkstyle report</description>
+    <language>en-us</language>
+    <copyright>&#169;2016 - 2019 Rex Hoffman</copyright>
+    <item>
+      <title>File: 53,
+             Errors: 0,
+             Warnings: 0,
+             Infos: 0
+      </title>
+            <link>https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html</link>
+      <description>
+        <p>Click <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html">here</a> for the full Checkstyle report.</p>
+
+        <table summary="Files" boder="1">
+          <thead>
+            <tr>
+              <th>Files</th>
+              <th style="width:30px;"><abbr title="Info">I</abbr></th>
+              <th style="width:30px;"><abbr title="Warning">W</abbr></th>
+              <th style="width:30px;"><abbr title="Error">E</abbr></th>
+            </tr>
+          </thead>
+          <tbody>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.advised.SimpleObjectFactoryTests.java">org/ehoffman/advised/SimpleObjectFactoryTests.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.advised.internal.AnnotationContextUtilsTest.java">org/ehoffman/advised/internal/AnnotationContextUtilsTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.advised.logback.internal.LoggerAdvice.java">org/ehoffman/advised/logback/internal/LoggerAdvice.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.junit.aop.test.WaitTest.java">org/ehoffman/junit/aop/test/WaitTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#test.classloader.data.ContainsStaticFinalNonLiteral.java">test/classloader/data/ContainsStaticFinalNonLiteral.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#test.classloader.data.ContainsStaticLiteralNonFinal.java">test/classloader/data/ContainsStaticLiteralNonFinal.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.aop.testing.TestIoCContextAdvice.java">org/ehoffman/aop/testing/TestIoCContextAdvice.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#test.classloader.data.ContainsStaticFinalLiteral.java">test/classloader/data/ContainsStaticFinalLiteral.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.testclassloader.TestStaticInitializationEvictionJunit5.java">org/ehoffman/testclassloader/TestStaticInitializationEvictionJunit5.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.advised.ObjectFactory.java">org/ehoffman/advised/ObjectFactory.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.advised.logback.internal.LogbackCapture.java">org/ehoffman/advised/logback/internal/LogbackCapture.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.advised.internal.SimpleObjectFactory.java">org/ehoffman/advised/internal/SimpleObjectFactory.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#test.classloader.data.ContainsAssertion.java">test/classloader/data/ContainsAssertion.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.advised.ProviderAwareObjectFactoryAggregatorTests.java">org/ehoffman/advised/ProviderAwareObjectFactoryAggregatorTests.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.classloader.EvictingStaticTransformer.java">org/ehoffman/classloader/EvictingStaticTransformer.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.advised.ConstraintException.java">org/ehoffman/advised/ConstraintException.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.classloader.RestrictiveClassloader.java">org/ehoffman/classloader/RestrictiveClassloader.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.advised.internal.TestContext.java">org/ehoffman/advised/internal/TestContext.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.advised.internal.ExceptionEvaluator.java">org/ehoffman/advised/internal/ExceptionEvaluator.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.junit.aop.test.BrokenAdvice.java">org/ehoffman/junit/aop/test/BrokenAdvice.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.advised.logback.internal.Wait.java">org/ehoffman/advised/logback/internal/Wait.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#test.classloader.data.BadAppConfig.java">test/classloader/data/BadAppConfig.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.classloader.InDeveloperEnvironment.java">org/ehoffman/classloader/InDeveloperEnvironment.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.advised.internal.ProviderAwareObjectFactoryAggregate.java">org/ehoffman/advised/internal/ProviderAwareObjectFactoryAggregate.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.aop.context.internal.SpringContextObjectFactory.java">org/ehoffman/aop/context/internal/SpringContextObjectFactory.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#test.classloader.data.NestedContainsStaticNonFinalOrNonLiteral.java">test/classloader/data/NestedContainsStaticNonFinalOrNonLiteral.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.advised.ContextAwareMethodInvocation.java">org/ehoffman/advised/ContextAwareMethodInvocation.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.testclassloader.TestPackageSupplier.java">org/ehoffman/testclassloader/TestPackageSupplier.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.classloader.MinimalPackageSupplier.java">org/ehoffman/classloader/MinimalPackageSupplier.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.testrunner.Runner.java">org/ehoffman/testrunner/Runner.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.aop.context.IoCContexts.java">org/ehoffman/aop/context/IoCContexts.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.aop.context.internal.IoCContextAdvice.java">org/ehoffman/aop/context/internal/IoCContextAdvice.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.advised.ExceptionEvaluatorTest.java">org/ehoffman/advised/ExceptionEvaluatorTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#test.classloader.data.AppConfiguration.java">test/classloader/data/AppConfiguration.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.advised.internal.AdviceAnnotationEvaluator.java">org/ehoffman/advised/internal/AdviceAnnotationEvaluator.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.advised.TestContextTests.java">org/ehoffman/advised/TestContextTests.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#test.classloader.data.ContainsStaticUnsetVar.java">test/classloader/data/ContainsStaticUnsetVar.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.advised.logback.internal.TestLoggingWithCause.java">org/ehoffman/advised/logback/internal/TestLoggingWithCause.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.aop.testing.AppConfiguration.java">org/ehoffman/aop/testing/AppConfiguration.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.aop.context.IoCContext.java">org/ehoffman/aop/context/IoCContext.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.junit.aop.test.LoggerAdviceTest.java">org/ehoffman/junit/aop/test/LoggerAdviceTest.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.classloader.EvictingClassLoader.java">org/ehoffman/classloader/EvictingClassLoader.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#test.classloader.data.StaticInitBlockClass.java">test/classloader/data/StaticInitBlockClass.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.testclassloader.TestEvictingStaticTransformer.java">org/ehoffman/testclassloader/TestEvictingStaticTransformer.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.testclassloader.TestStaticInitializationEvictionJunit4.java">org/ehoffman/testclassloader/TestStaticInitializationEvictionJunit4.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#test.classloader.data.ContainsEnumerationSwitchStatement.java">test/classloader/data/ContainsEnumerationSwitchStatement.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.aop.objectfactory.TestSimpleObjectFactory.java">org/ehoffman/aop/objectfactory/TestSimpleObjectFactory.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.classloader.RunInClassLoaderInterceptor.java">org/ehoffman/classloader/RunInClassLoaderInterceptor.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.advised.logback.CaptureLogging.java">org/ehoffman/advised/logback/CaptureLogging.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.classloader.ClassContainsStaticInitialization.java">org/ehoffman/classloader/ClassContainsStaticInitialization.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.junit.aop.Junit4AopClassRunner.java">org/ehoffman/junit/aop/Junit4AopClassRunner.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.testclassloader.MinimalJunit4Tests.java">org/ehoffman/testclassloader/MinimalJunit4Tests.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                          <tr>
+                <td>
+                  <a href="https://github.com/rexhoffman/Testing/MavenParent/Testing//checkstyle.html#org.ehoffman.junit.aop.test.TestLogbackCapture.java">org/ehoffman/junit/aop/test/TestLogbackCapture.java</a>
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+                <td>
+                  0
+                </td>
+              </tr>
+                      </tbody>
+        </table>
+        
+      </description>
+    </item>
+  </channel>
+</rss>
+
