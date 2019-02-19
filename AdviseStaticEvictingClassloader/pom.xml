@@ -15,7 +15,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <parameter.disable.semantic.versioning>true</parameter.disable.semantic.versioning>
-        <version.asm>5.1</version.asm>
+        <version.asm>7.0</version.asm>
         <version.jgrapht>1.0.1</version.jgrapht>
         <version.jopt>5.0.4</version.jopt>
         <version.junit.jupiter>5.1.1</version.junit.jupiter>
