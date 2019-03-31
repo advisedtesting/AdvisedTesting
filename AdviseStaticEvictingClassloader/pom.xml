@@ -12,14 +12,6 @@
     <description></description>
     <properties>
         <github.site.location>${project.version}/AdviseStaticEvictingClassloader</github.site.location>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <parameter.disable.semantic.versioning>true</parameter.disable.semantic.versioning>
-        <version.asm>7.1</version.asm>
-        <version.jgrapht>1.0.1</version.jgrapht>
-        <version.jopt>5.0.4</version.jopt>
-        <version.junit.jupiter>5.1.1</version.junit.jupiter>
-        <version.spring.framework>5.0.7.RELEASE</version.spring.framework>
     </properties>
     <dependencies>
         <dependency>
@@ -105,7 +97,7 @@
         <dependency>
             <groupId>org.junit.platform</groupId>
             <artifactId>junit-platform-launcher</artifactId>
-            <version>1.1.1</version>
+            <version>1.4.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
