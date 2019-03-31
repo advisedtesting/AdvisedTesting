@@ -18,7 +18,7 @@
         <module>AdviseLogging</module>
         <module>AdviseContext</module>
         <module>AdviseStaticEvictingClassloader</module>
-        <module>EhoffmanTestRunner</module>
+        <module>AdvisedExampleTestRunner</module>
     </modules>
     <properties>
         <github.domain>github.com</github.domain>
@@ -32,13 +32,12 @@
         <parameter.license>MIT</parameter.license>
         <parameter.license.regex>${license.regex.MIT}</parameter.license.regex>
         <version.aopalliance>1.0</version.aopalliance>
-        <version.asm>7.0</version.asm>
+        <version.asm>7.1</version.asm>
         <version.assertj>3.12.2</version.assertj>
         <version.jgrapht>1.2.0</version.jgrapht>
         <version.jopt>5.0.4</version.jopt>
         <version.junit>4.12</version.junit>
-        <version.junit.jupiter>5.1.1</version.junit.jupiter>
-        <version.logback>1.2.3</version.logback>
+        <version.junit.jupiter>5.4.1</version.junit.jupiter>
         <version.logback>1.2.3</version.logback>
         <version.slf4j>1.7.26</version.slf4j>
         <version.spring.framework>5.1.5.RELEASE</version.spring.framework>
