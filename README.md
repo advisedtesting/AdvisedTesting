@@ -1,13 +1,13 @@
 # Status
 
-[![Build Status](https://api.travis-ci.org/repos/rexhoffman/Testing.svg?branch=master)](https://travis-ci.org/rexhoffman/Testing/#)
-[![Maven Site](https://img.shields.io/badge/maven_site-1.2.4-green.svg)](http://rexhoffman.github.io/Testing/1.2.4/)
+[![Build Status](https://api.travis-ci.org/repos/advisedtesting/AdvisedTesting.svg?branch=master)](https://travis-ci.org/advisedtesting/AdvisedTesting/#)
+[![Maven Site](https://img.shields.io/badge/maven_site-1.2.4-green.svg)](http://advisedtesting.github.io/AdvisedTesting/1.2.4/)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.e-hoffman.testing/Testing/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.e-hoffman.testing/Testing/)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e6f26c6b744844608e9c4ff1a1a3d967)](https://www.codacy.com/app/rexhoffman/Testing?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=rexhoffman/Testing&amp;utm_campaign=Badge_Grade)
-[![codecov](https://codecov.io/gh/rexhoffman/Testing/branch/master/graph/badge.svg)](https://codecov.io/gh/rexhoffman/Testing)
-[![codebeat badge](https://codebeat.co/badges/28947fa6-4897-45dd-bcd2-5817a726de20)](https://codebeat.co/projects/github-com-rexhoffman-testing-master)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/78e8506caab14df69835626deb3a39a9)](https://www.codacy.com/app/advisedtesting/AdvisedTesting?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=advisedtesting/AdvisedTesting&amp;utm_campaign=Badge_Grade)
+[![codecov](https://codecov.io/gh/advisedtesting/AdvisedTesting/branch/master/graph/badge.svg)](https://codecov.io/gh/advisedtesting/AdvisedTesting)
+[![codebeat badge](https://codebeat.co/badges/bf76c593-de44-4a99-be52-b02353da1c40)](https://codebeat.co/projects/github-com-advisedtesting-advisedtesting-master)
 
-# Testing
+# AdvisedTesting
 
 Utilities to make multi-threaded testing sane, and decouple fixtures from testing framework apis.
 
