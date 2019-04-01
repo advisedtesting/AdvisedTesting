@@ -1,5 +1,3 @@
-# Status
-
 [![Build Status](https://api.travis-ci.org/repos/advisedtesting/AdvisedTesting.svg?branch=master)](https://travis-ci.org/advisedtesting/AdvisedTesting/#)
 [![Maven Site](https://img.shields.io/badge/maven_site-1.2.4-green.svg)](http://advisedtesting.github.io/AdvisedTesting/1.2.4/)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.e-hoffman.testing/Testing/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.e-hoffman.testing/Testing/)
