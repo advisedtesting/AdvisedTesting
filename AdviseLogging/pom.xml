@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="UTF8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.e-hoffman.testing</groupId>
-        <artifactId>Testing</artifactId>
-        <version>1.2.5</version>
+        <groupId>org.advisedtesting</groupId>
+        <artifactId>AdvisedTesting</artifactId>
+        <version>1.2.6-SNAPSHOT</version>
     </parent>
     <artifactId>AdviseLogback</artifactId>
     <name>${project.artifactId}</name>
@@ -44,14 +44,14 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
+            <groupId>org.advisedtesting</groupId>
+            <artifactId>AdvisedJunit4</artifactId>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.e-hoffman.testing</groupId>
-            <artifactId>AdvisedJunit4</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
