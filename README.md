@@ -7,6 +7,8 @@
 
 # AdvisedTesting
 
+<img align="left" width="180" height="180" src="./advisedtesting.png">
+
 Utilities to make multi-threaded testing sane, and decouple fixtures from testing framework apis.
 
 Abilities include:
