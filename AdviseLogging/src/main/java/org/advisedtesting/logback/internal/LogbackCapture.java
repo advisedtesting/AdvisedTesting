@@ -47,23 +47,14 @@ public class LogbackCapture {
   private final ByteArrayOutputStream logs;
   private final OutputStreamAppender<ILoggingEvent> appender;
 
-  public static void start() {
-    start(null, null);
-  }
-
   /**
    * Start capturing.
-   * 
-   * @param loggerName
-   *          if null, defaults to the root logger
-   * @param layoutPattern
-   *          if null, defaults to "[%p] %m%n"
    */
-  public static void start(final String loggerName, final String layoutPattern) {
+  public static void start() {
     if (INSTANCE.get() != null) {
       throw new IllegalStateException("already started");
     }
-    INSTANCE.set(new LogbackCapture(loggerName, layoutPattern));
+    INSTANCE.set(new LogbackCapture());
   }
 
   /**
@@ -81,11 +72,11 @@ public class LogbackCapture {
     return result;
   }
 
-  private LogbackCapture(final String loggerName, final String layoutPattern) {
+  private LogbackCapture() {
     this.logs = new ByteArrayOutputStream(4096);
-    Encoder<ILoggingEvent> encoder = buildEncoder(layoutPattern);
+    Encoder<ILoggingEvent> encoder = buildEncoder();
     this.appender = buildAppender(encoder, logs);
-    Logger logger = getLogbackLogger(loggerName);
+    Logger logger = getLogbackLogger();
     logger.addAppender(appender);
   }
 
@@ -98,14 +89,14 @@ public class LogbackCapture {
     }
   }
 
-  private static Logger getLogbackLogger(String name) {
+  private static Logger getLogbackLogger() {
     return getContext()
-           .getLogger(name == null ||  name.isEmpty() ? ROOT_LOGGER_NAME : name);
+           .getLogger(ROOT_LOGGER_NAME);
   }
 
-  private static Encoder<ILoggingEvent> buildEncoder(String layoutPattern) {
+  private static Encoder<ILoggingEvent> buildEncoder() {
     final PatternLayoutEncoder encoder = new PatternLayoutEncoder();
-    encoder.setPattern(layoutPattern == null ? "[%p] %m%n" : layoutPattern);
+    encoder.setPattern("[%p] %m%n");
     encoder.setCharset(Charset.forName("UTF-16"));
     encoder.setContext(getContext());
     encoder.start();

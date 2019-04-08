@@ -48,7 +48,7 @@ public class LoggerAdviceTest {
       final Result result = JUnitCore.runClasses(new Class[] { Junit4AopRunner.class });
       assertThat(result.getFailures()).hasSize(1);
       Failure failure = result.getFailures().get(0);
-      assertThat(failure.getException().getMessage()).contains("Test Logs: \n[INFO] CAPTURED");
+      assertThat(failure.getException().getMessage()).contains("[INFO] CAPTURED");
     } finally {
       shouldFail.set(null);
     }
