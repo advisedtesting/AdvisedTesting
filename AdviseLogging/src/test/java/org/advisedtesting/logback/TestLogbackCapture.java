@@ -88,7 +88,7 @@ public class TestLogbackCapture {
 
   @Test
   public void withSettingsTest() {
-    LogbackCapture.start(TestLogbackCapture.class.getName(), "[%p] %m%n");
+    LogbackCapture.start();
     Logger log = LoggerFactory.getLogger(TestLogbackCapture.class.getName());
     log.warn("a warning");
     assertThat(LogbackCapture.stop()).contains("a warning");
@@ -96,7 +96,7 @@ public class TestLogbackCapture {
   
   @Test
   public void withSettingsNullTest() {
-    LogbackCapture.start(null, "[%p] %m%n");
+    LogbackCapture.start();
     Logger log = LoggerFactory.getLogger(TestLogbackCapture.class.getName());
     log.warn("a warning");
     assertThat(LogbackCapture.stop()).contains("a warning");
@@ -104,7 +104,7 @@ public class TestLogbackCapture {
 
   @Test
   public void withSettingsEmptyStringTest() {
-    LogbackCapture.start("", "[%p] %m%n");
+    LogbackCapture.start();
     Logger log = LoggerFactory.getLogger(TestLogbackCapture.class.getName());
     log.warn("a warning");
     assertThat(LogbackCapture.stop()).contains("a warning");
