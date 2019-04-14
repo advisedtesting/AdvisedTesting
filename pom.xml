@@ -8,7 +8,7 @@
     </parent>
     <groupId>com.github.advisedtesting</groupId>
     <artifactId>AdvisedTesting</artifactId>
-    <version>1.2.6</version>
+    <version>1.2.7-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description></description>
@@ -31,6 +31,8 @@
         <parameter.disable.semantic.versioning>true</parameter.disable.semantic.versioning>
         <parameter.license>MIT</parameter.license>
         <parameter.license.regex>${license.regex.MIT}</parameter.license.regex>
+        <parameter.organization.email>rex@e-hoffman.org</parameter.organization.email>
+        <parameter.organization.name>AdvisedTesting</parameter.organization.name>
         <version.aopalliance>1.0</version.aopalliance>
         <version.asm>7.1</version.asm>
         <version.assertj>3.12.2</version.assertj>
@@ -119,22 +121,6 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>com.mycila</groupId>
-                    <artifactId>license-maven-plugin</artifactId>
-                    <configuration>
-                        <properties>
-                            <owner>Rex Hoffman</owner>
-                            <email>rex@e-hoffman.org</email>
-                        </properties>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-    </build>
     <inceptionYear>2016</inceptionYear>
     <organization>
         <name>Rex Hoffman</name>
