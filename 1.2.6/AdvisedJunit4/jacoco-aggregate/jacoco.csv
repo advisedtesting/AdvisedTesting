@@ -1,0 +1,8 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+AdvisedJunit4/AdvisedCore,org.advisedtesting.core.internal,ProviderAwareObjectFactoryAggregate,96,163,18,14,16,25,15,20,4,15
+AdvisedJunit4/AdvisedCore,org.advisedtesting.core.internal,AdviceAnnotationEvaluator,10,183,5,25,4,35,6,15,1,5
+AdvisedJunit4/AdvisedCore,org.advisedtesting.core.internal,SimpleObjectFactory,0,117,1,7,0,25,1,13,0,10
+AdvisedJunit4/AdvisedCore,org.advisedtesting.core.internal,ExceptionEvaluator,0,28,0,6,0,9,0,5,0,2
+AdvisedJunit4/AdvisedCore,org.advisedtesting.core.internal,TestContext,7,158,3,13,3,38,3,13,0,8
+AdvisedJunit4/AdvisedCore,org.advisedtesting.core.internal,TestContext.new Runnable() {...},0,10,0,0,0,3,0,2,0,2
+AdvisedJunit4/AdvisedCore,org.advisedtesting.core,ConstraintException,23,0,0,0,10,0,5,0,5,0
