@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ExceptionEvaluator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AdvisedCore</a> &gt; <a href="index.source.html" class="el_package">com.github.advisedtesting.core.internal</a> &gt; <span class="el_source">ExceptionEvaluator.java</span></div><h1>ExceptionEvaluator.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright © 2016 AdvisedTesting
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+package com.github.advisedtesting.core.internal;
+
+<span class="fc" id="L25">public class ExceptionEvaluator {</span>
+
+  /**
+   * Attempts to find and exception of exceptionType, in the causedBy chain of throwable.
+   * @param &lt;T&gt; an exception type represented by exceptionType parameter.
+   * @param thowable the throwable to inspect.
+   * @param exceptionType the class of exception we want (including subclass of)
+   * @return null if not found, otherwise the found exception.
+   */
+  @SuppressWarnings(&quot;unchecked&quot;)
+  public static &lt;T extends Exception&gt; T convertExceptionIfPossible(Throwable thowable, Class&lt;T&gt; exceptionType) {
+<span class="fc bfc" id="L36" title="All 2 branches covered.">    if (exceptionType == null) {</span>
+<span class="fc" id="L37">      throw new IllegalArgumentException(&quot;Desired execption type cannot be null&quot;);</span>
+    }
+<span class="fc" id="L39">    Throwable current = thowable;</span>
+<span class="fc bfc" id="L40" title="All 2 branches covered.">    while (current != null) {</span>
+<span class="fc bfc" id="L41" title="All 2 branches covered.">      if (exceptionType.isAssignableFrom(current.getClass())) {</span>
+<span class="fc" id="L42">        return (T) current;</span>
+      } else {
+<span class="fc" id="L44">        current = current.getCause();</span>
+      }
+    }
+<span class="fc" id="L47">    return null;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>
