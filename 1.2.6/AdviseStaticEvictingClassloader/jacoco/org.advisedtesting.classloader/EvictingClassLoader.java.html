@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EvictingClassLoader.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AdviseStaticEvictingClassloader</a> &gt; <a href="index.source.html" class="el_package">org.advisedtesting.classloader</a> &gt; <span class="el_source">EvictingClassLoader.java</span></div><h1>EvictingClassLoader.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright © 2016 Rex Hoffman
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+package org.advisedtesting.classloader;
+
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.instrument.ClassFileTransformer;
+import java.lang.instrument.IllegalClassFormatException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class EvictingClassLoader extends ClassLoader {
+
+  //Spring's shadowing classloader had this info...
+<span class="fc" id="L39">  public static final String[] DEFAULT_EXCLUDED_PACKAGES =</span>
+<span class="fc" id="L40">          new String[] {&quot;java.&quot;, &quot;javax.&quot;, &quot;sun.&quot;, &quot;oracle.&quot;, &quot;com.sun.&quot;, &quot;com.ibm.&quot;, &quot;COM.ibm.&quot;,</span>
+<span class="fc" id="L41">              &quot;org.w3c.&quot;, &quot;org.xml.&quot;, &quot;org.dom4j.&quot;, &quot;org.eclipse&quot;, &quot;org.aspectj.&quot;, &quot;net.sf.cglib&quot;,</span>
+<span class="fc" id="L42">              &quot;org.springframework.cglib&quot;, &quot;org.apache.xerces.&quot;, &quot;org.apache.commons.logging.&quot;};</span>
+  
+  private final List&lt;String&gt; whiteList;
+
+  private final ClassFileTransformer transformer;
+
+<span class="fc" id="L48">  private final Map&lt;String, String&gt; classNameToError = new HashMap&lt;&gt;();</span>
+  
+  public EvictingClassLoader(List&lt;String&gt; whiteList, ClassFileTransformer transformer, ClassLoader parent) {
+<span class="fc" id="L51">    super(parent);</span>
+<span class="fc" id="L52">    this.whiteList = whiteList;</span>
+<span class="fc" id="L53">    whiteList.addAll(Arrays.asList(DEFAULT_EXCLUDED_PACKAGES));</span>
+<span class="fc" id="L54">    this.transformer = transformer;</span>
+<span class="fc" id="L55">  }</span>
+
+  
+
+  
+  private Class&lt;?&gt; getClass(String name) throws ClassNotFoundException {
+<span class="fc" id="L61">    String file = name.replace('.', File.separatorChar) + &quot;.class&quot;;</span>
+<span class="fc" id="L62">    byte[] bytes = null;</span>
+    try {
+<span class="fc" id="L64">      bytes = loadClassData(file);</span>
+      try {
+<span class="fc" id="L66">        transformer.transform(null, name, null, null, bytes);</span>
+<span class="fc" id="L67">      } catch (ClassFormatError error) {</span>
+<span class="fc" id="L68">        classNameToError.put(name, error.getMessage());</span>
+<span class="fc" id="L69">        throw error;</span>
+<span class="nc" id="L70">      } catch (IllegalClassFormatException icfe) {</span>
+<span class="nc" id="L71">        throw new ClassNotFoundException(name, icfe);</span>
+      }
+<span class="fc" id="L73">      Class&lt;?&gt; loaded = super.findLoadedClass(name);</span>
+<span class="fc bfc" id="L74" title="All 2 branches covered.">      if (loaded != null) {</span>
+<span class="fc" id="L75">        return loaded;</span>
+      } else {   
+<span class="fc" id="L77">        Class&lt;?&gt; cl = defineClass(name, bytes, 0, bytes.length);</span>
+<span class="fc" id="L78">        resolveClass(cl);</span>
+<span class="fc" id="L79">        return cl;</span>
+      }
+<span class="nc" id="L81">    } catch (IOException ioe) {</span>
+<span class="nc" id="L82">      ioe.printStackTrace();</span>
+<span class="nc" id="L83">      return null;</span>
+    }
+  }
+
+  @Override
+  public Class&lt;?&gt; loadClass(String name) throws ClassNotFoundException {
+<span class="fc" id="L89">    boolean shouldLoad = true;</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">    for (String prefix : whiteList) {</span>
+<span class="fc bfc" id="L91" title="All 4 branches covered.">      shouldLoad = shouldLoad &amp;&amp; !name.startsWith(prefix);</span>
+    }
+<span class="fc bfc" id="L93" title="All 2 branches covered.">    if (shouldLoad) {</span>
+<span class="fc" id="L94">      return getClass(name);</span>
+    }
+<span class="fc" id="L96">    return super.loadClass(name);</span>
+  }
+
+  @Override
+  public Class&lt;?&gt; loadClass(String name, boolean resolve) throws ClassNotFoundException {
+<span class="fc" id="L101">    boolean shouldLoad = true;</span>
+<span class="fc bfc" id="L102" title="All 2 branches covered.">    for (String prefix : whiteList) {</span>
+<span class="fc bfc" id="L103" title="All 4 branches covered.">      shouldLoad = shouldLoad &amp;&amp; !name.startsWith(prefix);</span>
+    }
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">    if (shouldLoad) {</span>
+<span class="nc" id="L106">      return getClass(name);</span>
+    }
+<span class="fc" id="L108">    return super.loadClass(name, resolve);</span>
+  }
+  
+  /**
+   * Loads a given file (presumably .class) into a byte array. The file should be accessible as a resource, for example it could be
+   * located on the classpath.
+   *
+   * @param name
+   *          File name to load
+   * @return Byte array read from the file
+   * @throws IOException
+   *           Is thrown when there was some problem reading the file
+   */
+  private byte[] loadClassData(String name) throws IOException {
+<span class="fc" id="L122">    InputStream stream = getClass().getClassLoader().getResourceAsStream(name);</span>
+<span class="fc" id="L123">    int size = stream.available();</span>
+<span class="fc" id="L124">    byte[] buff = new byte[size];</span>
+<span class="fc" id="L125">    DataInputStream in = new DataInputStream(stream);</span>
+<span class="fc" id="L126">    in.readFully(buff);</span>
+<span class="fc" id="L127">    in.close();</span>
+<span class="fc" id="L128">    return buff;</span>
+  }
+  
+  /**
+   * &lt;p&gt;
+   * If this restrictive class loader didn't allow the class this will return the reason the class was evicted. 
+   * &lt;/p&gt;
+   * &lt;p&gt; 
+   * Useful for transforming NoClassDefFoundErrors in subsequent calls to a class that attempted to
+   * link to a class that triggered a ClassFormatError in an imported class.
+   * &lt;/p&gt;
+   * @param className the class we suspect was evicted.
+   * @return errorMessage of eviction, or null.
+   */
+  public String getError(String className) {
+<span class="fc" id="L143">    return classNameToError.get(className);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

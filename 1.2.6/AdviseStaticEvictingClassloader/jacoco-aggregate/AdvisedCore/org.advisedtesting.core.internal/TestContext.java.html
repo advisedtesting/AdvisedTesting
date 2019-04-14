@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>TestContext.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">AdviseStaticEvictingClassloader</a> &gt; <a href="../index.html" class="el_bundle">AdvisedCore</a> &gt; <a href="index.source.html" class="el_package">org.advisedtesting.core.internal</a> &gt; <span class="el_source">TestContext.java</span></div><h1>TestContext.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright © 2016 Rex Hoffman
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+package org.advisedtesting.core.internal;
+
+import java.io.Closeable;
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.aopalliance.intercept.MethodInterceptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * This is a context meant to be used with testing classes, which decouples the ability to add meaningful annotations to a test
+ * method from the test runner. There are some incidental couplings to be aware of however. First the annotation must specify a
+ * {@link MethodInterceptor} it wishes to advise a test. Second that {@link MethodInterceptor} must have a zero argument
+ * constructor. Third any state the {@link MethodInterceptor} should be done so in a thread safe way. Either all in the zero length
+ * argument constructor, or with synchronized logic. Fourth if a {@link MethodInterceptor} needs to tear down state it has
+ * constructed, it should implement {@link Closeable} Fifth the marking {@link Annotation} should have a single parameter
+ * implementedBy with a default value of the Class of the {@link MethodInterceptor} the author wishes to use.
+ * 
+ * @author rex
+ */
+public class TestContext {
+
+<span class="fc" id="L50">  private static final Logger LOGGER = LoggerFactory.getLogger(TestContext.class);</span>
+<span class="fc" id="L51">  private static final ConcurrentHashMap&lt;Class&lt;? extends MethodInterceptor&gt;, MethodInterceptor&gt; INTECEPTORCLASS_TO_INSTANCE = </span>
+<span class="fc" id="L52">          new ConcurrentHashMap&lt;&gt;();</span>
+<span class="fc" id="L53">  private final AtomicBoolean closed = new AtomicBoolean(false);</span>
+
+  /**
+   * When the context is constructed, it is registered for destruction.
+   */
+<span class="fc" id="L58">  public TestContext() {</span>
+<span class="fc" id="L59">    Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {</span>
+      @Override
+      public void run() {
+<span class="fc" id="L62">        TestContext.this.close();</span>
+<span class="fc" id="L63">      }</span>
+    }));
+<span class="fc" id="L65">  }</span>
+
+  /**
+   * Build and cache, or retrieve, a {@link MethodInterceptor} associated with the annotationClass input, as specified, by
+   * {@link TestContext} class documentation.
+   * 
+   * @param annotation
+   *          the annotation who's related {@link MethodInterceptor} instance will be returned.
+   * @param classLoader in which to load the MethodInterceptor.
+   * 
+   * @return an advice instance singleton from the annotationClass's implementedBy parameter if any, and is constructible, or null.
+   */
+  public MethodInterceptor getAdviceFor(final Annotation annotation, ClassLoader classLoader) {
+<span class="pc bpc" id="L78" title="1 of 4 branches missed.">    if (closed.get() || annotation == null) {</span>
+<span class="fc" id="L79">      return null;</span>
+    } else {
+<span class="fc" id="L81">      Class&lt;MethodInterceptor&gt; adviceClass = extractAdviceClass(annotation, classLoader);</span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">      if (adviceClass == null) {</span>
+<span class="fc" id="L83">        return null;</span>
+      }
+<span class="fc" id="L85">      INTECEPTORCLASS_TO_INSTANCE.computeIfAbsent(adviceClass, a -&gt; {</span>
+<span class="fc" id="L86">        return callZeroArguementConstructor(adviceClass);</span>
+      });
+<span class="fc" id="L88">      return INTECEPTORCLASS_TO_INSTANCE.get(adviceClass);</span>
+    }
+  }
+
+  /**
+   * Call all close methods implemented by any {@link MethodInterceptor} instances stored in local cache.
+   */
+  public void close() {
+<span class="fc bfc" id="L96" title="All 2 branches covered.">    if (!closed.getAndSet(true)) {</span>
+<span class="fc bfc" id="L97" title="All 2 branches covered.">      for (final Object advice : INTECEPTORCLASS_TO_INSTANCE.values()) {</span>
+<span class="fc bfc" id="L98" title="All 2 branches covered.">        if (Closeable.class.isAssignableFrom(advice.getClass())) {</span>
+          try {
+<span class="fc" id="L100">            ((Closeable) advice).close();</span>
+<span class="fc" id="L101">          } catch (final IOException ex) {</span>
+<span class="fc" id="L102">            LOGGER.error(&quot;Error closing advice methods&quot;, ex);</span>
+          }
+        }
+      }
+    }
+<span class="fc" id="L107">  }</span>
+  
+  public boolean isAdviceAnnotation(final Annotation annotation) {
+    try {
+      @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L112">      Class&lt;MethodInterceptor&gt; interceptor = (Class&lt;MethodInterceptor&gt;) annotation.annotationType()</span>
+<span class="fc" id="L113">              .getMethod(&quot;implementedBy&quot;).invoke(annotation);</span>
+<span class="pc bpc" id="L114" title="1 of 2 branches missed.">      return interceptor != null;</span>
+    } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
+<span class="fc" id="L116">            | SecurityException ex) {</span>
+<span class="fc" id="L117">      return false;</span>
+    }
+  }
+
+  /**
+   * Extract the advice class (implements {@link MethodInterceptor}) from the marking {@link Annotation}.
+   * 
+   * @param annotation
+   *          Annotation instance to inspect for an implementedBy field
+   * @return A {@link MethodInterceptor} instance of the type held by the IMPLEMENTED_BY field, or null.
+   */
+  @SuppressWarnings(&quot;unchecked&quot;)
+  private Class&lt;MethodInterceptor&gt; extractAdviceClass(final Annotation annotation, ClassLoader classloader) {
+    try {
+<span class="fc" id="L131">      Class&lt;MethodInterceptor&gt; interceptor = (Class&lt;MethodInterceptor&gt;) annotation.annotationType()</span>
+<span class="fc" id="L132">               .getMethod(&quot;implementedBy&quot;).invoke(annotation);</span>
+<span class="fc" id="L133">      return (Class&lt;MethodInterceptor&gt;) classloader.loadClass(interceptor.getName());</span>
+    } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
+<span class="fc" id="L135">            | SecurityException | ClassNotFoundException ex) {</span>
+<span class="fc" id="L136">      LOGGER.info(&quot;Annotations of type &quot; + annotation.annotationType().getSimpleName()</span>
+<span class="fc" id="L137">              + &quot; does not have an usable implementedBy field (references a class that implements MethodInterceptor)&quot;);</span>
+    }
+<span class="fc" id="L139">    return null;</span>
+  }
+
+  private &lt;T&gt; T callZeroArguementConstructor(final Class&lt;T&gt; clazz) {
+<span class="pc bpc" id="L143" title="1 of 2 branches missed.">    if (clazz == null) {</span>
+<span class="nc" id="L144">      return null;</span>
+    }
+    Constructor&lt;T&gt; constructor;
+    try {
+<span class="fc" id="L148">      constructor = clazz.getConstructor(new Class[] {});</span>
+<span class="fc" id="L149">      constructor.setAccessible(true);</span>
+<span class="fc" id="L150">      return constructor.newInstance(new Object[] {});</span>
+    } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException
+<span class="nc" id="L152">            | InvocationTargetException ex) {</span>
+<span class="nc" id="L153">      return null;</span>
+    }
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>
