@@ -1,0 +1,5 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+AdviseLogback,com.github.advisedtesting.logback.internal,LoggerAdvice,2,54,1,3,0,18,1,5,0,4
+AdviseLogback,com.github.advisedtesting.logback.internal,Wait,0,59,0,8,0,21,0,8,0,4
+AdviseLogback,com.github.advisedtesting.logback.internal,TestLoggingWithCause,0,11,0,0,0,2,0,1,0,1
+AdviseLogback,com.github.advisedtesting.logback.internal,LogbackCapture,3,124,0,4,2,39,0,12,0,10
