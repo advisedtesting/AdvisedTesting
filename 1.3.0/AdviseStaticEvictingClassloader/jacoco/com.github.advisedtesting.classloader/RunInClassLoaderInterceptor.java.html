@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RunInClassLoaderInterceptor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AdviseStaticEvictingClassloader</a> &gt; <a href="index.source.html" class="el_package">com.github.advisedtesting.classloader</a> &gt; <span class="el_source">RunInClassLoaderInterceptor.java</span></div><h1>RunInClassLoaderInterceptor.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright © 2016 AdvisedTesting
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+package com.github.advisedtesting.classloader;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
+
+import com.github.advisedtesting.core.ContextAwareMethodInvocation;
+
+<span class="fc" id="L37">public class RunInClassLoaderInterceptor implements MethodInterceptor {</span>
+
+<span class="fc" id="L39">  private final Map&lt;RestrictiveClassloader, EvictingClassLoader&gt; classloaderBySupplier </span>
+<span class="fc" id="L40">      = new ConcurrentHashMap&lt;&gt;();</span>
+
+  
+  @Override
+  public Object invoke(MethodInvocation invocation) throws Throwable {
+<span class="pc bpc" id="L45" title="1 of 2 branches missed.">    if (ContextAwareMethodInvocation.class.isAssignableFrom(invocation.getClass())) {</span>
+<span class="fc" id="L46">      ContextAwareMethodInvocation cinvocation = ((ContextAwareMethodInvocation) invocation);</span>
+<span class="fc" id="L47">      RestrictiveClassloader rc = (RestrictiveClassloader) cinvocation.getTargetAnnotation();</span>
+<span class="fc" id="L48">      Supplier&lt;Stream&lt;String&gt;&gt; packageSupplier = convertToSingleSupplier(rc);</span>
+<span class="fc" id="L49">      EvictingClassLoader targetClassLoader = classloaderBySupplier.computeIfAbsent(rc, targetClass -&gt; {</span>
+<span class="pc bpc" id="L50" title="3 of 4 branches missed.">        boolean warnOnly = rc.warnOnly() &amp;&amp; InDeveloperEnvironment.inDev();</span>
+<span class="fc" id="L51">        EvictingStaticTransformer transformer = new EvictingStaticTransformer(warnOnly);</span>
+<span class="fc" id="L52">        return new EvictingClassLoader(packageSupplier.get().collect(Collectors.toList()),</span>
+<span class="fc" id="L53">                transformer, this.getClass().getClassLoader());</span>
+      });
+      try {
+<span class="fc" id="L56">        Thread.currentThread().setContextClassLoader(targetClassLoader);</span>
+<span class="fc" id="L57">        return invocation.proceed();</span>
+<span class="nc" id="L58">      } catch (InvocationTargetException ite) {</span>
+<span class="nc" id="L59">        throw ite.getCause();</span>
+<span class="fc" id="L60">      } catch (NoClassDefFoundError | ClassFormatError er) {</span>
+<span class="fc" id="L61">        String name = er.getMessage().replace('/', '.');</span>
+<span class="fc" id="L62">        String errorMsg = targetClassLoader.getError(name);</span>
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">        if (errorMsg != null) {</span>
+<span class="fc" id="L64">          NoClassDefFoundError error = new NoClassDefFoundError(errorMsg);</span>
+<span class="fc" id="L65">          error.setStackTrace(er.getStackTrace());</span>
+<span class="fc" id="L66">          throw error;</span>
+        } else {
+<span class="nc" id="L68">          throw er;</span>
+        }
+      } finally {
+<span class="fc" id="L71">        Thread.currentThread().setContextClassLoader(this.getClass().getClassLoader());</span>
+      }
+    } else {
+<span class="nc" id="L74">      throw new IllegalStateException(</span>
+<span class="nc" id="L75">              &quot;This MethodInterceptor must be passed an instance of &quot; + RestrictiveClassloader.class.getName());</span>
+    }
+  }
+
+
+  private Supplier&lt;Stream&lt;String&gt;&gt; convertToSingleSupplier(RestrictiveClassloader rc) {
+<span class="fc" id="L81">    Class&lt;? extends  Supplier&lt;Stream&lt;String&gt;&gt;&gt;[] supplierClasses = rc.delegatingPackagesSuppliers();</span>
+<span class="fc" id="L82">    return () -&gt; Stream.of(supplierClasses).map(s_class -&gt; {</span>
+      try {
+<span class="fc" id="L84">        return s_class.newInstance();</span>
+<span class="nc" id="L85">      } catch (InstantiationException | IllegalAccessException ex) {</span>
+<span class="nc" id="L86">        throw new IllegalArgumentException(&quot;Class could not be instantiated &quot; + s_class, ex);</span>
+      }
+<span class="fc" id="L88">    }).flatMap(s -&gt; s.get());</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

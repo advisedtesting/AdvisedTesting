@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>SimpleObjectFactory.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">AdviseStaticEvictingClassloader</a> &gt; <a href="../index.html" class="el_bundle">AdvisedCore</a> &gt; <a href="index.source.html" class="el_package">com.github.advisedtesting.core.internal</a> &gt; <span class="el_source">SimpleObjectFactory.java</span></div><h1>SimpleObjectFactory.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright © 2016 AdvisedTesting
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+package com.github.advisedtesting.core.internal;
+
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import com.github.advisedtesting.core.ObjectFactory;
+
+public class SimpleObjectFactory implements ObjectFactory {
+
+<span class="fc" id="L34">  private final Map&lt;String, Object&gt; contents = new LinkedHashMap&lt;&gt;();</span>
+
+<span class="fc" id="L36">  public SimpleObjectFactory() {</span>
+<span class="fc" id="L37">  }</span>
+  
+<span class="fc" id="L39">  public SimpleObjectFactory(Map&lt;String, Object&gt; contexts) {</span>
+<span class="fc" id="L40">    contents.putAll(contexts);</span>
+<span class="fc" id="L41">  }</span>
+
+  public void add(String name, Object value) {
+<span class="fc" id="L44">    contents.put(name, value);</span>
+<span class="fc" id="L45">  }</span>
+
+  @Override
+  public &lt;T&gt; T getObject(Class&lt;T&gt; type) {
+    @SuppressWarnings(&quot;unchecked&quot;)
+<span class="fc" id="L50">    Map&lt;String, ? extends T&gt; possibleOutputs = (Map&lt;String, ? extends T&gt;) contents.entrySet().stream()</span>
+<span class="fc" id="L51">            .filter(o -&gt; type.isAssignableFrom(o.getValue().getClass()))</span>
+<span class="fc" id="L52">            .collect(Collectors.toMap(entry -&gt; entry.getKey(), entry -&gt; entry.getValue()));</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">    if (possibleOutputs.size() == 1) {</span>
+<span class="fc" id="L54">      return possibleOutputs.values().iterator().next();</span>
+    }
+<span class="fc bfc" id="L56" title="All 2 branches covered.">    if (possibleOutputs.size() &gt; 1) {</span>
+<span class="fc" id="L57">      throw new IllegalStateException(&quot;Multiple objects from the ObjectFactory can satisfy that type, but we&quot;</span>
+<span class="fc" id="L58">              + &quot; are searching for a singleton. Matching names are &quot; + possibleOutputs.keySet());</span>
+    }
+<span class="fc" id="L60">    return null;</span>
+  }
+
+  @Override
+  public &lt;T&gt; T getObject(String name, Class&lt;T&gt; type) {
+<span class="fc" id="L65">    return getAllObjects(type).get(name);</span>
+  }
+
+  @SuppressWarnings(&quot;unchecked&quot;)
+  @Override
+  public &lt;T&gt; Map&lt;String, T&gt; getAllObjects(Class&lt;T&gt; type) {
+<span class="fc" id="L71">    Map&lt;String, T&gt; output = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L72">    contents.entrySet().forEach(e -&gt; {</span>
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">      if (e.getValue() != null</span>
+<span class="fc bfc" id="L74" title="All 2 branches covered.">          &amp;&amp; type.isAssignableFrom(e.getValue().getClass())) {</span>
+<span class="fc" id="L75">        output.put(e.getKey(), (T) e.getValue());</span>
+      }
+<span class="fc" id="L77">    });</span>
+<span class="fc" id="L78">    return output;</span>
+  }
+ 
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

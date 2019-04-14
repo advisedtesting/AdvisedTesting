@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EvictingStaticTransformer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AdviseStaticEvictingClassloader</a> &gt; <a href="index.source.html" class="el_package">com.github.advisedtesting.classloader</a> &gt; <span class="el_source">EvictingStaticTransformer.java</span></div><h1>EvictingStaticTransformer.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright © 2016 AdvisedTesting
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+package com.github.advisedtesting.classloader;
+
+import java.lang.instrument.ClassFileTransformer;
+import java.security.ProtectionDomain;
+import java.util.List;
+
+public class EvictingStaticTransformer implements ClassFileTransformer {
+
+  private final boolean warnOnly;
+
+  private final ClassContainsStaticInitialization asmScanner;
+  
+  public EvictingStaticTransformer() {
+<span class="fc" id="L36">    this(false);</span>
+<span class="fc" id="L37">  }</span>
+
+<span class="fc" id="L39">  public EvictingStaticTransformer(boolean warnOnly) {</span>
+<span class="fc" id="L40">    this.warnOnly = warnOnly;</span>
+<span class="fc" id="L41">    this.asmScanner = new ClassContainsStaticInitialization();</span>
+<span class="fc" id="L42">  }</span>
+
+
+  /**
+   * Potentially print warnings about static state, and potentially throw ClassFormatErrors when static state is found.
+   * 
+   * @param loader the parent class loader, ignored.
+   * @param className the name of the class to verify.
+   * @param classBeingRedefined ignored.
+   * @param protectionDomain ignored.
+   * @param classfileBuffer contains the bytes of a java class to be transformed.
+   * @return always null, or a thrown {@link ClassFormatError}
+   */
+  public byte[] transform(ClassLoader loader, String className, Class&lt;?&gt; classBeingRedefined,
+          ProtectionDomain protectionDomain, byte[] classfileBuffer) {
+<span class="fc" id="L57">    List&lt;String&gt; errors = asmScanner.apply(classfileBuffer);</span>
+<span class="fc bfc" id="L58" title="All 2 branches covered.">    if (errors.size() &gt; 0) {</span>
+<span class="fc" id="L59">      StringBuffer buffer = new StringBuffer();</span>
+<span class="fc" id="L60">      buffer.append(&quot;Static state found in class &quot;)</span>
+<span class="fc" id="L61">            .append(className.replace('/', '.'));</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">      if (warnOnly) {   </span>
+<span class="fc" id="L63">        buffer.append(&quot; in non-dev mode this will result in ClassFormatErrors\n&quot;);</span>
+      }
+<span class="fc" id="L65">      int count = 0;</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">      for (String error : errors) {</span>
+<span class="fc" id="L67">        buffer.append(&quot;Error &quot;).append(++count).append(&quot; : &quot;).append(error).append('\n');</span>
+      }
+<span class="fc bfc" id="L69" title="All 2 branches covered.">      if (warnOnly) {</span>
+<span class="fc" id="L70">        System.err.println(buffer);</span>
+<span class="fc" id="L71">      } else {</span>
+<span class="fc" id="L72">        throw new ClassFormatError(buffer.toString());</span>
+      }
+    }
+<span class="fc" id="L75">    return null;</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

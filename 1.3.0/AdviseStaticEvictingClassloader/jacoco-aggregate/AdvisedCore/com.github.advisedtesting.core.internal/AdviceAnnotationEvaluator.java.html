@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>AdviceAnnotationEvaluator.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">AdviseStaticEvictingClassloader</a> &gt; <a href="../index.html" class="el_bundle">AdvisedCore</a> &gt; <a href="index.source.html" class="el_package">com.github.advisedtesting.core.internal</a> &gt; <span class="el_source">AdviceAnnotationEvaluator.java</span></div><h1>AdviceAnnotationEvaluator.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright © 2016 AdvisedTesting
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+package com.github.advisedtesting.core.internal;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.aopalliance.intercept.MethodInterceptor;
+
+<span class="nc" id="L33">public class AdviceAnnotationEvaluator {</span>
+
+  private static boolean hasAdviceClass(final Annotation annotation) {
+<span class="fc" id="L36">    Class&lt;?&gt; value = getValueIfPresent(annotation, &quot;implementedBy&quot;, Class.class);</span>
+    try {
+<span class="fc bfc" id="L38" title="All 2 branches covered.">      return value != null </span>
+<span class="fc bfc" id="L39" title="All 2 branches covered.">              &amp;&amp; MethodInterceptor.class.isAssignableFrom(value)</span>
+<span class="pc bpc" id="L40" title="1 of 2 branches missed.">              &amp;&amp; value.getConstructor() != null;</span>
+<span class="fc" id="L41">    } catch (NoSuchMethodException | SecurityException ex) {</span>
+<span class="fc" id="L42">      return false;</span>
+    }
+  }
+
+  /**
+   * Get a list of annotations in order (based on input) that have implementedBy field that is a class.
+   * implementedBy's class must implement {@link MethodInterceptor}.
+   * @param annotations array of annotations.
+   * @return List of Advice annotations meant for tests.
+   */
+  public static List&lt;Annotation&gt; inspect(Annotation... annotations) {
+<span class="fc" id="L53">    List&lt;Annotation&gt; output = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L54" title="All 2 branches covered.">    for (Annotation annotation : annotations) {</span>
+<span class="fc bfc" id="L55" title="All 2 branches covered.">      if (hasAdviceClass(annotation)) {</span>
+<span class="fc" id="L56">        output.add(annotation);</span>
+<span class="fc" id="L57">      } else {</span>
+        //get all fields on the annotation.
+<span class="fc bfc" id="L59" title="All 2 branches covered.">        for (Method method : annotation.annotationType().getMethods()) {</span>
+<span class="fc" id="L60">          method.setAccessible(true);</span>
+          //does this method return a single annotation
+<span class="fc bfc" id="L62" title="All 2 branches covered.">          if (Annotation.class.isAssignableFrom(method.getReturnType())) {</span>
+            try {
+<span class="fc" id="L64">              output.addAll(inspect((Annotation) method.invoke(annotation, (Object[]) null)));</span>
+<span class="pc" id="L65">            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {</span>
+              // Should not be reachable
+            }
+          }
+          //does this method return an array of annotations
+<span class="fc bfc" id="L70" title="All 2 branches covered.">          if (method.getReturnType().getComponentType() != null</span>
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">                  &amp;&amp; Annotation.class.isAssignableFrom(method.getReturnType().getComponentType())) {</span>
+            try {
+<span class="fc" id="L73">              output.addAll(inspect((Annotation[]) method.invoke(annotation, (Object[]) null)));</span>
+<span class="pc" id="L74">            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {</span>
+              // Should not be reachable
+            }
+          }
+        }
+      }
+    }
+<span class="fc" id="L81">    return output;</span>
+  }
+
+  public static String getInstanceIfPresent(Annotation annotation) {
+<span class="fc" id="L85">    String value = getValueIfPresent(annotation, &quot;instance&quot;, String.class);</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">    if (!&quot;__default&quot;.equals(value)) {</span>
+<span class="fc" id="L87">      return value;</span>
+    } else {
+<span class="fc" id="L89">      return null;</span>
+    }
+  }
+
+  public static String getNameIfPresent(Annotation annotation) {
+<span class="fc" id="L94">    String value = getValueIfPresent(annotation, &quot;name&quot;, String.class);</span>
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">    if (!&quot;__default&quot;.equals(value)) {</span>
+<span class="fc" id="L96">      return value;</span>
+    } else {
+<span class="nc" id="L98">      return null;</span>
+    }
+  }
+
+  /**
+   * Finds the value of a field on an annotation.
+   * 
+   * @param &lt;T&gt; the type of the field.
+   * @param annotation to inspect
+   * @param name for a field with this name
+   * @param output and a type of this Class
+   * @return the field's value on the annotation if found.
+   */
+  @SuppressWarnings(&quot;unchecked&quot;)
+  public static &lt;T&gt; T getValueIfPresent(Annotation annotation, String name, Class&lt;T&gt; output) {
+<span class="fc bfc" id="L113" title="All 2 branches covered.">    if (annotation == null) {</span>
+<span class="fc" id="L114">      return null;</span>
+    }
+<span class="fc bfc" id="L116" title="All 2 branches covered.">    for (Method method : annotation.annotationType().getMethods()) {</span>
+<span class="fc" id="L117">      String methodName = method.getName();</span>
+<span class="pc bpc" id="L118" title="1 of 4 branches missed.">      if (name.equals(methodName) &amp;&amp; output.isAssignableFrom(method.getReturnType())) {</span>
+        try {
+<span class="fc" id="L120">          method.setAccessible(true);</span>
+<span class="fc" id="L121">          return (T) method.invoke(annotation, (Object[]) null);</span>
+<span class="nc" id="L122">        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {</span>
+          // moving right along.
+        }
+      }
+    }
+<span class="fc" id="L127">    return null;</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>
