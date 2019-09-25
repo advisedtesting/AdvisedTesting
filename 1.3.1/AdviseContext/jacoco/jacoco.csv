@@ -1,0 +1,3 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+AdviseContext,com.github.advisedtesting.context.internal,SpringContextObjectFactory,7,49,1,3,2,14,2,5,1,4
+AdviseContext,com.github.advisedtesting.context.internal,IoCContextAdvice,13,57,1,3,2,11,1,4,0,3
