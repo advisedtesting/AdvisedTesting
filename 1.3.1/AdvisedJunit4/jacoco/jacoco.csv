@@ -1,0 +1,6 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+AdvisedJunit4,com.github.advisedtesting.junit4,Junit4AopClassRunner.IvokationMethodWithArguments,21,0,0,0,7,0,2,0,2,0
+AdvisedJunit4,com.github.advisedtesting.junit4,Junit4AopClassRunner.DelayedConstructionStatement,155,0,4,0,30,0,5,0,3,0
+AdvisedJunit4,com.github.advisedtesting.junit4,Junit4AopClassRunner.AdvisedStatement.new ContextAwareMethodInvocation() {...},38,0,0,0,11,0,9,0,9,0
+AdvisedJunit4,com.github.advisedtesting.junit4,Junit4AopClassRunner.AdvisedStatement,33,0,0,0,10,0,2,0,2,0
+AdvisedJunit4,com.github.advisedtesting.junit4,Junit4AopClassRunner,148,0,8,0,36,0,12,0,8,0
