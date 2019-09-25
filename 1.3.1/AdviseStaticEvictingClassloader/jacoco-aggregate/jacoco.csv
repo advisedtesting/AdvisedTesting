@@ -1,0 +1,8 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+AdviseStaticEvictingClassloader/AdvisedCore,com.github.advisedtesting.core.internal,ProviderAwareObjectFactoryAggregate,2,256,5,27,0,44,5,30,0,19
+AdviseStaticEvictingClassloader/AdvisedCore,com.github.advisedtesting.core.internal,SimpleObjectFactory,0,117,1,7,0,25,1,13,0,10
+AdviseStaticEvictingClassloader/AdvisedCore,com.github.advisedtesting.core.internal,AdviceAnnotationEvaluator,8,189,4,26,5,35,5,16,1,5
+AdviseStaticEvictingClassloader/AdvisedCore,com.github.advisedtesting.core.internal,TestContext,6,160,3,13,3,38,3,13,0,8
+AdviseStaticEvictingClassloader/AdvisedCore,com.github.advisedtesting.core.internal,ExceptionEvaluator,0,28,0,6,0,9,0,5,0,2
+AdviseStaticEvictingClassloader/AdvisedCore,com.github.advisedtesting.core.internal,TestContext.new Runnable() {...},0,10,0,0,0,3,0,2,0,2
+AdviseStaticEvictingClassloader/AdvisedCore,com.github.advisedtesting.core,ConstraintException,23,0,0,0,10,0,5,0,5,0
