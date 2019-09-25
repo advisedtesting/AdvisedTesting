@@ -1,4 +1,6 @@
 jdk:
+- openjdk8
+- openjdk11
 - openjdk12
 language: java
 install: true
@@ -8,7 +10,7 @@ cache:
 before_install:
   - cp ./.travis/settings.xml ${HOME}/.m2/settings.xml
 script:
-  - mvn verify -DskipTests=true -Dmaven.javadoc.skip=true -V
+  - mvn verify -Dmaven.javadoc.skip=true -V
   - mvn site
 after_success:
   - bash <(curl -s https://codecov.io/bash)
