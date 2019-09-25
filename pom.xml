@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.salesforce.maven</groupId>
         <artifactId>MavenParent</artifactId>
-        <version>1.0.14</version>
+        <version>1.0.16</version>
     </parent>
     <groupId>com.github.advisedtesting</groupId>
     <artifactId>AdvisedTesting</artifactId>
@@ -35,15 +35,15 @@
         <parameter.organization.name>AdvisedTesting</parameter.organization.name>
         <version.aopalliance>1.0</version.aopalliance>
         <version.asm>7.1</version.asm>
-        <version.assertj>3.12.2</version.assertj>
+        <version.assertj>3.13.2</version.assertj>
         <version.jgrapht>1.2.0</version.jgrapht>
         <version.jopt>5.0.4</version.jopt>
         <version.junit>4.12</version.junit>
-        <version.junit.jupiter>5.5.0</version.junit.jupiter>
-        <version.junit.platform.launcher>1.5.0</version.junit.platform.launcher>
+        <version.junit.jupiter>5.5.2</version.junit.jupiter>
+        <version.junit.platform.launcher>1.5.2</version.junit.platform.launcher>
         <version.logback>1.2.3</version.logback>
-        <version.slf4j>1.7.26</version.slf4j>
-        <version.spring.framework>5.1.8.RELEASE</version.spring.framework>
+        <version.slf4j>1.7.28</version.slf4j>
+        <version.spring.framework>5.1.9.RELEASE</version.spring.framework>
     </properties>
     <dependencyManagement>
         <dependencies>
