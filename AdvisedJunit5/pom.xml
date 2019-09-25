@@ -4,9 +4,9 @@
     <parent>
         <groupId>com.github.advisedtesting</groupId>
         <artifactId>AdvisedTesting</artifactId>
-        <version>1.3.1</version>
+        <version>1.3.0</version>
     </parent>
-    <artifactId>AdvisedJunit4</artifactId>
+    <artifactId>AdvisedJunit5</artifactId>
     <name>${project.artifactId}</name>
     <properties>
         <github.site.location>${project.parent.version}/AdvisedJunit4</github.site.location>
@@ -24,8 +24,28 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${version.junit.jupiter}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${version.junit.jupiter}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
+            <version>${version.junit.platform.launcher}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+            <version>${version.junit.jupiter}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
