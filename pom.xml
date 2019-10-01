@@ -43,7 +43,7 @@
         <version.junit.platform.launcher>1.5.2</version.junit.platform.launcher>
         <version.logback>1.2.3</version.logback>
         <version.slf4j>1.7.28</version.slf4j>
-        <version.spring.framework>5.1.9.RELEASE</version.spring.framework>
+        <version.spring.framework>5.2.0.RELEASE</version.spring.framework>
     </properties>
     <dependencyManagement>
         <dependencies>
