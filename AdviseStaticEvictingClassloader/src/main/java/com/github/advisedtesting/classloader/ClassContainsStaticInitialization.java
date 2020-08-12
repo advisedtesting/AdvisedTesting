@@ -51,7 +51,7 @@ public class ClassContainsStaticInitialization implements Function<String, List<
           if (Opcodes.class.getField("ASM6") != null) {
             return Opcodes.ASM6;
           }
-        catch (NoSuchFieldException | SecurityException e1) {
+        } catch (NoSuchFieldException | SecurityException e1) {
 	      try {
 	        if (Opcodes.class.getField("ASM5") != null) {
 	          return Opcodes.ASM5;
@@ -60,6 +60,7 @@ public class ClassContainsStaticInitialization implements Function<String, List<
 	        return Opcodes.ASM4;
 	      }
 	    }
+    }
     return Opcodes.ASM4;
   }
   
