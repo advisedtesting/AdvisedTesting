@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>Junit4AopClassRunner.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">AdviseContext</a> &gt; <a href="../index.html" class="el_bundle">AdvisedJunit4</a> &gt; <a href="index.source.html" class="el_package">com.github.advisedtesting.junit4</a> &gt; <span class="el_source">Junit4AopClassRunner.java</span></div><h1>Junit4AopClassRunner.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright © 2016 AdvisedTesting
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+package com.github.advisedtesting.junit4;
+
+import static com.github.advisedtesting.core.internal.AdviceAnnotationEvaluator.inspect;
+import static com.github.advisedtesting.core.internal.ExceptionEvaluator.convertExceptionIfPossible;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.aopalliance.intercept.MethodInterceptor;
+import org.junit.AssumptionViolatedException;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.internal.runners.model.EachTestNotifier;
+import org.junit.rules.RunRules;
+import org.junit.rules.TestRule;
+import org.junit.runner.notification.RunNotifier;
+import org.junit.runners.BlockJUnit4ClassRunner;
+import org.junit.runners.model.FrameworkMethod;
+import org.junit.runners.model.InitializationError;
+import org.junit.runners.model.Statement;
+import org.junit.runners.model.TestClass;
+
+import com.github.advisedtesting.core.ConstraintException;
+import com.github.advisedtesting.core.ContextAwareMethodInvocation;
+import com.github.advisedtesting.core.ObjectFactory;
+import com.github.advisedtesting.core.internal.ProviderAwareObjectFactoryAggregate;
+import com.github.advisedtesting.core.internal.TestContext;
+
+public class Junit4AopClassRunner extends BlockJUnit4ClassRunner {
+
+  /**
+   * &lt;p&gt;
+   * Hold the instances of each {@link MethodInterceptor}.
+   * &lt;/p&gt;
+   * &lt;p&gt;
+   * this is a bit sad, but in order for instances to be shared across junit 4 tests, and
+   * with the lack of a reference to a long lived object, the static context appears to be 
+   * necessary.
+   * &lt;/p&gt;
+   */ 
+<span class="fc" id="L69">  private static final TestContext CONTEXT = new TestContext();</span>
+  private final Class&lt;?&gt; targetClass;
+  
+  public Junit4AopClassRunner(final Class&lt;?&gt; klass) throws InitializationError {
+<span class="fc" id="L73">    super(klass);</span>
+<span class="fc" id="L74">    targetClass = klass;</span>
+<span class="fc" id="L75">  }</span>
+
+  @Override
+  protected void validateTestMethods(List&lt;Throwable&gt; errors) {
+    // No Op
+    // TODO: validate with the object factories?
+<span class="fc" id="L81">  }</span>
+
+  @Override
+  protected void runChild(final FrameworkMethod method, final RunNotifier notifier) {
+<span class="fc" id="L85">    runContextualizedLeaf(method, notifier);</span>
+<span class="fc" id="L86">  }</span>
+
+  @Override
+  protected List&lt;FrameworkMethod&gt; computeTestMethods() {
+<span class="fc" id="L90">    return getTestClass().getAnnotatedMethods(Test.class);</span>
+  }
+
+  private final void runContextualizedLeaf(final FrameworkMethod frameworkMethod, final RunNotifier notifier) {
+<span class="fc" id="L94">    final EachTestNotifier eachNotifier = new EachTestNotifier(notifier, describeChild(frameworkMethod));</span>
+<span class="fc" id="L95">    eachNotifier.fireTestStarted();</span>
+<span class="fc" id="L96">    ProviderAwareObjectFactoryAggregate registrar = new ProviderAwareObjectFactoryAggregate();</span>
+<span class="fc" id="L97">    List&lt;Annotation&gt; annotations = adviceAnnotations(frameworkMethod);</span>
+<span class="fc" id="L98">    Collections.reverse(annotations);</span>
+<span class="fc" id="L99">    DelayedConstructionStatement delayedStatement = new DelayedConstructionStatement(frameworkMethod, targetClass, registrar);</span>
+<span class="fc" id="L100">    Statement statement = delayedStatement;</span>
+<span class="fc bfc" id="L101" title="All 2 branches covered.">    for (Annotation annotation : annotations) {</span>
+<span class="fc" id="L102">      statement = new AdvisedStatement(statement, CONTEXT, registrar, annotation);</span>
+<span class="fc" id="L103">    }</span>
+    try {
+<span class="fc" id="L105">      statement.evaluate();</span>
+<span class="nc" id="L106">    } catch (final Throwable th) {</span>
+<span class="nc" id="L107">      final ConstraintException contraintException = convertExceptionIfPossible(th, ConstraintException.class);</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">      if (contraintException != null) {</span>
+<span class="nc" id="L109">        eachNotifier.addFailedAssumption(new AssumptionViolatedException(contraintException.getMessage(), contraintException));</span>
+      } else {
+<span class="nc" id="L111">        eachNotifier.addFailure(th);</span>
+      }
+    } finally {
+<span class="fc" id="L114">      eachNotifier.fireTestFinished();</span>
+    }
+<span class="fc" id="L116">  }</span>
+
+  private List&lt;Annotation&gt; adviceAnnotations(final FrameworkMethod frameworkMethod) {
+<span class="fc" id="L119">    List&lt;Annotation&gt; annotations = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L120" title="All 2 branches covered.">    for (Annotation annotation : inspect(frameworkMethod.getMethod().getAnnotations())) {</span>
+<span class="pc bpc" id="L121" title="1 of 2 branches missed.">      if (CONTEXT.isAdviceAnnotation(annotation)) {</span>
+<span class="fc" id="L122">        annotations.add(annotation);</span>
+      }
+<span class="fc" id="L124">    }</span>
+<span class="fc" id="L125">    return annotations;</span>
+  }
+
+  public static class AdvisedStatement extends Statement {
+
+    private final Statement advised;
+    private final TestContext context;
+    private final ProviderAwareObjectFactoryAggregate registry;
+    private final Annotation annotation;
+
+    public AdvisedStatement(Statement advised, TestContext context, ProviderAwareObjectFactoryAggregate registry,
+<span class="fc" id="L136">            Annotation annotation) {</span>
+<span class="fc" id="L137">      this.advised = advised;</span>
+<span class="fc" id="L138">      this.context = context;</span>
+<span class="fc" id="L139">      this.registry = registry;</span>
+<span class="fc" id="L140">      this.annotation = annotation;</span>
+<span class="fc" id="L141">    }</span>
+
+    @Override
+    public void evaluate() throws Throwable {
+<span class="fc" id="L145">      ClassLoader classloader = Thread.currentThread().getContextClassLoader();</span>
+<span class="fc" id="L146">      MethodInterceptor advisor = context.getAdviceFor(annotation, classloader);</span>
+<span class="fc" id="L147">      advisor.invoke(new ContextAwareMethodInvocation() {</span>
+
+        @Override
+        public void registerObjectFactory(ObjectFactory factory) {
+<span class="fc" id="L151">          registry.register(annotation, factory);</span>
+<span class="fc" id="L152">        }</span>
+
+        @Override
+        public ObjectFactory getCurrentContextFactory() {
+<span class="nc" id="L156">          return registry;</span>
+        }
+
+        @Override
+        public Object proceed() throws Throwable {
+<span class="fc" id="L161">          advised.evaluate();</span>
+<span class="fc" id="L162">          return null;</span>
+        }
+
+        @Override
+        public Object getThis() {
+<span class="nc" id="L167">          return null;</span>
+        }
+
+        @Override
+        public AccessibleObject getStaticPart() {
+<span class="nc" id="L172">          return null;</span>
+        }
+
+        @Override
+        public Object[] getArguments() {
+<span class="nc" id="L177">          return new Object[] {};</span>
+        }
+
+        @Override
+        public Method getMethod() {
+<span class="nc" id="L182">          return null;</span>
+        }
+
+        @Override
+        public Annotation getTargetAnnotation() {
+<span class="fc" id="L187">          return annotation;</span>
+        }
+      });
+<span class="fc" id="L190">    }</span>
+
+  }
+  
+  /**
+   * Get rules for this test object.
+   * 
+   * @param target
+   *          the test case instance
+   * @return a list of TestRules that should be applied when executing this test
+   */
+  @Override
+  protected List&lt;TestRule&gt; getTestRules(Object target) {
+<span class="fc" id="L203">    TestClass testClass = new TestClass(target.getClass());</span>
+<span class="fc" id="L204">    List&lt;TestRule&gt; result = testClass.getAnnotatedMethodValues(target, Rule.class, TestRule.class);</span>
+
+<span class="fc" id="L206">    result.addAll(testClass.getAnnotatedFieldValues(target, Rule.class, TestRule.class));</span>
+
+<span class="fc" id="L208">    return result;</span>
+  }
+
+  public class DelayedConstructionStatement extends Statement {
+    private final String testName;
+    private final List&lt;String&gt; parameterTypes;
+    private final String targetClass;
+    private final ProviderAwareObjectFactoryAggregate registry;
+<span class="fc" id="L216">    private boolean wrapped = false;</span>
+<span class="fc" id="L217">    private Statement wrappedStatement = null;</span>
+
+    public DelayedConstructionStatement(FrameworkMethod fmethod, Class&lt;?&gt; targetClass,
+<span class="fc" id="L220">            ProviderAwareObjectFactoryAggregate registry) {</span>
+<span class="fc" id="L221">      this.testName = fmethod.getMethod().getName();</span>
+<span class="fc" id="L222">      this.parameterTypes = Arrays.asList(fmethod.getMethod().getParameterTypes()).stream().map(clazz -&gt; clazz.getName())</span>
+<span class="fc" id="L223">              .collect(Collectors.toList());</span>
+<span class="fc" id="L224">      this.targetClass = targetClass.getName();</span>
+<span class="fc" id="L225">      this.registry = registry;</span>
+<span class="fc" id="L226">    }</span>
+
+    @Override
+    @SuppressWarnings(&quot;deprecation&quot;)
+    public void evaluate() throws Throwable {
+<span class="pc bpc" id="L231" title="1 of 2 branches missed.">      if (wrapped) {</span>
+<span class="nc" id="L232">        wrappedStatement.evaluate();</span>
+      } else {
+<span class="fc" id="L234">        wrapped = true;</span>
+<span class="fc" id="L235">        ClassLoader loader = Thread.currentThread().getContextClassLoader();</span>
+<span class="fc" id="L236">        Class&lt;?&gt; targetClassInLoader = Class.forName(targetClass, true, loader);</span>
+<span class="fc" id="L237">        Object target = targetClassInLoader.newInstance();</span>
+<span class="fc" id="L238">        List&lt;Class&lt;?&gt;&gt; parameters = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L239" title="All 2 branches covered.">        for (String className : parameterTypes) {</span>
+<span class="fc" id="L240">          parameters.add(Class.forName(className, true, loader));</span>
+<span class="fc" id="L241">        }</span>
+<span class="fc" id="L242">        Method method = targetClassInLoader.getMethod(testName, parameters.toArray(new Class[] {}));</span>
+<span class="fc" id="L243">        FrameworkMethod fmethod = new FrameworkMethod(method);</span>
+<span class="fc" id="L244">        Statement newTarget = new IvokationMethodWithArguments(target, fmethod, registry.getArgumentsFor(method));</span>
+        //simulates standard statement processing by junit 4.
+<span class="fc" id="L246">        newTarget = possiblyExpectingExceptions(fmethod, target, newTarget);</span>
+<span class="fc" id="L247">        newTarget = withPotentialTimeout(fmethod, target, newTarget);</span>
+<span class="fc" id="L248">        newTarget = withBefores(fmethod, target, newTarget);</span>
+<span class="fc" id="L249">        newTarget = withAfters(fmethod, target, newTarget);</span>
+        //newTarget = withRules(fmethod, target, newTarget);
+<span class="fc" id="L251">        List&lt;TestRule&gt; testRules = getTestRules(target);</span>
+<span class="fc" id="L252">        newTarget = new RunRules(newTarget, testRules, describeChild(fmethod));</span>
+<span class="fc" id="L253">        newTarget.evaluate();</span>
+      }
+<span class="fc" id="L255">    }</span>
+  }
+  
+  public static class IvokationMethodWithArguments extends Statement {
+
+    private final Object target;
+    private final FrameworkMethod method;
+    private final Object[] arguments;
+    
+    
+    
+    public IvokationMethodWithArguments(Object target, FrameworkMethod method, Object[] arguments) {
+<span class="fc" id="L267">      super();</span>
+<span class="fc" id="L268">      this.target = target;</span>
+<span class="fc" id="L269">      this.method = method;</span>
+<span class="fc" id="L270">      this.arguments = arguments;</span>
+<span class="fc" id="L271">    }</span>
+
+    @Override
+    public void evaluate() throws Throwable {
+<span class="fc" id="L275">      method.invokeExplosively(target, arguments);</span>
+<span class="fc" id="L276">    }</span>
+    
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
