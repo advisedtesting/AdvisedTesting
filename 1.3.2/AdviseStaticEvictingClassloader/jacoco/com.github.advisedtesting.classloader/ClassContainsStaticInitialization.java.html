@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ClassContainsStaticInitialization.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">AdviseStaticEvictingClassloader</a> &gt; <a href="index.source.html" class="el_package">com.github.advisedtesting.classloader</a> &gt; <span class="el_source">ClassContainsStaticInitialization.java</span></div><h1>ClassContainsStaticInitialization.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright © 2016 AdvisedTesting
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+package com.github.advisedtesting.classloader;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
+
+import org.springframework.asm.AnnotationVisitor;
+import org.springframework.asm.ClassReader;
+import org.springframework.asm.ClassVisitor;
+import org.springframework.asm.FieldVisitor;
+import org.springframework.asm.Handle;
+import org.springframework.asm.Label;
+import org.springframework.asm.MethodVisitor;
+import org.springframework.asm.Opcodes;
+import org.springframework.asm.TypePath;
+
+public class ClassContainsStaticInitialization implements Function&lt;String, List&lt;String&gt;&gt; {
+
+  private final int versionOpcode;
+  
+  private int getVersionOpcode() {
+    try {
+<span class="pc bpc" id="L46" title="1 of 2 branches missed.">        if (Opcodes.class.getField(&quot;ASM7&quot;) != null) {</span>
+<span class="fc" id="L47">          return Opcodes.ASM7;</span>
+        }
+<span class="nc" id="L49">    } catch (NoSuchFieldException | SecurityException e) {</span>
+        try {
+<span class="nc bnc" id="L51" title="All 2 branches missed.">          if (Opcodes.class.getField(&quot;ASM6&quot;) != null) {</span>
+<span class="nc" id="L52">            return Opcodes.ASM6;</span>
+          }
+<span class="nc" id="L54">        } catch (NoSuchFieldException | SecurityException e1) {</span>
+	      try {
+<span class="nc bnc" id="L56" title="All 2 branches missed.">	        if (Opcodes.class.getField(&quot;ASM5&quot;) != null) {</span>
+<span class="nc" id="L57">	          return Opcodes.ASM5;</span>
+	        }
+<span class="nc" id="L59">	      } catch (NoSuchFieldException | SecurityException e2) {</span>
+<span class="nc" id="L60">	        return Opcodes.ASM4;</span>
+<span class="nc" id="L61">	      }</span>
+<span class="nc" id="L62">	    }</span>
+<span class="nc" id="L63">    }</span>
+<span class="nc" id="L64">    return Opcodes.ASM4;</span>
+  }
+  
+<span class="fc" id="L67">  public ClassContainsStaticInitialization() {</span>
+<span class="fc" id="L68">    this.versionOpcode = getVersionOpcode();</span>
+<span class="fc" id="L69">  }</span>
+
+  @Override
+  public List&lt;String&gt; apply(String className) {
+    ClassReader reader;
+    try {
+<span class="fc" id="L75">      reader = new ClassReader(className);</span>
+<span class="fc" id="L76">      UnsafeClassVistor visitor = new UnsafeClassVistor(versionOpcode);</span>
+<span class="fc" id="L77">      reader.accept(visitor, 0);</span>
+<span class="fc" id="L78">      return visitor.getErrors();</span>
+<span class="nc" id="L79">    } catch (IOException ioe) {</span>
+<span class="nc" id="L80">      throw new IllegalArgumentException(&quot;Class is not readable &quot; + className.replace('/', '.'), ioe);</span>
+    }
+  }
+  
+  public List&lt;String&gt; apply(byte[] bytes) {
+    ClassReader reader;
+<span class="fc" id="L86">    reader = new ClassReader(bytes);</span>
+<span class="fc" id="L87">    UnsafeClassVistor visitor = new UnsafeClassVistor(versionOpcode);</span>
+<span class="fc" id="L88">    reader.accept(visitor, 0);</span>
+<span class="fc" id="L89">    return visitor.getErrors();</span>
+  }
+ 
+  /**
+   * Not thread safe.
+   * 
+   * @author rex
+   */
+  private static class UnsafeClassVistor extends ClassVisitor {
+    
+    private String className;
+    
+<span class="fc" id="L101">    private boolean isEnumeration = false; //enumerations can not avoid static member variables -- just make sure they are final.</span>
+    
+    private final List&lt;String&gt; errors;
+    
+    public UnsafeClassVistor(int api) {
+<span class="fc" id="L106">      super(api);</span>
+<span class="fc" id="L107">      errors = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L108">    }</span>
+    
+    @Override
+    public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
+<span class="fc" id="L112">      className = name;</span>
+<span class="fc" id="L113">      isEnumeration = isEnum(access);</span>
+<span class="fc" id="L114">    }    </span>
+    
+    private boolean isStaticFinalLiteral(int access, Object value) {
+<span class="pc bpc" id="L117" title="1 of 6 branches missed.">      return isStatic(access) &amp;&amp; isFinal(access) &amp;&amp; value != null;</span>
+    }
+    
+    private boolean isStaticFinalEnumeration(int access) {
+<span class="pc bpc" id="L121" title="2 of 6 branches missed.">      return isStatic(access) &amp;&amp; isFinal(access) &amp;&amp; isEnumeration;</span>
+    }
+    
+    private boolean isAssertionSupport(String name) {
+<span class="fc" id="L125">      return &quot;$assertionsDisabled&quot;.equals(name);</span>
+    }
+    
+    @Override
+    public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
+<span class="fc bfc" id="L130" title="All 2 branches covered.">      if (isStatic(access) </span>
+<span class="fc bfc" id="L131" title="All 2 branches covered.">          &amp;&amp; !isSynthetic(access)</span>
+<span class="pc bpc" id="L132" title="1 of 2 branches missed.">          &amp;&amp; !(isStaticFinalEnumeration(access)</span>
+<span class="fc bfc" id="L133" title="All 2 branches covered.">               || isStaticFinalLiteral(access, value)</span>
+<span class="pc bpc" id="L134" title="1 of 2 branches missed.">               || isAssertionSupport(name))) {</span>
+<span class="fc" id="L135">        addError(&quot;Disallowed static field with name \&quot;&quot; + name + &quot;\&quot;&quot;);</span>
+      }
+<span class="fc" id="L137">      return super.visitField(access, name, desc, signature, value);</span>
+    }
+    
+    public boolean isStatic(int access) {
+<span class="fc bfc" id="L141" title="All 2 branches covered.">      return ((access &amp; Opcodes.ACC_STATIC) != 0);</span>
+    }
+
+    public boolean isFinal(int access) {
+<span class="fc bfc" id="L145" title="All 2 branches covered.">      return ((access &amp; Opcodes.ACC_FINAL) != 0);</span>
+    }
+    
+    public boolean isEnum(int access) {
+<span class="pc bpc" id="L149" title="1 of 2 branches missed.">      return ((access &amp; Opcodes.ACC_ENUM) != 0);</span>
+    }
+    
+    public boolean isSynthetic(int access) {
+<span class="fc bfc" id="L153" title="All 2 branches covered.">      return ((access &amp; Opcodes.ACC_SYNTHETIC) != 0);</span>
+    }
+    
+    @Override
+    public MethodVisitor visitMethod(int access, String name, 
+                              String desc, String signature, String[] exceptions) {
+<span class="pc bpc" id="L159" title="1 of 4 branches missed.">      if (!isEnumeration &amp;&amp; &quot;&lt;clinit&gt;&quot;.equals(name)) {</span>
+<span class="fc" id="L160">        return new UnsafeStaticInitVistor(this.api, this);</span>
+      }
+<span class="fc" id="L162">      return super.visitMethod(access, name, desc, signature, exceptions);</span>
+    }
+    
+    public List&lt;String&gt; getErrors() {
+<span class="fc" id="L166">      return errors;</span>
+    }
+    
+    public void addError(String error) {
+<span class="pc bpc" id="L170" title="1 of 2 branches missed.">      if (errors != null) {</span>
+<span class="fc" id="L171">        this.errors.add(error + &quot; on class: &quot; + className.replace('/', '.'));</span>
+      }
+<span class="fc" id="L173">    }</span>
+    
+  }
+  
+  /**
+   * &lt;p&gt;
+   * This methodVisitor evicts any method who's only operations
+   * are anything other than setting the class's static
+   * $assertionsDisabled with {@link Class#desiredAssertionStatus}'s
+   * result.
+   * &lt;/p&gt;
+   * &lt;p&gt;
+   * If a class uses the assert keyword this static member variable
+   * is constructed and set in this way.
+   * &lt;/p&gt;
+   * &lt;p&gt;
+   * Should only be used to validate &amp;lt;cinit&amp;gt; methods.
+   * &lt;/p&gt;
+   * @author rex
+   */
+  public static class UnsafeStaticInitVistor extends MethodVisitor {
+
+<span class="fc" id="L195">    private boolean shouldEvict = false;</span>
+    
+    private final UnsafeClassVistor visitor;
+    
+    public UnsafeStaticInitVistor(int api, UnsafeClassVistor visitor) {
+<span class="fc" id="L200">      super(api);</span>
+<span class="fc" id="L201">      this.visitor = visitor;</span>
+<span class="fc" id="L202">    }</span>
+    
+
+    @Override
+    public void visitFieldInsn(int opcode, String owner, String name, String desc) {
+<span class="pc bpc" id="L207" title="1 of 4 branches missed.">      shouldEvict = shouldEvict </span>
+              || opcode != Opcodes.PUTSTATIC
+<span class="fc bfc" id="L209" title="All 2 branches covered.">              || !&quot;$assertionsDisabled&quot;.equals(name);</span>
+<span class="fc" id="L210">      super.visitFieldInsn(opcode, owner, name, desc);</span>
+<span class="fc" id="L211">    }</span>
+
+    @Override
+    public void visitLocalVariable(String name, String desc, String signature, Label start, Label end, int index) {
+<span class="nc" id="L215">      shouldEvict = true;</span>
+<span class="nc" id="L216">      super.visitLocalVariable(name, desc, signature, start, end, index);</span>
+<span class="nc" id="L217">    }</span>
+    
+    @Override
+    public void visitEnd() {
+<span class="fc bfc" id="L221" title="All 2 branches covered.">      if (shouldEvict) {</span>
+<span class="fc" id="L222">        visitor.addError(&quot;Disallowed &lt;cinit&gt; method (does more than enable the assert keyword)&quot;);</span>
+      }
+<span class="fc" id="L224">    }</span>
+
+    @Override
+    public void visitTypeInsn(int opcode, String type) {
+<span class="fc" id="L228">      shouldEvict = true;</span>
+<span class="fc" id="L229">      super.visitTypeInsn(opcode, type);</span>
+<span class="fc" id="L230">    }</span>
+
+    @Override
+    public void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
+      // TODO Auto-generated method stub
+<span class="pc bpc" id="L235" title="1 of 4 branches missed.">      shouldEvict = shouldEvict </span>
+          || opcode != Opcodes.INVOKEVIRTUAL
+<span class="pc bpc" id="L237" title="1 of 2 branches missed.">          || !&quot;java/lang/Class&quot;.equals(owner)</span>
+<span class="fc bfc" id="L238" title="All 2 branches covered.">          || !&quot;desiredAssertionStatus&quot;.equals(name)</span>
+<span class="pc bpc" id="L239" title="1 of 2 branches missed.">          || !&quot;()Z&quot;.equals(desc);</span>
+<span class="fc" id="L240">      super.visitMethodInsn(opcode, owner, name, desc, itf);</span>
+<span class="fc" id="L241">    }</span>
+
+    @Override
+    public void visitInvokeDynamicInsn(String name, String desc, Handle bsm, Object... bsmArgs) {
+<span class="nc" id="L245">      shouldEvict = true;</span>
+<span class="nc" id="L246">      super.visitInvokeDynamicInsn(name, desc, bsm, bsmArgs);</span>
+<span class="nc" id="L247">    }</span>
+
+    @Override
+    public void visitTableSwitchInsn(int min, int max, Label dflt, Label... labels) {
+<span class="nc" id="L251">      shouldEvict = true;</span>
+<span class="nc" id="L252">      super.visitTableSwitchInsn(min, max, dflt, labels);</span>
+<span class="nc" id="L253">    }</span>
+
+    @Override
+    public void visitLookupSwitchInsn(Label dflt, int[] keys, Label[] labels) {
+<span class="nc" id="L257">      shouldEvict = true;</span>
+<span class="nc" id="L258">      super.visitLookupSwitchInsn(dflt, keys, labels);</span>
+<span class="nc" id="L259">    }</span>
+
+    @Override
+    public void visitMultiANewArrayInsn(String desc, int dims) {
+<span class="nc" id="L263">      shouldEvict = true;</span>
+<span class="nc" id="L264">      super.visitMultiANewArrayInsn(desc, dims);</span>
+<span class="nc" id="L265">    }</span>
+
+    @Override
+    public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {
+<span class="nc" id="L269">      shouldEvict = true;</span>
+<span class="nc" id="L270">      super.visitTryCatchBlock(start, end, handler, type);</span>
+<span class="nc" id="L271">    }</span>
+
+    @Override
+    public AnnotationVisitor visitTryCatchAnnotation(int typeRef, TypePath typePath, String desc, boolean visible) {
+<span class="nc" id="L275">      shouldEvict = true;</span>
+<span class="nc" id="L276">      return super.visitTryCatchAnnotation(typeRef, typePath, desc, visible);</span>
+    }
+
+    @Override
+    public AnnotationVisitor visitLocalVariableAnnotation(int typeRef, TypePath typePath, Label[] start, Label[] end, int[] index,
+            String desc, boolean visible) {
+<span class="nc" id="L282">      shouldEvict = true;</span>
+<span class="nc" id="L283">      return super.visitLocalVariableAnnotation(typeRef, typePath, start, end, index, desc, visible);</span>
+    }
+
+    @Override
+    public void visitLineNumber(int line, Label start) {
+<span class="fc" id="L288">      super.visitLineNumber(line, start);</span>
+<span class="fc" id="L289">    }</span>
+    
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
