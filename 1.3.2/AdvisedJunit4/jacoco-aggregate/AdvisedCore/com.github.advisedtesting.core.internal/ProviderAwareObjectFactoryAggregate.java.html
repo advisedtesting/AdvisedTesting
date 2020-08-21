@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../../jacoco-resources/report.gif" type="image/gif"/><title>ProviderAwareObjectFactoryAggregate.java</title><link rel="stylesheet" href="../../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../../index.html" class="el_report">AdvisedJunit4</a> &gt; <a href="../index.html" class="el_bundle">AdvisedCore</a> &gt; <a href="index.source.html" class="el_package">com.github.advisedtesting.core.internal</a> &gt; <span class="el_source">ProviderAwareObjectFactoryAggregate.java</span></div><h1>ProviderAwareObjectFactoryAggregate.java</h1><pre class="source lang-java linenums">/*
+ * The MIT License
+ * Copyright © 2016 AdvisedTesting
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the &quot;Software&quot;), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+package com.github.advisedtesting.core.internal;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.function.Function;
+
+import com.github.advisedtesting.core.ObjectFactory;
+
+<span class="fc" id="L37">public class ProviderAwareObjectFactoryAggregate implements ObjectFactory {</span>
+
+  // registrar capability, used to build the default object factory....
+<span class="fc" id="L40">  private Map&lt;Annotation, ObjectFactory&gt; contexts = new LinkedHashMap&lt;&gt;();</span>
+
+  public void register(Annotation annotation, ObjectFactory objectFactory) {
+<span class="fc" id="L43">    contexts.put(annotation, objectFactory);</span>
+<span class="fc" id="L44">  }</span>
+
+  @Override
+  public &lt;T&gt; T getObject(Class&lt;T&gt; type) {
+<span class="fc bfc" id="L48" title="All 2 branches covered.">    for (Entry&lt;Annotation, ObjectFactory&gt; entry : contexts.entrySet()) {</span>
+<span class="fc" id="L49">      T found = entry.getValue().getObject(type);</span>
+<span class="fc bfc" id="L50" title="All 2 branches covered.">      if (found != null) {</span>
+<span class="fc" id="L51">        return found;</span>
+      }
+<span class="fc" id="L53">    }</span>
+<span class="fc" id="L54">    return null;</span>
+  }
+
+  @Override
+  public &lt;T&gt; T getObject(String name, Class&lt;T&gt; type) {
+<span class="pc bpc" id="L59" title="1 of 2 branches missed.">    return contexts.entrySet().stream().map((entry) -&gt; entry.getValue().getObject(name, type)).filter(o -&gt; o != null).findFirst()</span>
+<span class="fc" id="L60">            .orElseGet(() -&gt; null);</span>
+  }
+
+  public &lt;T&gt; T getObject(Annotation annotation, Class&lt;T&gt; type) {
+<span class="fc" id="L64">    return invokeOnFoundObjectFactory(annotation, o -&gt; o.getObject(type));</span>
+  }
+
+  public &lt;T&gt; T getObject(Annotation annotation, String name, Class&lt;T&gt; type) {
+<span class="fc" id="L68">    return invokeOnFoundObjectFactory(annotation, o -&gt; o.getObject(name, type));</span>
+  }
+
+  public &lt;T&gt; Map&lt;String, T&gt; getAllObjects(Annotation annotation, Class&lt;T&gt; type) {
+<span class="fc" id="L72">    return invokeOnFoundObjectFactory(annotation, o -&gt; o.getAllObjects(type));</span>
+  }
+
+  @SuppressWarnings(&quot;unchecked&quot;)
+  @Override
+  public &lt;T&gt; Map&lt;String, T&gt; getAllObjects(Class&lt;T&gt; type) {
+<span class="fc bfc" id="L78" title="All 2 branches covered.">    for (Entry&lt;Annotation, ObjectFactory&gt; context : contexts.entrySet()) {</span>
+<span class="fc" id="L79">      Map&lt;String, T&gt; matches = context.getValue().getAllObjects(type);</span>
+<span class="pc bpc" id="L80" title="1 of 4 branches missed.">      if (matches != null &amp;&amp; matches.size() &gt; 0) {</span>
+<span class="fc" id="L81">        return matches;</span>
+      }
+<span class="fc" id="L83">    }</span>
+<span class="fc" id="L84">    return Collections.unmodifiableMap(Collections.EMPTY_MAP);</span>
+  }
+
+  public Object[] getArgumentsFor(Method method) {
+<span class="nc" id="L88">    Class&lt;?&gt;[] parameterTypes = method.getParameterTypes();</span>
+<span class="nc" id="L89">    Annotation[][] annotations = method.getParameterAnnotations();</span>
+<span class="nc" id="L90">    Object[] parameters = new Object[parameterTypes.length];</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">    for (int i = 0; i &lt; parameterTypes.length; i++) {</span>
+<span class="nc" id="L92">      parameters[i] = getArgumentFor(parameterTypes[i], annotations[i]);</span>
+    }
+<span class="nc" id="L94">    return parameters;</span>
+  }
+
+  private Object getArgumentFor(Class&lt;?&gt; argumentType, Annotation[] annotations) {
+<span class="nc" id="L98">    Object output = null;</span>
+<span class="nc" id="L99">    Iterator&lt;Annotation&gt; iter = Arrays.asList(annotations).iterator();</span>
+<span class="nc bnc" id="L100" title="All 4 branches missed.">    while (iter.hasNext() &amp;&amp; output == null) {</span>
+<span class="nc" id="L101">      Annotation annotation = iter.next();</span>
+<span class="nc" id="L102">      String requestedInstanceName = AdviceAnnotationEvaluator.getInstanceIfPresent(annotation);</span>
+<span class="nc bnc" id="L103" title="All 4 branches missed.">      if (requestedInstanceName != null &amp;&amp; !&quot;&quot;.equals(requestedInstanceName)) {</span>
+<span class="nc" id="L104">        output = invokeOnFoundObjectFactory(annotation, o -&gt; o.getObject(requestedInstanceName, argumentType));</span>
+      } else {
+<span class="nc" id="L106">        output = invokeOnFoundObjectFactory(annotation, o -&gt; o.getObject(argumentType));</span>
+      }
+<span class="nc" id="L108">    }   </span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">    return output != null ? output : this.getObject(argumentType);</span>
+  }
+
+  private &lt;T, X&gt; X invokeOnFoundObjectFactory(Annotation annotation, Function&lt;ObjectFactory, X&gt; function) {
+<span class="fc" id="L113">    String desiredName = AdviceAnnotationEvaluator.getNameIfPresent(annotation);</span>
+<span class="fc bfc" id="L114" title="All 2 branches covered.">    for (Entry&lt;Annotation, ObjectFactory&gt; context : contexts.entrySet()) {</span>
+<span class="pc bpc" id="L115" title="2 of 4 branches missed.">      if (context.getKey().annotationType().isAssignableFrom(annotation.annotationType())</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">              &amp;&amp; (desiredName == null || desiredName.equals(AdviceAnnotationEvaluator.getNameIfPresent(context.getKey())))) {</span>
+<span class="fc" id="L117">        return function.apply(context.getValue());</span>
+      }
+<span class="nc" id="L119">    }</span>
+<span class="fc" id="L120">    return null;</span>
+  }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
