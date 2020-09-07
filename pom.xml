@@ -35,7 +35,7 @@
         <parameter.organization.name>AdvisedTesting</parameter.organization.name>
         <version.aopalliance>1.0</version.aopalliance>
         <version.asm>8.0.1</version.asm>
-        <version.assertj>3.16.1</version.assertj>
+        <version.assertj>3.17.2</version.assertj>
         <version.jgrapht>1.2.0</version.jgrapht>
         <version.jopt>5.0.4</version.jopt>
         <version.junit>4.13</version.junit>
