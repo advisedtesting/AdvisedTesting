@@ -63,8 +63,8 @@ public class MinimalJunit4Tests {
       assertThat(folder.newFolder()).isDirectory().canRead().canWrite();
       new StaticInitBlockClass();
       fail("Class should not have been loadable.");
-    } catch (ClassFormatError cfe) {
-      System.out.println("yup. bad class. life is good.");
+    } catch (ClassFormatError | NoClassDefFoundError er) {
+      assertThat(er.getMessage()).containsPattern("test.classloader.data.StaticInitBlockClass");
     }
   }
   
@@ -75,7 +75,7 @@ public class MinimalJunit4Tests {
     try {
       assertThat(folder.newFolder()).isDirectory().canRead().canWrite();
       new StaticInitBlockClass();
-    } catch (ClassFormatError cfe) {
+    } catch (ClassFormatError | NoClassDefFoundError cfe) {
       fail("Class should be loadable");
     }
   }

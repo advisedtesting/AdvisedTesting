@@ -50,7 +50,6 @@ import test.classloader.data.ContainsAssertion;
 import test.classloader.data.ContainsStaticFinalLiteral;
 import test.classloader.data.ContainsStaticFinalNonLiteral;
 import test.classloader.data.ContainsStaticLiteralNonFinal;
-import test.classloader.data.ContainsStaticUnsetVar;
 import test.classloader.data.NestedContainsStaticNonFinalOrNonLiteral;
 import test.classloader.data.StaticInitBlockClass;
 
@@ -60,9 +59,9 @@ public class TestStaticInitializationEvictionJunit4 {
   @Test
   public void testClassContainsStaticInitializationPredicate() throws IOException {
     ClassContainsStaticInitialization asmScanner = new ClassContainsStaticInitialization();
-    assertThat(asmScanner.apply(ContainsStaticUnsetVar.class.getName()))
+    assertThat(asmScanner.apply("test.classloader.data.ContainsStaticUnsetVar"))
         .describedAs("Classes that contains statics should be evicted")
-        .contains("Disallowed static field with name \"object\" on class: " + ContainsStaticUnsetVar.class.getName()); 
+        .contains("Disallowed static field with name \"object\" on class: test.classloader.data.ContainsStaticUnsetVar"); 
    
     assertThat(asmScanner.apply(ContainsStaticLiteralNonFinal.class.getName()))
         .describedAs("Static literal non final fields should cause classes should be evicted")
@@ -158,20 +157,34 @@ public class TestStaticInitializationEvictionJunit4 {
     @RestrictiveClassloader
     public void shoudlFailUsingAClassWithAStaticInit() throws IOException {
       assertThat(folder.newFolder()).isDirectory().canRead().canWrite();
-      new StaticInitBlockClass();
+      try {
+        Class.forName("test.classloader.data.StaticInitBlockClass");
+      } catch (ClassNotFoundException ex) {
+        ex.printStackTrace();
+      }
     }
   
     @Test
     @RestrictiveClassloader
     public void shoudlFailThreeTimes() throws IOException {
-      Runnable run = () -> new StaticInitBlockClass();
+      Runnable run = () -> { 
+        new Object();
+        try {
+          Class.forName("test.classloader.data.StaticInitBlockClass");
+        } catch (ClassNotFoundException ee) {
+          ee.printStackTrace();
+        }
+      };
+     
       assertThatThrownBy(() -> run.run())
           .isExactlyInstanceOf(ClassFormatError.class)
           .hasMessageContaining("Disallowed <cinit> method");
       //notice the different error message, I couldn't find an easy way around it.
+      
+      
       assertThatThrownBy(() -> run.run())
-         .isExactlyInstanceOf(ClassFormatError.class)
-         .hasMessageContaining("test/classloader/data/StaticInitBlockClass");
+          .isExactlyInstanceOf(ClassFormatError.class)
+          .hasMessageContaining("Disallowed <cinit> method");
       //so the @RestrictiveClassloader.implementedBy advice RunInClassLoaderInterceptor
       //translates the thrown exception and replays the error message.
       run.run();
