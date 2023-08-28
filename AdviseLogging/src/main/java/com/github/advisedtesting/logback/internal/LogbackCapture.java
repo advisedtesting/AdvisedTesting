@@ -32,9 +32,7 @@ import java.nio.charset.Charset;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
-import ch.qos.logback.classic.selector.ContextSelector;
 import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.classic.util.ContextSelectorStaticBinder;
 import ch.qos.logback.core.OutputStreamAppender;
 import ch.qos.logback.core.encoder.Encoder;
 import org.slf4j.LoggerFactory;
@@ -119,6 +117,6 @@ public class LogbackCapture {
   }
 
   private static LoggerContext getContext() {
-    return ((ch.qos.logback.classic.Logger) LOGGER).getLoggerContext();
+    return ((Logger) LOGGER).getLoggerContext();
   }
 }
