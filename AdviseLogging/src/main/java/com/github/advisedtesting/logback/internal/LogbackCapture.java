@@ -37,11 +37,14 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.util.ContextSelectorStaticBinder;
 import ch.qos.logback.core.OutputStreamAppender;
 import ch.qos.logback.core.encoder.Encoder;
+import org.slf4j.LoggerFactory;
 
 /**
  * Temporarily captures Logback output (mostly useful for tests). Based on https://gist.github.com/olim7t/881318.
  */
 public class LogbackCapture {
+
+  private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(LogbackCapture.class);
 
   private static final ThreadLocal<LogbackCapture> INSTANCE = new ThreadLocal<>();
 
@@ -115,27 +118,7 @@ public class LogbackCapture {
     return appender;
   }
 
-  /**
-   * Given http://www.slf4j.org/codes.html#substituteLogger we occasionally need to retry getting the logging context on test's
-   * startup
-   * 
-   * @return the current {@link LoggerContext}.
-   * 
-   * @throws NullPointerException if the {@link LoggerContext} hasn't been set.
-   * 
-   * @throws RuntimeException with a cause of {@link InterruptedException} if the thread is interrupted while waiting for the
-   *           {@link LoggerContext} to be set.
-   */
   private static LoggerContext getContext() {
-    return new Wait<LoggerContext>()
-            .on(() -> {
-              ContextSelector contextSelector = ContextSelectorStaticBinder.getSingleton().getContextSelector();
-              if (contextSelector == null) {
-                return null;
-              }
-              return contextSelector.getDefaultLoggerContext();
-            })
-            .trying(10)
-            .toComplete();
+    return ((ch.qos.logback.classic.Logger) LOGGER).getLoggerContext();
   }
 }
