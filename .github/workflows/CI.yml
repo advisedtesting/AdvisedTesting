@@ -13,4 +13,4 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: maven
-      - run: mvn test
+      - run: mvn -B test
