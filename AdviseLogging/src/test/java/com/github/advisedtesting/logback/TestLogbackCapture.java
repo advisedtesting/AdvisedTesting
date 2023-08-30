@@ -25,6 +25,7 @@ package com.github.advisedtesting.logback;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
@@ -38,8 +39,9 @@ public class TestLogbackCapture {
   private static final Logger LOGGER = LoggerFactory.getLogger(TestLogbackCapture.class);
   private static final String CAPTURED = "CAPTURED";
   private static final String NOT_CAPTURED = "MISSED";
-  
-  public TestLogbackCapture() throws InterruptedException {
+
+  @Before
+  public void setup() throws InterruptedException {
     ILoggerFactory factory = LoggerFactory.getILoggerFactory();
     int count = 0;
     while ((factory == null || SubstituteLoggerFactory.class.isAssignableFrom(factory.getClass())) && count < 10) {
@@ -47,6 +49,7 @@ public class TestLogbackCapture {
       factory = LoggerFactory.getILoggerFactory();
       count++;
     }
+    assertThat(count).isLessThan(10);
   }
 
   private static class ILog {
