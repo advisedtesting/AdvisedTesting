@@ -8,7 +8,7 @@
     </parent>
     <groupId>com.github.advisedtesting</groupId>
     <artifactId>AdvisedTesting</artifactId>
-    <version>1.3.3-SNAPSHOT</version>
+    <version>1.3.3</version>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
     <description></description>
@@ -42,6 +42,7 @@
         <version.junit.jupiter>5.10.0</version.junit.jupiter>
         <version.junit.platform.launcher>1.10.0</version.junit.platform.launcher>
         <version.logback>1.4.11</version.logback>
+        <version.nexus.staging.maven.plugin>1.6.8</version.nexus.staging.maven.plugin>
         <version.slf4j>2.0.7</version.slf4j>
         <version.spring.framework>5.3.28</version.spring.framework>
     </properties>
